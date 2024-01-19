@@ -1,8 +1,7 @@
-from uuid import UUID, uuid4
 from pydantic import BaseModel, validator
 from typing import List
-from .inference import Inference
-from .memory import Memories
+from .inference import InferenceConfig
+from .memory import MemoryConfig
 from .ability import Ability
 from .interface import Interface
 
@@ -12,19 +11,13 @@ class AssistantConfig(BaseModel):
     Represents the configuration of an AI Assistant.
     """
 
-    id: UUID = uuid4()
-    name: str = "Adam"
     instructions: List[str] = ["You are a helpful assistant."]
-    inference: Inference = Inference(model="openai/gpt4")
-    memories: Memories | None = None
+    inference: InferenceConfig = InferenceConfig(
+        model="openai/gpt4", api_key="", endpoint=""
+    )
+    memory: MemoryConfig = MemoryConfig()
     abilities: List[Ability] | None = None
     interfaces: List[Interface] | None = None
-
-    @validator("name")
-    def validate_name_length(cls, name: str) -> str | Exception:
-        if len(name) > 50:
-            raise ValueError("Name exceeds maximum length of 140 characters")
-        return name
 
     @validator("instructions")
     def validate_instructions_length(
@@ -36,11 +29,8 @@ class AssistantConfig(BaseModel):
         return instructions
 
     @validator("inference")
-    def check_inference_credentials(cls, inference: Inference) -> Inference | Exception:
+    def check_inference_credentials(
+        cls, inference: InferenceConfig
+    ) -> InferenceConfig | Exception:
         # TODO: Add check
         return inference
-
-    @validator("memories")
-    def check_memories(cls, memories: Memories) -> Memories | Exception | None:
-        # TODO: Add vectordb check
-        return memories

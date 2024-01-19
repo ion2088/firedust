@@ -1,7 +1,11 @@
+import uuid
+from firedust.types.assistant import AssistantConfig
+
+
 class Assistant:
     "Assistant base class"
 
-    def __init__(self) -> None:
+    def __init__(self, id: uuid.UUID, name: str, config: AssistantConfig) -> None:
         "Initialize the Assistant"
         raise NotImplementedError()
 
@@ -28,3 +32,13 @@ class Assistant:
     def complete(self) -> None:
         "Complete the given query"
         raise NotImplementedError()
+
+
+def create_assistant(name: str, config: AssistantConfig) -> Assistant:
+    "Create an assistant"
+    raise NotImplementedError()
+
+
+def load_assistant(id: uuid.UUID) -> Assistant:
+    "Load an assistant"
+    raise NotImplementedError()

@@ -2,6 +2,9 @@ from typing import List
 from pydantic import BaseModel, validator
 from uuid import UUID, uuid4
 
+MEMORY_ID = UUID
+MEMORIES_COLLECTION_ID = UUID
+
 
 class Memory(BaseModel):
     """
@@ -9,7 +12,7 @@ class Memory(BaseModel):
     the context to answer questions and perform tasks.
     """
 
-    id: UUID = uuid4()
+    id: MEMORY_ID = uuid4()
     title: str
     context: str
     embedding: List[float] | None = None
@@ -27,10 +30,29 @@ class Memory(BaseModel):
         return title
 
 
-class Memories(BaseModel):
+class MemoriesCollection(BaseModel):
     """
     Represents a collection of memories used by the assistant.
     """
 
-    id: UUID = uuid4()
-    collection: List[UUID] | None = None
+    id: MEMORIES_COLLECTION_ID = uuid4()
+    collection: List[MEMORY_ID] | None = None
+
+
+class QdrantCloudConfig(BaseModel):
+    """
+    A configuration for a Qdrant Cloud instance.
+    """
+
+    host: str
+    api_key: str
+
+
+class MemoryConfig(BaseModel):
+    """
+    Configuration for Assistant's memory.
+    """
+
+    vectordb: QdrantCloudConfig | None = None
+    default_collection: MEMORIES_COLLECTION_ID | None = None
+    extra_collections: List[MEMORIES_COLLECTION_ID] | None = None

@@ -2,9 +2,11 @@ from pydantic import BaseModel
 from typing import Literal
 
 
-class Inference(BaseModel):
+class InferenceConfig(BaseModel):
     """
-    Inference Model used by the assistant for inference.
+    Configuration used by the assistant for inference.
     """
 
-    model: Literal["openai/gpt4", "mistral/medium"]
+    model: Literal["openai/gpt4", "mistral/medium", "writer/palmyrax"]
+    endpoint: str
+    api_key: str
