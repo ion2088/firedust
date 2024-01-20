@@ -39,20 +39,10 @@ class MemoriesCollection(BaseModel):
     collection: List[MEMORY_ID] | None = None
 
 
-class QdrantCloudConfig(BaseModel):
-    """
-    A configuration for a Qdrant Cloud instance.
-    """
-
-    host: str
-    api_key: str
-
-
 class MemoryConfig(BaseModel):
     """
     Configuration for Assistant's memory.
     """
 
-    vectordb: QdrantCloudConfig | None = None
     default_collection: MEMORIES_COLLECTION_ID | None = None
     extra_collections: List[MEMORIES_COLLECTION_ID] | None = None
