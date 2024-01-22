@@ -66,7 +66,7 @@ class Assistant:
         # configuration
         api_client = APIClient()
         self.config = config
-        validate(config, api_client)
+        _validate(config, api_client)
 
         # management
         self.update = Update(self.config, api_client)
@@ -179,7 +179,7 @@ def create(
     return Assistant(config)
 
 
-def validate(config: AssistantConfig, api_client: APIClient = APIClient()) -> None:
+def _validate(config: AssistantConfig, api_client: APIClient = APIClient()) -> None:
     """
     Validates the assistant configuration.
     If the assistant ID already exists, the configuration will be validated.
