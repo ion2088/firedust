@@ -34,7 +34,7 @@ class Deploy:
         """
         self.config.deployments.append(slack_config)
         self.api_client.post(
-            f"{self.api_client.base_url}/assistant/{self.config.id}/deploy/slack",
+            f"assistant/{self.config.id}/deploy/slack",
             data=slack_config.model_dump(),
         )
 
@@ -50,6 +50,6 @@ class Deploy:
 
         self.config.deployments.append(github_config)
         self.api_client.post(
-            f"{self.api_client.base_url}/assistant/{self.config.id}/deploy/github",
+            f"assistant/{self.config.id}/deploy/github",
             data=github_config.model_dump(),
         )

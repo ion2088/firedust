@@ -2,7 +2,7 @@ import httpx
 import os
 
 from firedust._utils.errors import MissingFiredustKeyError
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, Iterator, AsyncIterator
 from firedust._utils.errors import APIError
 
 BASE_URL = "https://api.firedust.ai/v1"
@@ -53,6 +53,22 @@ class APIClient:
     def delete(self, url: str) -> Dict[str, Any]:
         return self._request_sync("delete", url)
 
+    def get_stream(
+        self, url: str, params: Optional[Dict[str, Any]] = None
+    ) -> Iterator[bytes]:
+        url = self.base_url + url
+        with httpx.stream("get", url, params=params, headers=self.headers) as response:
+            for chunk in response.iter_bytes():
+                yield chunk
+
+    def post_stream(
+        self, url: str, data: Optional[Dict[str, Any]] = None
+    ) -> Iterator[bytes]:
+        url = self.base_url + url
+        with httpx.stream("post", url, json=data, headers=self.headers) as response:
+            for chunk in response.iter_bytes():
+                yield chunk
+
     # async methods
     async def get_async(
         self, url: str, params: Optional[Dict[str, Any]] = None
@@ -71,6 +87,28 @@ class APIClient:
 
     async def delete_async(self, url: str) -> Dict[str, Any]:
         return await self._request_async("delete", url)
+
+    async def get_stream_async(
+        self, url: str, params: Optional[Dict[str, Any]] = None
+    ) -> AsyncIterator[bytes]:
+        url = self.base_url + url
+        async with httpx.AsyncClient() as client:
+            async with client.stream(
+                "get", url, params=params, headers=self.headers
+            ) as response:
+                async for chunk in response.aiter_bytes():
+                    yield chunk
+
+    async def post_stream_async(
+        self, url: str, data: Optional[Dict[str, Any]] = None
+    ) -> AsyncIterator[bytes]:
+        url = self.base_url + url
+        async with httpx.AsyncClient() as client:
+            async with client.stream(
+                "post", url, json=data, headers=self.headers
+            ) as response:
+                async for chunk in response.aiter_bytes():
+                    yield chunk
 
     # request methods
     def _request_sync(

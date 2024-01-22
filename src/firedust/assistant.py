@@ -13,6 +13,7 @@ from typing import List
 
 from firedust.learning._base import Learning
 from firedust.interface._base import Deploy
+from firedust.interface.chat import Chat
 from firedust._utils.api import APIClient
 from firedust._utils.types.assistant import AssistantConfig
 from firedust._utils.types.inference import InferenceConfig
@@ -74,7 +75,7 @@ class Assistant:
 
         # essence
         self.learn = Learning(self.config, api_client)
-        # self.chat = Chat(config, api_client)
+        self.chat = Chat(config, api_client)
         # self.memory = Memory(config, api_client)
         # self.ability = Ability(config, api_client)
 
@@ -114,7 +115,7 @@ class Update:
         """
         self.config.name = name
         self.api_client.put(
-            f"{self.api_client.base_url}/assistant/{self.config.id}/update/name/{name}",
+            f"assistant/{self.config.id}/update/name/{name}",
         )
 
     def add_instruction(self, instruction: str) -> None:
@@ -126,7 +127,7 @@ class Update:
         """
         self.config.instructions.append(instruction)
         self.api_client.put(
-            f"{self.api_client.base_url}/assistant/{self.config.id}/update/instructions/add/{instruction}",
+            f"assistant/{self.config.id}/update/instructions/add/{instruction}",
         )
 
     def remove_instruction(self, instruction: str) -> None:
@@ -138,7 +139,7 @@ class Update:
         """
         self.config.instructions.remove(instruction)
         self.api_client.put(
-            f"{self.api_client.base_url}/assistant/{self.config.id}/update/instructions/remove/{instruction}",
+            f"assistant/{self.config.id}/update/instructions/remove/{instruction}",
         )
 
     def inference_config(self, inference_config: InferenceConfig) -> None:
@@ -150,7 +151,7 @@ class Update:
         """
         self.config.inference = inference_config
         self.api_client.put(
-            f"{self.api_client.base_url}/assistant/{self.config.id}/update/inference",
+            f"assistant/{self.config.id}/update/inference",
             data=inference_config.model_dump(),
         )
 

@@ -32,7 +32,7 @@ class Learning:
             text (str): The text to learn.
         """
         self.api_client.post(
-            f"{self.api_client.base_url}/assistant/{self.assistant.id}/learn/text",
+            f"assistant/{self.assistant.id}/learn/text",
             data={"text": text},
         )
 
@@ -45,7 +45,7 @@ class Learning:
         """
         with open(pdf, "rb") as f:
             self.api_client.post(
-                f"{self.api_client.base_url}/assistant/{self.assistant.id}/learn/pdf",
+                f"assistant/{self.assistant.id}/learn/pdf",
                 data={"pdf": f},
             )
 
@@ -57,7 +57,7 @@ class Learning:
             url (str): The URL to the resource.
         """
         self.api_client.post(
-            f"{self.api_client.base_url}/assistant/{self.assistant.id}/learn/url",
+            f"assistant/{self.assistant.id}/learn/url",
             data={"url": url},
         )
 
@@ -70,7 +70,7 @@ class Learning:
         """
         with open(image, "rb") as f:
             self.api_client.post(
-                f"{self.api_client.base_url}/assistant/{self.assistant.id}/learn/image",
+                f"assistant/{self.assistant.id}/learn/image",
                 data={"image": f},
             )
 
@@ -83,7 +83,7 @@ class Learning:
         """
         with open(audio, "rb") as f:
             self.api_client.post(
-                f"{self.api_client.base_url}/assistant/{self.assistant.id}/learn/audio",
+                f"assistant/{self.assistant.id}/learn/audio",
                 data={"audio": f},
             )
 
@@ -96,6 +96,6 @@ class Learning:
         """
         with open(video, "rb") as f:
             self.api_client.post(
-                f"{self.api_client.base_url}/assistant/{self.assistant.id}/learn/video",
+                f"assistant/{self.assistant.id}/learn/video",
                 data={"video": f},
             )
