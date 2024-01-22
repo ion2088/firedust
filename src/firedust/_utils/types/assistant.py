@@ -26,5 +26,5 @@ class AssistantConfig(BaseModel):
     instructions: List[str] = ["You are a helpful assistant."]
     inference: InferenceConfig = InferenceConfig()
     memory: MemoryConfig = MemoryConfig()
-    abilities: List[Ability] | None = None
-    deployments: List[Deployment] | None = None
+    abilities: List[Ability] = []
+    deployments: List[Deployment] = []

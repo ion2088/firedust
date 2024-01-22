@@ -11,10 +11,11 @@ import logging
 from uuid import UUID
 from typing import List
 
+from firedust.learning._base import Learning
+from firedust.interface._base import Deploy
 from firedust._utils.api import APIClient
 from firedust._utils.types.assistant import AssistantConfig
 from firedust._utils.types.inference import InferenceConfig
-from firedust.learning._base import Learning
 from firedust._utils.errors import AssistantError
 
 DEFAULT_CONFIG = AssistantConfig()
@@ -27,12 +28,12 @@ class Assistant:
     It is used to create, load, train, deploy and interact with an assistant.
 
     Quickstart:
-        import firedust as fd
+        import firedust
 
-        fd.assistant.connect("API_KEY")
+        firedust.assistant.connect("API_KEY")
 
         # Create a new assistant
-        assistant = fd.assistant.create()
+        assistant = firedust.assistant.create()
 
         # Train the assistant on your data
         documents = [
@@ -45,7 +46,10 @@ class Assistant:
             assistant.learn.fast(doc)
 
         # Chat with the assistant
-        assistant.chat("Tell me about the Book of the Dead")
+        response = assistant.chat.stream("Tell me about the Book of the Dead")
+
+        for msg in response:
+            print(msg)
 
         # Deploy the assistant
         assistant.deploy.slack(SLACK_CONFIG)
@@ -64,17 +68,15 @@ class Assistant:
         self.config = config
         validate(config, api_client)
 
-        # # management
-        self.update = Update(self, api_client)
-        # self.deploy = Deploy(config, api_client)
+        # management
+        self.update = Update(self.config, api_client)
+        self.deploy = Deploy(self.config, api_client)
 
         # essence
-        self.learn = Learning(config, api_client)
+        self.learn = Learning(self.config, api_client)
         # self.chat = Chat(config, api_client)
         # self.memory = Memory(config, api_client)
         # self.ability = Ability(config, api_client)
-        # self.imagine = Imagination(config, api_client)
-        # self.think = Reasoning(config, api_client)
 
     def __repr__(self) -> str:
         "Return a string representation of the Assistant"
@@ -92,7 +94,7 @@ class Update:
         assistant.update.inference_config(InferenceConfig())
     """
 
-    def __init__(self, assistant: Assistant, api_client: APIClient) -> None:
+    def __init__(self, config: AssistantConfig, api_client: APIClient) -> None:
         """
         Initializes a new instance of the Update class.
 
@@ -100,7 +102,7 @@ class Update:
             config (AssistantConfig): The assistant configuration.
             api_client (APIClient): The API client.
         """
-        self.assistant = assistant
+        self.config = config
         self.api_client = api_client
 
     def name(self, name: str) -> None:
@@ -110,9 +112,9 @@ class Update:
         Args:
             name (str): The new name of the assistant.
         """
-        self.assistant.config.name = name
+        self.config.name = name
         self.api_client.put(
-            f"{self.api_client.base_url}/assistant/{self.assistant.config.id}/name/{name}",
+            f"{self.api_client.base_url}/assistant/{self.config.id}/update/name/{name}",
         )
 
     def add_instruction(self, instruction: str) -> None:
@@ -122,9 +124,9 @@ class Update:
         Args:
             instruction (str): The instruction to add.
         """
-        self.assistant.config.instructions.append(instruction)
+        self.config.instructions.append(instruction)
         self.api_client.put(
-            f"{self.api_client.base_url}/assistant/{self.assistant.config.id}/update/instructions/add/{instruction}",
+            f"{self.api_client.base_url}/assistant/{self.config.id}/update/instructions/add/{instruction}",
         )
 
     def remove_instruction(self, instruction: str) -> None:
@@ -134,9 +136,9 @@ class Update:
         Args:
             instruction (str): The instruction to remove.
         """
-        self.assistant.config.instructions.remove(instruction)
+        self.config.instructions.remove(instruction)
         self.api_client.put(
-            f"{self.api_client.base_url}/assistant/{self.assistant.config.id}/update/instructions/remove/{instruction}",
+            f"{self.api_client.base_url}/assistant/{self.config.id}/update/instructions/remove/{instruction}",
         )
 
     def inference_config(self, inference_config: InferenceConfig) -> None:
@@ -146,9 +148,9 @@ class Update:
         Args:
             inference_config (InferenceConfig): The new inference configuration.
         """
-        self.assistant.config.inference = inference_config
+        self.config.inference = inference_config
         self.api_client.put(
-            f"{self.api_client.base_url}/assistant/{self.assistant.config.id}/update/inference",
+            f"{self.api_client.base_url}/assistant/{self.config.id}/update/inference",
             data=inference_config.model_dump(),
         )
 
@@ -172,7 +174,8 @@ def create(
         # TODO: Add error handlers and more explicit msgs
         raise AssistantError("An error occured while creating the assistant")
 
-    LOG.info("Assistant created successfully.")
+    LOG.info("Assistant created successfully in the cloud.")
+
     return Assistant(config)
 
 
@@ -180,6 +183,8 @@ def validate(config: AssistantConfig, api_client: APIClient = APIClient()) -> No
     """
     Validates the assistant configuration.
     If the assistant ID already exists, the configuration will be validated.
+
+    For new assistants, use firedust.assistant.create(assistant_config)
 
     Args:
         config (AssistantConfig): The assistant configuration.
