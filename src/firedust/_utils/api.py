@@ -1,9 +1,9 @@
 import httpx
 import os
 
-from firedust.utilities.errors import MissingFiredustKeyError
+from firedust._utils.errors import MissingFiredustKeyError
 from typing import Optional, Dict, Any
-from firedust.utilities.errors import APIError
+from firedust._utils.errors import APIError
 
 BASE_URL = "https://api.firedust.ai/v1"
 
@@ -72,6 +72,7 @@ class APIClient:
     async def delete_async(self, url: str) -> Dict[str, Any]:
         return await self._request_async("delete", url)
 
+    # request methods
     def _request_sync(
         self,
         method: str,
@@ -83,10 +84,7 @@ class APIClient:
         response = httpx.request(
             method, url, params=params, json=data, headers=self.headers
         )
-        response.raise_for_status()
-
-        # Process status codes and raise errors
-        _process_status_codes(response)
+        _handle_status_codes(response)
 
         return response.json()
 
@@ -102,15 +100,12 @@ class APIClient:
             response = await client.request(
                 method, url, params=params, json=data, headers=self.headers
             )
-            response.raise_for_status()
-
-            # Process status codes and raise errors
-            _process_status_codes(response)
+            _handle_status_codes(response)
 
             return response.json()
 
 
-def _process_status_codes(response: httpx.Response) -> None:
+def _handle_status_codes(response: httpx.Response) -> None:
     if response.status_code == 400:
         raise APIError("Bad Request", response.status_code)
     elif response.status_code == 401:
