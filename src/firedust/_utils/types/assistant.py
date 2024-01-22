@@ -1,5 +1,5 @@
 from uuid import uuid4, UUID
-from pydantic import BaseModel, validator
+from pydantic import BaseModel
 from typing import List
 from .inference import InferenceConfig
 from .memory import MemoryConfig
@@ -18,20 +18,4 @@ class AssistantConfig(BaseModel):
     inference: InferenceConfig = InferenceConfig()
     memory: MemoryConfig = MemoryConfig()
     abilities: List[Ability] | None = None
-    interfaces: List[Interface] | None = None
-
-    @validator("instructions")
-    def validate_instructions_length(
-        cls, instructions: List[str]
-    ) -> List[str] | Exception:
-        for instruction in instructions:
-            if len(instruction) > 500:
-                raise ValueError("Instruction exceeds maximum length of 500 characters")
-        return instructions
-
-    @validator("inference")
-    def check_inference_credentials(
-        cls, inference: InferenceConfig
-    ) -> InferenceConfig | Exception:
-        # TODO: Add check
-        return inference
+    deployments: List[Interface] | None = None

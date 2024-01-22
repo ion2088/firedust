@@ -56,6 +56,47 @@ class Assistant:
         return f"<{self.__class__.__name__}>\n\n{self.config}"
 
 
+class Update:
+    """
+    A collection of methods to update the assistant.
+    """
+
+    def __init__(self, config: AssistantConfig, api_client: APIClient) -> None:
+        """
+        Initializes a new instance of the Update class.
+
+        Args:
+            config (AssistantConfig): The assistant configuration.
+            api_client (APIClient): The API client.
+        """
+        self.config = config
+        self.api_client = api_client
+
+    def name(self, name: str) -> None:
+        """
+        Updates the name of the assistant.
+
+        Args:
+            name (str): The new name of the assistant.
+        """
+        self.config.name = name
+        self.api_client.put(
+            f"{self.api_client.base_url}/assistant/{self.config.id}/name/{name}",
+        )
+
+    def add_instruction(self, instruction: str) -> None:
+        """
+        Adds an instruction to the assistant.
+
+        Args:
+            instruction (str): The instruction to add.
+        """
+        self.config.instructions.append(instruction)
+        self.api_client.put(
+            f"{self.api_client.base_url}/assistant/{self.config.id}/instructions/add/{instruction}",
+        )
+
+
 def create(
     config: AssistantConfig = DEFAULT_CONFIG, api_client: APIClient = APIClient()
 ) -> Assistant | None:
@@ -73,14 +114,13 @@ def create(
 
     if response["status"] != 200:
         # TODO: Add error handlers and more explicit msgs
-        raise
-    ("An error occured while creating the assistant")
+        raise AssistantError("An error occured while creating the assistant")
 
     LOG.info("Assistant created successfully.")
     return Assistant(config)
 
 
-def validate(config: AssistantConfig, api_client: APIClient) -> None:
+def validate(config: AssistantConfig, api_client: APIClient = APIClient()) -> None:
     """
     Validates the assistant configuration.
     If the assistant ID already exists, the configuration will be validated.
@@ -105,19 +145,64 @@ def validate(config: AssistantConfig, api_client: APIClient) -> None:
         )
 
 
-def load(id: UUID) -> Assistant:
-    "Load an existing assistant"
-    raise NotImplementedError()
+def load(id: UUID, api_client: APIClient = APIClient()) -> Assistant:
+    """
+    Loads an existing assistant from the cloud.
+
+    Args:
+        id (UUID): The ID of the assistant to load.
+
+    Returns:
+        Assistant: The loaded assistant.
+    """
+    response = api_client.get(f"{api_client.base_url}/assistant/{id}/load")
+
+    if response["status"] != 200:
+        # TODO: Add more explicit error handling
+        raise AssistantError(
+            f"An error occured while loading the assistant with id {id}"
+        )
+
+    assistant_config = AssistantConfig(**response["data"])
+    return Assistant(assistant_config)
 
 
-def list() -> List[Assistant]:
-    "List all available assistants"
-    raise NotImplementedError()
+def list(api_client: APIClient = APIClient()) -> List[AssistantConfig]:
+    """
+    Lists all the available assistants.
+
+    Returns:
+        List[AssistantConfig]: A list of all the assistants.
+    """
+    response = api_client.get(f"{api_client.base_url}/assistants/list")
+
+    if response["status"] != 200:
+        # TODO: Add more explicit error handling
+        raise AssistantError("An error occured while listing the assistants")
+
+    assistants = []
+    for assistant in response["data"]:
+        assistants.append(AssistantConfig(**assistant))
+
+    return assistants
 
 
-def delete(id: UUID) -> None:
-    "Delete an existing assistant from the cloud"
-    raise NotImplementedError()
+def delete(id: UUID, api_client: APIClient = APIClient()) -> None:
+    """
+    Deletes an existing assistant from the cloud.
+
+    Args:
+        id (UUID): The ID of the assistant to delete.
+    """
+    response = api_client.delete(f"{api_client.base_url}/assistant/{id}/delete")
+
+    if response["status"] != 200:
+        # TODO: Add more explicit error handling
+        raise AssistantError(
+            f"An error occured while deleting the assistant with id {id}"
+        )
+
+    LOG.info(f"Assistant with id {id} deleted successfully.")
 
 
 def connect(api_key: str) -> None:

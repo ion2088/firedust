@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Literal
 from pydantic import BaseModel, validator
 from uuid import UUID, uuid4
 
@@ -15,6 +15,7 @@ class Memory(BaseModel):
     id: MEMORY_ID = uuid4()
     title: str
     context: str
+    tags: List[str] | None = None
     embedding: List[float] | None = None
 
     @validator("context")
@@ -44,5 +45,8 @@ class MemoryConfig(BaseModel):
     Configuration for Assistant's memory.
     """
 
+    embedding_model: Literal[
+        "sand/MiniLM-L6-v2", "sand/UAE-Large-v1"
+    ] = "sand/MiniLM-L6-v2"
     default_collection: MEMORIES_COLLECTION_ID | None = None
     extra_collections: List[MEMORIES_COLLECTION_ID] | None = None
