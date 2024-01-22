@@ -13,10 +13,8 @@ from typing import List
 
 from firedust._utils.api import APIClient
 from firedust._utils.types.assistant import AssistantConfig
-from firedust.learning._base import Learning
 from firedust._utils.types.inference import InferenceConfig
-from firedust._utils.types.ability import Ability
-from firedust._utils.types.interface import Deployment
+from firedust.learning._base import Learning
 from firedust._utils.errors import AssistantError
 
 DEFAULT_CONFIG = AssistantConfig()
@@ -27,6 +25,30 @@ class Assistant:
     """
     The Assistant class is the main entry point for interacting with Firedust.
     It is used to create, load, train, deploy and interact with an assistant.
+
+    Quickstart:
+        import firedust as fd
+
+        fd.assistant.connect("API_KEY")
+
+        # Create a new assistant
+        assistant = fd.assistant.create()
+
+        # Train the assistant on your data
+        documents = [
+            "Book of the Dead...",
+            "Book of the Living...",
+            "Customer support examples..."
+        ]
+
+        for doc in documents:
+            assistant.learn.fast(doc)
+
+        # Chat with the assistant
+        assistant.chat("Tell me about the Book of the Dead")
+
+        # Deploy the assistant
+        assistant.deploy.slack(SLACK_CONFIG)
     """
 
     def __init__(self, config: AssistantConfig = DEFAULT_CONFIG) -> None:
