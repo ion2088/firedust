@@ -14,6 +14,9 @@ from typing import List
 from firedust._utils.api import APIClient
 from firedust._utils.types.assistant import AssistantConfig
 from firedust.learning._base import Learning
+from firedust._utils.types.inference import InferenceConfig
+from firedust._utils.types.ability import Ability
+from firedust._utils.types.interface import Deployment
 from firedust._utils.errors import AssistantError
 
 DEFAULT_CONFIG = AssistantConfig()
@@ -40,7 +43,7 @@ class Assistant:
         validate(config, api_client)
 
         # # management
-        # self.update = Update(config, api_client)
+        self.update = Update(self, api_client)
         # self.deploy = Deploy(config, api_client)
 
         # essence
@@ -58,10 +61,16 @@ class Assistant:
 
 class Update:
     """
-    A collection of methods to update the assistant.
+    A collection of methods to update the configuration of the assistant.
+
+    To update the assistant, you can use the following methods:
+        assistant.update.name("Sam")
+        assistant.update.add_instruction("You are a helpful assistant.")
+        assistant.update.remove_instruction("You are a helpful assistant.")
+        assistant.update.inference_config(InferenceConfig())
     """
 
-    def __init__(self, config: AssistantConfig, api_client: APIClient) -> None:
+    def __init__(self, assistant: Assistant, api_client: APIClient) -> None:
         """
         Initializes a new instance of the Update class.
 
@@ -69,7 +78,7 @@ class Update:
             config (AssistantConfig): The assistant configuration.
             api_client (APIClient): The API client.
         """
-        self.config = config
+        self.assistant = assistant
         self.api_client = api_client
 
     def name(self, name: str) -> None:
@@ -79,9 +88,9 @@ class Update:
         Args:
             name (str): The new name of the assistant.
         """
-        self.config.name = name
+        self.assistant.config.name = name
         self.api_client.put(
-            f"{self.api_client.base_url}/assistant/{self.config.id}/name/{name}",
+            f"{self.api_client.base_url}/assistant/{self.assistant.config.id}/name/{name}",
         )
 
     def add_instruction(self, instruction: str) -> None:
@@ -91,9 +100,34 @@ class Update:
         Args:
             instruction (str): The instruction to add.
         """
-        self.config.instructions.append(instruction)
+        self.assistant.config.instructions.append(instruction)
         self.api_client.put(
-            f"{self.api_client.base_url}/assistant/{self.config.id}/instructions/add/{instruction}",
+            f"{self.api_client.base_url}/assistant/{self.assistant.config.id}/update/instructions/add/{instruction}",
+        )
+
+    def remove_instruction(self, instruction: str) -> None:
+        """
+        Removes an instruction from the assistant.
+
+        Args:
+            instruction (str): The instruction to remove.
+        """
+        self.assistant.config.instructions.remove(instruction)
+        self.api_client.put(
+            f"{self.api_client.base_url}/assistant/{self.assistant.config.id}/update/instructions/remove/{instruction}",
+        )
+
+    def inference_config(self, inference_config: InferenceConfig) -> None:
+        """
+        Updates the inference configuration of the assistant.
+
+        Args:
+            inference_config (InferenceConfig): The new inference configuration.
+        """
+        self.assistant.config.inference = inference_config
+        self.api_client.put(
+            f"{self.api_client.base_url}/assistant/{self.assistant.config.id}/update/inference",
+            data=inference_config.model_dump(),
         )
 
 

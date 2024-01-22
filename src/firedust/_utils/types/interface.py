@@ -2,7 +2,7 @@ from pydantic import BaseModel
 from typing import Literal
 
 
-class Interface(BaseModel):
+class Deployment(BaseModel):
     """
     Represents an interface of the assistant.
     """
@@ -10,9 +10,9 @@ class Interface(BaseModel):
     name: Literal["slack", "github", "discord"]
 
 
-class SlackConfig(Interface):
+class SlackConfig(Deployment):
     """
-    Configuration for Slack interface.
+    Configuration for Slack Deployment.
     """
 
     name: Literal["slack"] = "slack"
@@ -21,9 +21,9 @@ class SlackConfig(Interface):
     channel: str
 
 
-class DiscordConfig(Interface):
+class DiscordConfig(Deployment):
     """
-    Configuration for Discord interface.
+    Configuration for Discord Deployment.
     """
 
     name: Literal["discord"] = "discord"
@@ -31,9 +31,9 @@ class DiscordConfig(Interface):
     channel: str
 
 
-class GithubConfig(Interface):
+class GithubConfig(Deployment):
     """
-    Configuration for Github interface.
+    Configuration for Github Deployment.
     """
 
     name: Literal["github"] = "github"

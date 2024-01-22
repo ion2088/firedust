@@ -10,4 +10,4 @@ repos:
     hooks:
       - id: mypy
         args: [--config-file=mypy.ini]
-        additional_dependencies: [pydantic==2.5.3, httpx]
+        additional_dependencies: [pydantic==2.5.3, httpx, click]
