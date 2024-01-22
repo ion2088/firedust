@@ -35,3 +35,6 @@ dmypy.json
 
 # Ignore VSCode settings
 .vscode/
+
+# Logs
+.logs/
