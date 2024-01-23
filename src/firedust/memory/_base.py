@@ -52,13 +52,18 @@ class Memory:
         self.api_client = api_client
         self.collections = MemoriesCollection(config, api_client)
 
-    def recall(self, query: str) -> List[MemoryItem]:
+    def recall(self, query: str, limit: int = 50) -> List[MemoryItem]:
         """
         Recall memories based on a query.
 
         Args:
             query (str): The query to search memories for.
+            limit (int): The maximum number of memories to return.
         """
+
+        if limit > 500:
+            raise MemoryError("Recall limit cannot exceed 500.")
+
         response = self.api_client.get(
             f"assistant/{self.config.id}/memory/recall/{query}",
         )
