@@ -1,6 +1,6 @@
 from uuid import uuid4, UUID
 from pydantic import BaseModel
-from typing import List
+from typing import Any, List
 from .inference import InferenceConfig
 from .memory import MemoryConfig
 from .ability import Ability
@@ -28,3 +28,17 @@ class AssistantConfig(BaseModel):
     memory: MemoryConfig = MemoryConfig()
     abilities: List[Ability] = []
     deployments: List[Deployment] = []
+
+    def __setattr__(self, key: str, value: Any) -> None:
+        # set immutable attributes
+        if key == "id":
+            raise AttributeError("Cannot set attribute 'id', it is immutable.")
+        if key == "memory":
+            raise AttributeError(
+                """
+                Cannot set attribute 'memory', it is immutable.
+                To use a different memory configuration, create a new Assistant.
+            """
+            )
+
+        return super().__setattr__(key, value)
