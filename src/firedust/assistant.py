@@ -4,6 +4,33 @@ firedust.assistant
 
 The main entry point.
 This module implements the Assistant class and its related functions.
+
+Quickstart:
+    import firedust
+
+    firedust.assistant.connect("API_KEY")
+
+    # Create a new assistant
+    assistant = firedust.assistant.create()
+
+    # Train the assistant on your data
+    documents = [
+        "Book of the Dead...",
+        "Book of the Living...",
+        "Customer support examples..."
+    ]
+
+    for doc in documents:
+        assistant.learn.fast(doc)
+
+    # Chat with the assistant
+    response = assistant.chat.stream("Tell me about the Book of the Dead")
+
+    for msg in response:
+        print(msg)
+
+    # Deploy the assistant
+    assistant.deploy.slack(SLACK_CONFIG)
 """
 
 import os
@@ -28,33 +55,6 @@ class Assistant:
     """
     The Assistant class is the main entry point for interacting with Firedust.
     It is used to create, load, train, deploy and interact with an assistant.
-
-    Quickstart:
-        import firedust
-
-        firedust.assistant.connect("API_KEY")
-
-        # Create a new assistant
-        assistant = firedust.assistant.create()
-
-        # Train the assistant on your data
-        documents = [
-            "Book of the Dead...",
-            "Book of the Living...",
-            "Customer support examples..."
-        ]
-
-        for doc in documents:
-            assistant.learn.fast(doc)
-
-        # Chat with the assistant
-        response = assistant.chat.stream("Tell me about the Book of the Dead")
-
-        for msg in response:
-            print(msg)
-
-        # Deploy the assistant
-        assistant.deploy.slack(SLACK_CONFIG)
     """
 
     def __init__(self, config: AssistantConfig = DEFAULT_CONFIG) -> None:
