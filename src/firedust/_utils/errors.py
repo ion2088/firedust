@@ -33,3 +33,12 @@ class AssistantError(Exception):
 
     def __init__(self, message: str) -> None:
         super().__init__(message)
+
+
+class MemoryError(Exception):
+    """
+    Default error for the Memory class.
+    """
+
+    def __init__(self, message: str) -> None:
+        super().__init__(message)

@@ -32,6 +32,7 @@ from typing import List
 from firedust._utils.api import APIClient
 from firedust._utils.types.assistant import AssistantConfig
 from firedust._utils.types.memory import MemoryItem, MEMORY_ID, MEMORY_COLLECTION_ID
+from firedust._utils.errors import MemoryError
 
 
 class Memory:
@@ -105,9 +106,9 @@ class Memory:
             memory_ids: List[MEMORY_ID] = response["collection"]
             return memory_ids
         elif response["status_code"] == 401:
-            raise Exception("Memory collection not found.")
+            raise MemoryError("Memory collection not found.")
         else:
-            raise Exception(f"Unknown response: {response}")
+            raise MemoryError(f"Unknown response: {response}")
 
 
 class MemoriesCollection:
@@ -155,11 +156,11 @@ class MemoriesCollection:
             self.config.memory.extra_collections.append(id)
             return
         elif response["status_code"] == 401:
-            raise Exception("Memory collection not found.")
+            raise MemoryError("Memory collection not found.")
         elif response["status_code"] == 402:
-            raise Exception("Memory collection already attached.")
+            raise MemoryError("Memory collection already attached.")
         else:
-            raise Exception(f"Unknown response: {response}")
+            raise MemoryError(f"Unknown response: {response}")
 
     def detach(self, id: MEMORY_COLLECTION_ID) -> None:
         """
@@ -173,13 +174,13 @@ class MemoriesCollection:
             self.config.memory.extra_collections.remove(id)
             return
         elif response["status_code"] == 401:
-            raise Exception("Memory collection not found.")
+            raise MemoryError("Memory collection not found.")
         elif response["status_code"] == 402:
-            raise Exception("Memory collection already detached.")
+            raise MemoryError("Memory collection already detached.")
         elif response["status_code"] == 403:
-            raise Exception("Cannot detach default memory collection.")
+            raise MemoryError("Cannot detach default memory collection.")
         else:
-            raise Exception(f"Unknown response: {response}")
+            raise MemoryError(f"Unknown response: {response}")
 
     def list(self) -> List[MEMORY_COLLECTION_ID]:
         """
