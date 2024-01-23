@@ -1,9 +1,9 @@
-from typing import List, Literal
+from typing import List, Literal, Any
 from pydantic import BaseModel, validator
 from uuid import UUID, uuid4
 
 MEMORY_ID = UUID
-MEMORIES_COLLECTION_ID = UUID
+MEMORY_COLLECTION_ID = UUID
 
 
 class MemoryItem(BaseModel):
@@ -31,12 +31,12 @@ class MemoryItem(BaseModel):
         return title
 
 
-class MemoriesCollection(BaseModel):
+class MemoriesCollectionItem(BaseModel):
     """
     Represents a collection of memories used by the assistant.
     """
 
-    id: MEMORIES_COLLECTION_ID = uuid4()
+    id: MEMORY_COLLECTION_ID = uuid4()
     collection: List[MEMORY_ID] | None = None
 
 
@@ -48,5 +48,25 @@ class MemoryConfig(BaseModel):
     embedding_model: Literal[
         "sand/MiniLM-L6-v2", "sand/UAE-Large-v1"
     ] = "sand/MiniLM-L6-v2"
-    default_collection: MEMORIES_COLLECTION_ID | None = None
-    extra_collections: List[MEMORIES_COLLECTION_ID] | None = None
+    default_collection: MEMORY_COLLECTION_ID = uuid4()
+    extra_collections: List[MEMORY_COLLECTION_ID] = []
+
+    def __setattr__(self, key: str, value: Any) -> None:
+        # embedding_model is immutable
+        if key == "embedding_model":
+            raise AttributeError(
+                """
+                Cannot set attribute 'embedding_model', it is immutable.
+                To use a different embedding model, create a new Assistant.
+                """
+            )
+        # default_collection id is immutable
+        if key == "default_collection":
+            raise AttributeError(
+                """
+                Cannot set attribute 'default_collection', it is immutable.
+                To add an extra memory collection use assistant.memory.collection.add method.
+                """
+            )
+
+        return super().__setattr__(key, value)
