@@ -6,7 +6,7 @@ MEMORY_ID = UUID
 MEMORIES_COLLECTION_ID = UUID
 
 
-class Memory(BaseModel):
+class MemoryItem(BaseModel):
     """
     A memory used by the assistant. The assistant recalls the title and
     the context to answer questions and perform tasks.

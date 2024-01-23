@@ -1,10 +1,3 @@
-"""
-firedust.assistant.chat
-~~~~~~~~~~~~~~~~~~~~~~~
-
-A collection of methods to chat with the assistant.
-"""
-
 from firedust._utils.api import APIClient
 from firedust._utils.types.assistant import AssistantConfig
 from typing import Iterator
