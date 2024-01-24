@@ -27,6 +27,9 @@ Example:
 from firedust._utils.api import APIClient
 from firedust._utils.types.assistant import AssistantConfig
 from firedust.interface.email import EmailInterface
+from firedust.interface.slack import SlackInterface
+from firedust.interface.github import GithubInterface
+from firedust.interface.discord import DiscordInterface
 
 
 class Interface:
@@ -50,6 +53,6 @@ class Interface:
 
         # interfaces
         self.email = EmailInterface(self.config, self.api_client)
-        # self.slack = Slack(self.config, self.api_client)
-        # self.github = Github(self.config, self.api_client)
-        # self.discord = Discord(self.config, self.api_client)
+        self.slack = SlackInterface(self.config, self.api_client)
+        self.github = GithubInterface(self.config, self.api_client)
+        self.discord = DiscordInterface(self.config, self.api_client)

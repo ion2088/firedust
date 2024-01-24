@@ -55,6 +55,15 @@ class Assistant:
     """
     The Assistant class is the main entry point for interacting with Firedust.
     It is used to create, load, train, deploy and interact with an assistant.
+
+    Attributes:
+        config (AssistantConfig): The assistant configuration.
+        update (Update): Methods to update the configuration of the assistant.
+        interface (Interface): Deploy and interact with the assistant on Slack, email, Discord and other interfaces.
+        learn (Learning): Methods to train the assistant on your data.
+        chat (Chat): Methods to chat with the assistant.
+        memory (Memory): Methods to interact with the assistant's memory.
+        ability (Ability): Methods to manage and interact with the assistant's abilities.
     """
 
     def __init__(self, config: AssistantConfig = DEFAULT_CONFIG) -> None:

@@ -43,9 +43,45 @@ class MemoryError(Exception):
 
 
 # INTERFACE ERRORS
-class EmailError(Exception):
+class InterfaceError(Exception):
+    """
+    Default error for the Interface class.
+    """
+
+    def __init__(self, message: str) -> None:
+        super().__init__(message)
+
+
+class EmailError(InterfaceError):
     """
     Default error for the Email and EmailInterface class.
+    """
+
+    def __init__(self, message: str) -> None:
+        super().__init__(message)
+
+
+class SlackError(InterfaceError):
+    """
+    Default error for the Slack and SlackInterface class.
+    """
+
+    def __init__(self, message: str) -> None:
+        super().__init__(message)
+
+
+class GithubError(InterfaceError):
+    """
+    Default error for the Github and GithubInterface class.
+    """
+
+    def __init__(self, message: str) -> None:
+        super().__init__(message)
+
+
+class DiscordError(InterfaceError):
+    """
+    Default error for the Discord and DiscordInterface class.
     """
 
     def __init__(self, message: str) -> None:
