@@ -33,8 +33,9 @@ Usage example:
 
 from firedust._utils.api import APIClient
 from firedust._utils.types.assistant import AssistantConfig
-
-# from firedust._utils.types.ability import AbilityItem, ABILITY_ID
+from firedust.ability.math import MathAbility
+from firedust.ability.code import CodeAbility
+from firedust.ability.custom import CustomAbility
 
 
 class Abilities:
@@ -43,4 +44,19 @@ class Abilities:
     """
 
     def __init__(self, config: AssistantConfig, api_client: APIClient) -> None:
-        pass
+        """
+        Initializes a new instance of the Abilities class.
+
+        Args:
+            config (AssistantConfig): The assistant configuration.
+            api_client (APIClient): The API client.
+        """
+        self.config: AssistantConfig = config
+        self.api_client: APIClient = api_client
+
+        # built-in abilities
+        self.math = MathAbility(self.config, self.api_client)
+        self.code = CodeAbility(self.config, self.api_client)
+
+        # custom abilities
+        self.custom = CustomAbility(self.config, self.api_client)

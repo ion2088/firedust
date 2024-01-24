@@ -33,6 +33,7 @@ class AssistantError(Exception):
         super().__init__(message)
 
 
+# MEMORY ERRORS
 class MemoryError(Exception):
     """
     Default error for the Memory class.
@@ -82,6 +83,25 @@ class GithubError(InterfaceError):
 class DiscordError(InterfaceError):
     """
     Default error for the Discord and DiscordInterface class.
+    """
+
+    def __init__(self, message: str) -> None:
+        super().__init__(message)
+
+
+# ABILITY ERRORS
+class AbilityError(Exception):
+    """
+    Default error for the Ability class.
+    """
+
+    def __init__(self, message: str) -> None:
+        super().__init__(message)
+
+
+class CustomAbilityError(AbilityError):
+    """
+    Default error for the CustomAbility class.
     """
 
     def __init__(self, message: str) -> None:

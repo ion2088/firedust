@@ -41,6 +41,7 @@ from typing import List
 from firedust.learning._base import Learning
 from firedust.interface._base import Interface
 from firedust.memory._base import Memory
+from firedust.ability._base import Abilities
 from firedust.interface.chat import Chat
 from firedust._utils.api import APIClient
 from firedust._utils.types.assistant import AssistantConfig
@@ -87,7 +88,7 @@ class Assistant:
         self.learn = Learning(self.config, api_client)
         self.chat = Chat(config, api_client)
         self.memory = Memory(config, api_client)
-        # self.ability = Ability(config, api_client)
+        self.ability = Abilities(config, api_client)
 
     def __repr__(self) -> str:
         "Return a string representation of the Assistant"
