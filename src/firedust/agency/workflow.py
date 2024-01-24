@@ -42,7 +42,6 @@ class Workflow:
             f"assistant/{self.config.id}/agency/workflow/run",
             data=workflow.model_dump(),
         )
-
         if response["status_code"] != 200:
             raise Exception(response["message"])
 
@@ -60,7 +59,6 @@ class Workflow:
         response = self.api_client.get(
             f"assistant/{self.config.id}/agency/workflow/list",
         )
-
         if response["status_code"] != 200:
             raise Exception(response["message"])
 
@@ -83,7 +81,6 @@ class Workflow:
         response = self.api_client.delete(
             f"assistant/{self.config.id}/agency/workflow/remove/{workflow_id}",
         )
-
         if response["status_code"] != 200:
             raise Exception(response["message"])
 

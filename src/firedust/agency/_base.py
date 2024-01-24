@@ -2,7 +2,7 @@
 Module to configure and exercise agency.
 
 Freedom to think, choose, combine and exercise abilities to perform
-tasks and achieve goals. To accelerate growth and wellbeing of humanity.
+tasks and achieve goals. Accelerate growth and wellbeing of humanity.
 
 
 Usage example:
