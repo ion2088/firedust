@@ -88,3 +88,4 @@ class EmailInterface:
             raise EmailError("Failed to deploy assistant to email.")
 
         self.email_config = config
+        self.assistant_config.interfaces.email = self.email_config

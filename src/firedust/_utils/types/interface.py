@@ -64,3 +64,14 @@ class Email(BaseModel):
 
     subject: str
     body: str
+
+
+class Interfaces(BaseModel):
+    """
+    Represents the interfaces of the assistant.
+    """
+
+    slack: SlackConfig | None = None
+    github: GithubConfig | None = None
+    discord: DiscordConfig | None = None
+    email: EmailConfig | None = None

@@ -4,7 +4,7 @@ from typing import Any, List
 from .inference import InferenceConfig
 from .memory import MemoryConfig
 from .ability import AbilityConfig
-from .interface import InterfaceConfig
+from .interface import Interfaces
 
 
 class AssistantConfig(BaseModel):
@@ -27,7 +27,7 @@ class AssistantConfig(BaseModel):
     inference: InferenceConfig = InferenceConfig()
     memory: MemoryConfig = MemoryConfig()
     abilities: List[AbilityConfig] = []
-    interfaces: List[InterfaceConfig] = []
+    interfaces: Interfaces = Interfaces()
 
     def __setattr__(self, key: str, value: Any) -> None:
         # set immutable attributes

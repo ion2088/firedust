@@ -54,6 +54,7 @@ class SlackInterface:
             raise SlackError("Failed to deploy assistant to Slack.")
 
         self.slack_config = SlackConfig(**response["data"])
+        self.assistant_config.interfaces.slack = self.slack_config
 
     def send(self) -> None:
         """
