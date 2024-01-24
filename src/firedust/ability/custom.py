@@ -21,7 +21,8 @@ Usage example:
     assistant.ability.custom.create(ability_config)
 
     # Use the custom ability
-    assistant.ability.custom.execute(ability_config.id)
+    instruction = "Use the ability to..."
+    assistant.ability.custom.execute(ability_config.id, instruction)
 """
 
 from firedust._utils.api import APIClient
@@ -61,7 +62,7 @@ class CustomAbility:
         if response["status_code"] != 200:
             raise CustomAbilityError("Failed to create custom ability.")
 
-    def execute(self, ability_id: str) -> str:
+    def execute(self, ability_id: str, instruction: str) -> str:
         """
         Executes a custom ability.
 
@@ -70,7 +71,7 @@ class CustomAbility:
         """
         response = self.api_client.post(
             f"assistants/{self.config.id}/abilities/custom/execute",
-            data={"id": ability_id},
+            data={"id": ability_id, "instruction": instruction},
         )
 
         if response["status_code"] != 200:
