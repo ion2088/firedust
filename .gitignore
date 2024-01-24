@@ -38,3 +38,7 @@ dmypy.json
 
 # Logs
 .logs/
+
+# Package distribution
+*.egg-info/
+dist/
