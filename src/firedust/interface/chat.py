@@ -50,3 +50,27 @@ class Chat:
             params={"message": message, "user_id": user_id},
         ):
             yield msg
+
+    def complete(self, message: str, user_id: UUID | None = None) -> str:
+        """
+        Completes a conversation with the assistant.
+        Add a user id to keep chat histories separate for different users.
+
+        Args:
+            message (str): The message to send.
+            user_id (str): An optional user id. Defaults to None.
+
+        Returns:
+            str: The response from the assistant.
+        """
+        response = self.api_client.get(
+            f"assistant/{self.config.id}/chat/complete",
+            params={"message": message, "user_id": user_id},
+        )
+
+        if response["status_code"] != 200:
+            raise Exception(response["message"])
+
+        completion: str = response["completion"]
+
+        return completion
