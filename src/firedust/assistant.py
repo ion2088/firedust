@@ -10,7 +10,7 @@ Quickstart:
 
     firedust.assistant.connect("API_KEY")
 
-    # Create a new assistant
+    # Create a new assistant with a default configuration
     assistant = firedust.assistant.create()
 
     # Train the assistant on your data
@@ -39,7 +39,7 @@ from uuid import UUID
 from typing import List
 
 from firedust.learning._base import Learning
-from firedust.interface._base import Deploy
+from firedust.interface._base import Interface
 from firedust.memory._base import Memory
 from firedust.interface.chat import Chat
 from firedust._utils.api import APIClient
@@ -72,7 +72,7 @@ class Assistant:
 
         # management
         self.update = Update(self.config, api_client)
-        self.deploy = Deploy(self.config, api_client)
+        self.interface = Interface(self.config, api_client)
 
         # essence
         self.learn = Learning(self.config, api_client)
@@ -181,33 +181,6 @@ def create(
     return Assistant(config)
 
 
-def _validate(config: AssistantConfig, api_client: APIClient = APIClient()) -> None:
-    """
-    Validates the assistant configuration.
-    If the assistant ID already exists, the configuration will be validated.
-
-    For new assistants, use firedust.assistant.create(assistant_config)
-
-    Args:
-        config (AssistantConfig): The assistant configuration.
-        api_client (APIClient): The API client.
-    """
-    response = api_client.post(
-        f"{api_client.base_url}/assistant/{config.id}/validate",
-        data=config.model_dump(),
-    )
-
-    if response["status"] == 401:
-        # Assistant with the same ID but different configuration exists
-        raise AssistantError(
-            f"""
-            An assistant with the id {config.id} but a with different 
-            configuration already exists. To create a new assistant, please
-            use firedust.assistant.create(assistant_config)
-            """
-        )
-
-
 def load(id: UUID, api_client: APIClient = APIClient()) -> Assistant:
     """
     Loads an existing assistant from the cloud.
@@ -277,3 +250,30 @@ def connect(api_key: str) -> None:
         api_key (str): The API key to authenticate requests.
     """
     os.environ["FIREDUST_API_KEY"] = api_key
+
+
+def _validate(config: AssistantConfig, api_client: APIClient = APIClient()) -> None:
+    """
+    Validates the assistant configuration.
+    If the assistant ID already exists, the configuration will be validated.
+
+    For new assistants, use firedust.assistant.create(assistant_config)
+
+    Args:
+        config (AssistantConfig): The assistant configuration.
+        api_client (APIClient): The API client.
+    """
+    response = api_client.post(
+        f"{api_client.base_url}/assistant/{config.id}/validate",
+        data=config.model_dump(),
+    )
+
+    if response["status"] == 401:
+        # Assistant with the same ID but different configuration exists
+        raise AssistantError(
+            f"""
+            An assistant with id {config.id} but a with different 
+            configuration already exists. To create a new assistant, please
+            use firedust.assistant.create(assistant_config)
+            """
+        )

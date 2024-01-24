@@ -2,17 +2,17 @@ from pydantic import BaseModel
 from typing import Literal
 
 
-class Deployment(BaseModel):
+class InterfaceConfig(BaseModel):
     """
     Represents an interface of the assistant.
     """
 
-    name: Literal["slack", "github", "discord"]
+    name: Literal["slack", "github", "discord", "email", "whatsapp"]
 
 
-class SlackConfig(Deployment):
+class SlackConfig(InterfaceConfig):
     """
-    Configuration for Slack Deployment.
+    Configuration for Slack InterfaceConfig.
     """
 
     name: Literal["slack"] = "slack"
@@ -21,9 +21,9 @@ class SlackConfig(Deployment):
     channel: str
 
 
-class DiscordConfig(Deployment):
+class DiscordConfig(InterfaceConfig):
     """
-    Configuration for Discord Deployment.
+    Configuration for Discord InterfaceConfig.
     """
 
     name: Literal["discord"] = "discord"
@@ -31,11 +31,36 @@ class DiscordConfig(Deployment):
     channel: str
 
 
-class GithubConfig(Deployment):
+class GithubConfig(InterfaceConfig):
     """
-    Configuration for Github Deployment.
+    Configuration for Github InterfaceConfig.
     """
 
     name: Literal["github"] = "github"
     token: str
     channel: str
+
+
+# EMAIL
+class EmailConfig(InterfaceConfig):
+    """
+    Configuration for Email InterfaceConfig.
+    """
+
+    name: Literal["email"] = "email"
+    email: str
+    password: str
+    host: str
+    port: int
+    tls: bool = True
+    ssl: bool = True
+    channel: str
+
+
+class Email(BaseModel):
+    """
+    Represents an email.
+    """
+
+    subject: str
+    body: str

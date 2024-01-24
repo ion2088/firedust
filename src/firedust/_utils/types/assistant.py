@@ -3,8 +3,8 @@ from pydantic import BaseModel
 from typing import Any, List
 from .inference import InferenceConfig
 from .memory import MemoryConfig
-from .ability import Ability
-from .interface import Deployment
+from .ability import AbilityConfig
+from .interface import InterfaceConfig
 
 
 class AssistantConfig(BaseModel):
@@ -26,8 +26,8 @@ class AssistantConfig(BaseModel):
     instructions: List[str] = ["You are a helpful assistant."]
     inference: InferenceConfig = InferenceConfig()
     memory: MemoryConfig = MemoryConfig()
-    abilities: List[Ability] = []
-    deployments: List[Deployment] = []
+    abilities: List[AbilityConfig] = []
+    interfaces: List[InterfaceConfig] = []
 
     def __setattr__(self, key: str, value: Any) -> None:
         # set immutable attributes

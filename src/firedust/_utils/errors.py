@@ -1,8 +1,6 @@
 """
-This module contains the custom errors used in the Firedust SDK.
+This module contains custom errors used in the Firedust SDK.
 """
-
-from uuid import UUID
 
 
 # AUTHENTICATION ERRORS
@@ -38,6 +36,16 @@ class AssistantError(Exception):
 class MemoryError(Exception):
     """
     Default error for the Memory class.
+    """
+
+    def __init__(self, message: str) -> None:
+        super().__init__(message)
+
+
+# INTERFACE ERRORS
+class EmailError(Exception):
+    """
+    Default error for the Email and EmailInterface class.
     """
 
     def __init__(self, message: str) -> None:
