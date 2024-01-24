@@ -56,7 +56,7 @@ class CustomAbility:
         """
         response = self.api_client.post(
             f"assistants/{self.config.id}/abilities/custom/create",
-            data=config.model_dump(),
+            data={"ability": config.model_dump_json()},
         )
 
         if response["status_code"] != 200:

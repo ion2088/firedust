@@ -78,7 +78,7 @@ class Memory:
         """
         self.api_client.post(
             f"assistant/{self.config.id}/memory/add/",
-            data=memory.model_dump(),
+            data={"memory": memory.model_dump_json()},
         )
 
     def remove(self, memory_id: MEMORY_ID) -> None:

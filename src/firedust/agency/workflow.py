@@ -40,7 +40,7 @@ class Workflow:
         """
         response = self.api_client.post(
             f"assistant/{self.config.id}/agency/workflow/run",
-            data=workflow.model_dump(),
+            data={"workflow": workflow.model_dump_json()},
         )
         if response["status_code"] != 200:
             raise Exception(response["message"])

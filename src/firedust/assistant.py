@@ -163,7 +163,7 @@ class Update:
         self.config.inference = inference_config
         self.api_client.put(
             f"assistant/{self.config.id}/update/inference",
-            data=inference_config.model_dump(),
+            data={"inference": inference_config.model_dump_json()},
         )
 
 
@@ -180,7 +180,7 @@ def create(
     api_client = api_client or APIClient()
     response = api_client.post(
         f"{api_client.base_url}/assistant",
-        data=config.model_dump(),
+        data={"assistant": config.model_dump_json()},
     )
 
     if response["status"] != 200:
@@ -280,7 +280,7 @@ def _validate(config: AssistantConfig, api_client: APIClient | None = None) -> N
     api_client = api_client or APIClient()
     response = api_client.post(
         f"{api_client.base_url}/assistant/{config.id}/validate",
-        data=config.model_dump(),
+        data={"assistant": config.model_dump_json()},
     )
 
     if response["status"] == 401:

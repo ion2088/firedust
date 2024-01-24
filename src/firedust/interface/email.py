@@ -66,7 +66,7 @@ class EmailInterface:
         """
         response = self.api_client.post(
             f"assistant/{self.assistant_config.id}/interface/email/send",
-            data={"to": to, "email": email.model_dump()},
+            data={"to": to, "email": email.model_dump_json()},
         )
 
         if response["status_code"] != 200:
@@ -82,7 +82,7 @@ class EmailInterface:
 
         response = self.api_client.post(
             f"assistant/{self.assistant_config.id}/interface/email/deploy",
-            data=config.model_dump(),
+            data={"email": config.model_dump_json()},
         )
         if response["status_code"] != 200:
             raise EmailError("Failed to deploy assistant to email.")
