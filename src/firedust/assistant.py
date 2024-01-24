@@ -76,19 +76,19 @@ class Assistant:
         """
 
         # configuration
-        api_client = APIClient()
+        self.api_client = APIClient()
         self.config = config
-        _validate(config, api_client)
+        _validate(config, self.api_client)
 
         # management
-        self.update = Update(self.config, api_client)
-        self.interface = Interface(self.config, api_client)
+        self.update = Update(self.config, self.api_client)
+        self.interface = Interface(self.config, self.api_client)
 
         # essence
-        self.learn = Learning(self.config, api_client)
-        self.chat = Chat(config, api_client)
-        self.memory = Memory(config, api_client)
-        self.ability = Abilities(config, api_client)
+        self.learn = Learning(self.config, self.api_client)
+        self.chat = Chat(config, self.api_client)
+        self.memory = Memory(config, self.api_client)
+        self.ability = Abilities(config, self.api_client)
 
     def __repr__(self) -> str:
         "Return a string representation of the Assistant"
@@ -168,7 +168,7 @@ class Update:
 
 
 def create(
-    config: AssistantConfig = DEFAULT_CONFIG, api_client: APIClient = APIClient()
+    config: AssistantConfig = DEFAULT_CONFIG, api_client: APIClient | None = None
 ) -> Assistant | None:
     """
     Creates a new assistant.
@@ -177,6 +177,7 @@ def create(
         config (AssistantConfig, optional): The assistant configuration. Defaults to DEFAULT_CONFIG.
         api_client (APIClient): The API client.
     """
+    api_client = api_client or APIClient()
     response = api_client.post(
         f"{api_client.base_url}/assistant",
         data=config.model_dump(),
@@ -191,7 +192,7 @@ def create(
     return Assistant(config)
 
 
-def load(id: UUID, api_client: APIClient = APIClient()) -> Assistant:
+def load(id: UUID, api_client: APIClient | None = None) -> Assistant:
     """
     Loads an existing assistant from the cloud.
 
@@ -201,6 +202,7 @@ def load(id: UUID, api_client: APIClient = APIClient()) -> Assistant:
     Returns:
         Assistant: The loaded assistant.
     """
+    api_client = api_client or APIClient()
     response = api_client.get(f"{api_client.base_url}/assistant/{id}/load")
 
     if response["status"] != 200:
@@ -213,13 +215,14 @@ def load(id: UUID, api_client: APIClient = APIClient()) -> Assistant:
     return Assistant(assistant_config)
 
 
-def list(api_client: APIClient = APIClient()) -> List[AssistantConfig]:
+def list(api_client: APIClient | None = None) -> List[AssistantConfig]:
     """
     Lists all the available assistants.
 
     Returns:
         List[AssistantConfig]: A list of all the assistants.
     """
+    api_client = api_client or APIClient()
     response = api_client.get(f"{api_client.base_url}/assistants/list")
 
     if response["status"] != 200:
@@ -233,13 +236,14 @@ def list(api_client: APIClient = APIClient()) -> List[AssistantConfig]:
     return assistants
 
 
-def delete(id: UUID, api_client: APIClient = APIClient()) -> None:
+def delete(id: UUID, api_client: APIClient | None = None) -> None:
     """
     Deletes an existing assistant from the cloud.
 
     Args:
         id (UUID): The ID of the assistant to delete.
     """
+    api_client = api_client or APIClient()
     response = api_client.delete(f"{api_client.base_url}/assistant/{id}/delete")
 
     if response["status"] != 200:
@@ -262,7 +266,7 @@ def connect(api_key: str) -> None:
     os.environ["FIREDUST_API_KEY"] = api_key
 
 
-def _validate(config: AssistantConfig, api_client: APIClient = APIClient()) -> None:
+def _validate(config: AssistantConfig, api_client: APIClient | None = None) -> None:
     """
     Validates the assistant configuration.
     If the assistant ID already exists, the configuration will be validated.
@@ -273,6 +277,7 @@ def _validate(config: AssistantConfig, api_client: APIClient = APIClient()) -> N
         config (AssistantConfig): The assistant configuration.
         api_client (APIClient): The API client.
     """
+    api_client = api_client or APIClient()
     response = api_client.post(
         f"{api_client.base_url}/assistant/{config.id}/validate",
         data=config.model_dump(),

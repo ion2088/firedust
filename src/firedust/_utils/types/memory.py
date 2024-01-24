@@ -1,5 +1,5 @@
 from typing import List, Literal, Any
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, field_validator
 from uuid import UUID, uuid4
 
 MEMORY_ID = UUID
@@ -18,13 +18,13 @@ class MemoryItem(BaseModel):
     tags: List[str] | None = None
     embedding: List[float] | None = None
 
-    @validator("context")
+    @field_validator("context")
     def validate_context_length(cls, context: str) -> str | Exception:
         if len(context) > 2000:
             raise ValueError("Memory context exceeds maximum length of 2000 characters")
         return context
 
-    @validator("title")
+    @field_validator("title")
     def validate_title_length(cls, title: str) -> str | Exception:
         if len(title) > 140:
             raise ValueError("Title exceeds maximum length of 140 characters")
