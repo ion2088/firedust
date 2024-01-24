@@ -6,11 +6,16 @@ Example:
 
     assistant = firedust.assistant.load("ASSISTANT_ID")
 
-    # Chat with the assistant
+    # Stream a conversation with the assistant
     response = assistant.chat.stream("Tell me about the Book of the Dead")
 
     for msg in response:
         print(msg)
+
+    # Simple chat
+    # Send a query and wait for the full response of the assistant
+    response = assistant.chat.complete("Tell me about the Book of the Dead")
+    print(response)
 """
 
 from typing import Iterator
