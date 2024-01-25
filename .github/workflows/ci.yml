@@ -25,7 +25,6 @@ jobs:
       run: |
         echo "PYTHONPATH=$PWD/src" >> $GITHUB_ENV
         echo "PYTHONPATH=$PWD/firedust/src" >> $GITHUB_ENV
-        echo "PYTHONPATH=$PWD/firedust" >> $GITHUB_ENV
     
     - name: Run tests
       run: |
