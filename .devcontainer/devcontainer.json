@@ -25,7 +25,7 @@
 				"ms-python.vscode-pylance",
 				"charliermarsh.ruff",
 				"ms-python.black-formatter",
-				"donjayamanne.githistory"
+				"github.vscode-github-actions"
 			]
 		}
 	}
