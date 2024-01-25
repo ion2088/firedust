@@ -6,10 +6,6 @@
 	"context": "..",
 	// Update the 'dockerFile' property if you aren't using the standard 'Dockerfile' filename.
 	"dockerFile": "../Dockerfile",
-	// Set *default* container specific settings.json values on container create.
-	"settings": {
-	  "remoteUser": "dev"
-	},
 	"build": {
 	  "target": "firedust-dev"
 	},
@@ -17,22 +13,20 @@
 	  "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=cached"
 	],
 	"runArgs": [
-	  "--network", "host",
-	  // "--gpus", "all",
-	  "-e", "AWS_ACCESS_KEY_ID=${env:AWS_ACCESS_KEY_ID}",
-	  "-e", "AWS_SECRET_ACCESS_KEY=${env:AWS_SECRET_ACCESS_KEY}"
+	  "--network", "host"
 	],
 	// Add the IDs of extensions you want installed when the container is created.
-	"extensions": [
-	  "ms-azuretools.vscode-docker",
-	  "ms-python.python",
-	  "ms-python.vscode-pylance",
-	  "github.copilot-nightly",
-	  "ckolkman.vscode-postgres",
-	  "charliermarsh.ruff",
-	  "ms-python.black-formatter",
-	  "donjayamanne.githistory",
-	  "ms-toolsai.jupyter",
-	  "github.copilot",
-	]
-  }
+	"customizations": {
+		"vscode": {
+			"remoteUser": "dev",
+			"extensions": [
+				"ms-azuretools.vscode-docker",
+				"ms-python.python",
+				"ms-python.vscode-pylance",
+				"charliermarsh.ruff",
+				"ms-python.black-formatter",
+				"donjayamanne.githistory"
+			]
+		}
+	}
+}
