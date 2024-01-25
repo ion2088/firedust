@@ -19,6 +19,7 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install poetry
+        pip install pytest
         poetry install
     
     - name: Set PYTHONPATH
