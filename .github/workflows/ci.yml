@@ -19,11 +19,13 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install poetry
-        pip install pytest
-        poetry install
+        poetry install --dev
     
     - name: Set PYTHONPATH
-      run: echo "PYTHONPATH=$PWD/src" >> $GITHUB_ENV
+      run: |
+        echo "PYTHONPATH=$PWD/src" >> $GITHUB_ENV
+        echo "PYTHONPATH=$PWD/firedust/src" >> $GITHUB_ENV
+        echo "PYTHONPATH=$PWD/firedust" >> $GITHUB_ENV
     
     - name: Run tests
       run: |
