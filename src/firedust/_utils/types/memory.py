@@ -2,11 +2,13 @@ from typing import List, Literal, Any
 from pydantic import BaseModel, field_validator
 from uuid import UUID, uuid4
 
+from ._base import BaseConfig
+
 MEMORY_ID = UUID
 MEMORY_COLLECTION_ID = UUID
 
 
-class MemoryItem(BaseModel):
+class MemoryItem(BaseConfig):
     """
     A memory used by the assistant. The assistant recalls the title and
     the context to answer questions and perform tasks.
@@ -31,7 +33,7 @@ class MemoryItem(BaseModel):
         return title
 
 
-class MemoriesCollectionItem(BaseModel):
+class MemoriesCollectionItem(BaseConfig):
     """
     Represents a collection of memories used by the assistant.
     """
@@ -52,7 +54,7 @@ class MemoryConfig(BaseModel):
     extra_collections: List[MEMORY_COLLECTION_ID] = []
 
     def __setattr__(self, key: str, value: Any) -> None:
-        # embedding_model is immutable
+        # set immutable attributes
         if key == "embedding_model":
             raise AttributeError(
                 """
@@ -60,7 +62,6 @@ class MemoryConfig(BaseModel):
                 To use a different embedding model, create a new Assistant.
                 """
             )
-        # default_collection id is immutable
         if key == "default_collection":
             raise AttributeError(
                 """

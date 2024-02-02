@@ -1,13 +1,13 @@
 from uuid import uuid4, UUID
-from pydantic import BaseModel
 from typing import Any, List
+from ._base import BaseConfig
 from .inference import InferenceConfig
 from .memory import MemoryConfig
 from .ability import AbilityConfig
 from .interface import Interfaces
 
 
-class AssistantConfig(BaseModel):
+class AssistantConfig(BaseConfig):
     """
     Represents the configuration of an AI Assistant.
 
@@ -31,8 +31,6 @@ class AssistantConfig(BaseModel):
 
     def __setattr__(self, key: str, value: Any) -> None:
         # set immutable attributes
-        if key == "id":
-            raise AttributeError("Cannot set attribute 'id', it is immutable.")
         if key == "memory":
             raise AttributeError(
                 """

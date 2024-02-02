@@ -1,11 +1,11 @@
 from typing import List
-from pydantic import BaseModel
+from ._base import BaseConfig
 from uuid import UUID, uuid4
 
 ABILITY_ID = UUID
 
 
-class AbilityConfig(BaseModel):
+class AbilityConfig(BaseConfig):
     """
     Represents a configuration for an ability.
     """
@@ -17,7 +17,7 @@ class AbilityConfig(BaseModel):
     examples: List[str]  # Examples how to use the ability
 
 
-class CustomAbilityConfig(BaseModel):
+class CustomAbilityConfig(BaseConfig):
     """
     Represents a configuration for a custom ability.
     """
@@ -30,7 +30,7 @@ class CustomAbilityConfig(BaseModel):
     examples: List[str]  # Examples how to use the ability
 
 
-class BuiltInAbilityConfig(BaseModel):
+class BuiltInAbilityConfig(BaseConfig):
     """
     Represents a configuration for a built-in ability.
     """
