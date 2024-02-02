@@ -1,7 +1,8 @@
-from typing import Union
 from pathlib import Path
-from firedust._utils.types.assistant import AssistantConfig
+from typing import Union
+
 from firedust._utils.api import APIClient
+from firedust._utils.types.assistant import AssistantConfig
 
 
 class Learning:

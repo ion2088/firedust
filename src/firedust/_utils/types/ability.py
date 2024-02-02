@@ -1,6 +1,7 @@
 from typing import List
-from ._base import BaseConfig
 from uuid import UUID, uuid4
+
+from ._base import BaseConfig
 
 ABILITY_ID = UUID
 

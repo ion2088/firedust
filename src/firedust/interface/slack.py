@@ -15,10 +15,10 @@ Example:
     assistant.interface.slack.send("Tell me about the Book of the Dead")
 """
 
-from firedust._utils.types.assistant import AssistantConfig
 from firedust._utils.api import APIClient
-from firedust._utils.types.interface import SlackConfig
 from firedust._utils.errors import SlackError
+from firedust._utils.types.assistant import AssistantConfig
+from firedust._utils.types.interface import SlackConfig
 
 
 class SlackInterface:

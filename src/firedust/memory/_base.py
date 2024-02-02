@@ -30,9 +30,9 @@ Example:
 from typing import List
 
 from firedust._utils.api import APIClient
-from firedust._utils.types.assistant import AssistantConfig
-from firedust._utils.types.memory import MemoryItem, MEMORY_ID, MEMORY_COLLECTION_ID
 from firedust._utils.errors import MemoryError
+from firedust._utils.types.assistant import AssistantConfig
+from firedust._utils.types.memory import MEMORY_COLLECTION_ID, MEMORY_ID, MemoryItem
 
 
 class Memory:

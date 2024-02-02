@@ -26,10 +26,10 @@ Example:
 
 from firedust._utils.api import APIClient
 from firedust._utils.types.assistant import AssistantConfig
-from firedust.interface.email import EmailInterface
-from firedust.interface.slack import SlackInterface
-from firedust.interface.github import GithubInterface
 from firedust.interface.discord import DiscordInterface
+from firedust.interface.email import EmailInterface
+from firedust.interface.github import GithubInterface
+from firedust.interface.slack import SlackInterface
 
 
 class Interface:

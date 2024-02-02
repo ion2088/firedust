@@ -33,9 +33,9 @@ Usage example:
 
 from firedust._utils.api import APIClient
 from firedust._utils.types.assistant import AssistantConfig
-from firedust.ability.math import MathAbility
 from firedust.ability.code import CodeAbility
 from firedust.ability.custom import CustomAbility
+from firedust.ability.math import MathAbility
 
 
 class Abilities:

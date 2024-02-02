@@ -1,9 +1,9 @@
-import httpx
 import os
+from typing import Any, AsyncIterator, Dict, Iterator, Optional
 
-from typing import Optional, Dict, Any, Iterator, AsyncIterator
-from firedust._utils.errors import MissingFiredustKeyError, APIError
+import httpx
 
+from firedust._utils.errors import APIError, MissingFiredustKeyError
 
 BASE_URL = "https://api.firedust.ai/v1"
 

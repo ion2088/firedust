@@ -26,9 +26,9 @@ Usage example:
 """
 
 from firedust._utils.api import APIClient
-from firedust._utils.types.assistant import AssistantConfig
-from firedust._utils.types.ability import CustomAbilityConfig
 from firedust._utils.errors import CustomAbilityError
+from firedust._utils.types.ability import CustomAbilityConfig
+from firedust._utils.types.assistant import AssistantConfig
 
 
 class CustomAbility:

@@ -20,6 +20,7 @@ Example:
 
 from typing import Iterator
 from uuid import UUID
+
 from firedust._utils.api import APIClient
 from firedust._utils.types.assistant import AssistantConfig
 

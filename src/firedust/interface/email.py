@@ -16,10 +16,10 @@ Example:
     assistant.interface.email.send(to="team@fusionfuel.com", email=email)
 """
 
-from firedust._utils.types.assistant import AssistantConfig
-from firedust._utils.types.interface import EmailConfig, Email
 from firedust._utils.api import APIClient
 from firedust._utils.errors import EmailError
+from firedust._utils.types.assistant import AssistantConfig
+from firedust._utils.types.interface import Email, EmailConfig
 
 
 class EmailInterface:

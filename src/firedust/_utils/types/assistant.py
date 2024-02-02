@@ -1,10 +1,11 @@
-from uuid import uuid4, UUID
 from typing import Any, List
+from uuid import UUID, uuid4
+
 from ._base import BaseConfig
-from .inference import InferenceConfig
-from .memory import MemoryConfig
 from .ability import AbilityConfig
+from .inference import InferenceConfig
 from .interface import Interfaces
+from .memory import MemoryConfig
 
 
 class AssistantConfig(BaseConfig):

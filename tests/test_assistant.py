@@ -1,12 +1,13 @@
 # FILEPATH: /firedust/tests/test_assistant.py
-from unittest.mock import patch, MagicMock
-from firedust.assistant import Assistant, Update, connect
+from unittest.mock import MagicMock, patch
+
 from firedust._utils.types.assistant import AssistantConfig
-from firedust.interface._base import Interface
-from firedust.learning._base import Learning
-from firedust.interface.chat import Chat
-from firedust.memory._base import Memory
 from firedust.ability._base import Abilities
+from firedust.assistant import Assistant, Update, connect
+from firedust.interface._base import Interface
+from firedust.interface.chat import Chat
+from firedust.learning._base import Learning
+from firedust.memory._base import Memory
 
 
 @patch("firedust.assistant.APIClient.post")
