@@ -2,8 +2,10 @@ from typing import Literal
 
 from pydantic import BaseModel
 
+from ._base import BaseConfig
 
-class InterfaceConfig(BaseModel):
+
+class InterfaceConfig(BaseConfig):
     """
     Represents an interface of the assistant.
     """
