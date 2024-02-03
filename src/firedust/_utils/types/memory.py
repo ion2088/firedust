@@ -9,6 +9,19 @@ MEMORY_ID = UUID
 MEMORY_COLLECTION_ID = UUID
 
 
+# TODO: Can one type of memory item be used for all types of sources?
+
+
+class MemorySource(BaseModel):
+    """
+    Represents a source of memories.
+    """
+
+    name: str
+    type: Literal["text", "image", "audio", "video"] = "text"
+    url: str | None = None
+
+
 class MemoryItem(BaseConfig):
     """
     A memory used by the assistant. The assistant recalls the title and
@@ -20,6 +33,7 @@ class MemoryItem(BaseConfig):
     context: str
     tags: List[str] | None = None
     embedding: List[float] | None = None
+    source: MemorySource | None = None
 
     @field_validator("context")
     def validate_context_length(cls, context: str) -> str | Exception:

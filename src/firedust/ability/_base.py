@@ -30,7 +30,6 @@ Usage example:
     )
 """
 
-
 from firedust._utils.api import APIClient
 from firedust._utils.types.assistant import AssistantConfig
 from firedust.ability.code import CodeAbility
@@ -60,3 +59,19 @@ class Abilities:
 
         # custom abilities
         self.custom = CustomAbility(self.config, self.api_client)
+
+    def update(self, ability: str) -> None:
+        """
+        Updates the abilities.
+        """
+        raise NotImplementedError("The update method is not implemented.")
+
+    def add_instruction(self, ability_id: str, instruction: str) -> None:
+        """
+        Adds an instruction to the ability.
+
+        Args:
+            ability_id (str): The ID of the ability.
+            instruction (str): The instruction to add.
+        """
+        raise NotImplementedError("The add_instruction method is not implemented.")
