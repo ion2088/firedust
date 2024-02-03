@@ -46,5 +46,15 @@ class BuiltInAbilityConfig(AbilityConfig):
         # set immutable attributes
         if key == "type":
             raise AttributeError("Cannot set attribute 'type', it is immutable.")
+        elif key == "name":
+            raise AttributeError("Cannot set attribute 'name', it is immutable.")
+        elif key == "description":
+            raise AttributeError("Cannot set attribute 'description', it is immutable.")
+        elif key == "instructions":
+            raise AttributeError(
+                "Cannot set attribute 'instructions', it is immutable."
+            )
+        elif key == "examples":
+            raise AttributeError("Cannot set attribute 'examples', it is immutable.")
 
         return super().__setattr__(key, value)
