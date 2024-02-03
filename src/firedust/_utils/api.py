@@ -1,5 +1,5 @@
 import os
-from typing import Any, AsyncIterator, Dict, Iterator, Optional
+from typing import Any, AsyncIterator, Dict, Iterator
 
 import httpx
 
@@ -18,7 +18,7 @@ class APIClient:
         headers (Dict[str, str]): The headers to be included in the requests.
     """
 
-    def __init__(self, api_key: Optional[str] = None, base_url: str = BASE_URL) -> None:
+    def __init__(self, api_key: str | None = None, base_url: str = BASE_URL) -> None:
         """
         Initializes a new instance of the APIClient class.
 
@@ -41,20 +41,20 @@ class APIClient:
         }
 
     # sync methods
-    def get(self, url: str, params: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    def get(self, url: str, params: Dict[str, Any] | None = None) -> Dict[str, Any]:
         return self._request_sync("get", url, params=params)
 
-    def post(self, url: str, data: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    def post(self, url: str, data: Dict[str, Any] | None = None) -> Dict[str, Any]:
         return self._request_sync("post", url, data=data)
 
-    def put(self, url: str, data: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    def put(self, url: str, data: Dict[str, Any] | None = None) -> Dict[str, Any]:
         return self._request_sync("put", url, data=data)
 
     def delete(self, url: str) -> Dict[str, Any]:
         return self._request_sync("delete", url)
 
     def get_stream(
-        self, url: str, params: Optional[Dict[str, Any]] = None
+        self, url: str, params: Dict[str, Any] | None = None
     ) -> Iterator[bytes]:
         url = self.base_url + url
         with httpx.stream("get", url, params=params, headers=self.headers) as response:
@@ -62,7 +62,7 @@ class APIClient:
                 yield chunk
 
     def post_stream(
-        self, url: str, data: Optional[Dict[str, Any]] = None
+        self, url: str, data: Dict[str, Any] | None = None
     ) -> Iterator[bytes]:
         url = self.base_url + url
         with httpx.stream("post", url, json=data, headers=self.headers) as response:
@@ -71,17 +71,17 @@ class APIClient:
 
     # async methods
     async def get_async(
-        self, url: str, params: Optional[Dict[str, Any]] = None
+        self, url: str, params: Dict[str, Any] | None = None
     ) -> Dict[str, Any]:
         return await self._request_async("get", url, params=params)
 
     async def post_async(
-        self, url: str, data: Optional[Dict[str, Any]] = None
+        self, url: str, data: Dict[str, Any] | None = None
     ) -> Dict[str, Any]:
         return await self._request_async("post", url, data=data)
 
     async def put_async(
-        self, url: str, data: Optional[Dict[str, Any]] = None
+        self, url: str, data: Dict[str, Any] | None = None
     ) -> Dict[str, Any]:
         return await self._request_async("put", url, data=data)
 
@@ -89,7 +89,7 @@ class APIClient:
         return await self._request_async("delete", url)
 
     async def get_stream_async(
-        self, url: str, params: Optional[Dict[str, Any]] = None
+        self, url: str, params: Dict[str, Any] | None = None
     ) -> AsyncIterator[bytes]:
         url = self.base_url + url
         async with httpx.AsyncClient() as client:
@@ -100,7 +100,7 @@ class APIClient:
                     yield chunk
 
     async def post_stream_async(
-        self, url: str, data: Optional[Dict[str, Any]] = None
+        self, url: str, data: Dict[str, Any] | None = None
     ) -> AsyncIterator[bytes]:
         url = self.base_url + url
         async with httpx.AsyncClient() as client:
@@ -115,8 +115,8 @@ class APIClient:
         self,
         method: str,
         url: str,
-        params: Optional[Dict[str, Any]] = None,
-        data: Optional[Dict[str, Any]] = None,
+        params: Dict[str, Any] | None = None,
+        data: Dict[str, Any] | None = None,
     ) -> Dict[str, Any] | Any:
         url = self.base_url + url
         response = httpx.request(
@@ -130,8 +130,8 @@ class APIClient:
         self,
         method: str,
         url: str,
-        params: Optional[Dict[str, Any]] = None,
-        data: Optional[Dict[str, Any]] = None,
+        params: Dict[str, Any] | None = None,
+        data: Dict[str, Any] | None = None,
     ) -> Dict[str, Any] | Any:
         url = self.base_url + url
         async with httpx.AsyncClient() as client:
