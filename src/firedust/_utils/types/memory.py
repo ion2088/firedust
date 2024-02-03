@@ -9,9 +9,6 @@ MEMORY_ID = UUID
 MEMORY_COLLECTION_ID = UUID
 
 
-# TODO: Can one type of memory item be used for all types of sources?
-
-
 class MemorySource(BaseModel):
     """
     Represents a source of memories.
