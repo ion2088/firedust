@@ -36,7 +36,7 @@ Quickstart:
 import logging
 import os
 from typing import List
-from uuid import UUID
+from uuid import UUID, uuid4
 
 from firedust._utils.api import APIClient
 from firedust._utils.errors import AssistantError

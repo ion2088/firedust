@@ -3,34 +3,31 @@ from uuid import UUID, uuid4
 
 from pydantic import BaseModel, field_validator
 
-from ._base import BaseConfig
+from firedust._utils import checks
 
-MEMORY_ID = UUID
-MEMORY_COLLECTION_ID = UUID
-
-
-class MemorySource(BaseModel):
-    """
-    Represents a source of memories.
-    """
-
-    name: str
-    type: Literal["text", "image", "audio", "video"] = "text"
-    url: str | None = None
+from ._base import UNIX_TIMESTAMP, BaseConfig
 
 
 class MemoryItem(BaseConfig):
     """
-    A memory used by the assistant. The assistant recalls the title and
-    the context to answer questions and perform tasks.
+    A memory used by the AI assistant. The assistant recalls memories and their
+    context to answer questions and perform tasks.
+
+    Args:
+        collection (UUID): The collection that contains the memory.
+        context (str): The context of the memory.
+        embedding (List[float]): The embedding of the memory.
+        timestamp (UNIX_TIMESTAMP): The time when the memory was created.
+        type (Literal["text", "image", "audio", "video"]): The type of the memory. Defaults to "text".
+        source (str, optional): The source of the memory. Defaults to None.
     """
 
-    id: MEMORY_ID = uuid4()
-    title: str
+    collection: UUID
     context: str
-    tags: List[str] | None = None
-    embedding: List[float] | None = None
-    source: MemorySource | None = None
+    embedding: List[float]
+    timestamp: UNIX_TIMESTAMP
+    type: Literal["text", "image", "audio", "video"] = "text"
+    source: str | None = None
 
     @field_validator("context")
     def validate_context_length(cls, context: str) -> str | Exception:
@@ -38,11 +35,16 @@ class MemoryItem(BaseConfig):
             raise ValueError("Memory context exceeds maximum length of 2000 characters")
         return context
 
-    @field_validator("title")
-    def validate_title_length(cls, title: str) -> str | Exception:
-        if len(title) > 140:
-            raise ValueError("Title exceeds maximum length of 140 characters")
-        return title
+    @field_validator("timestamp")
+    def validate_timestamp(
+        cls, timestamp: UNIX_TIMESTAMP
+    ) -> UNIX_TIMESTAMP | Exception:
+        # Check that the timestamp is UNIX format
+        try:
+            checks.is_unix_timestamp(timestamp)
+        except ValueError as e:
+            raise ValueError(f"Invalid timestamp: {e}")
+        return timestamp
 
 
 class MemoriesCollectionItem(BaseConfig):
@@ -50,8 +52,7 @@ class MemoriesCollectionItem(BaseConfig):
     Represents a collection of memories used by the assistant.
     """
 
-    id: MEMORY_COLLECTION_ID = uuid4()
-    collection: List[MEMORY_ID] | None = None
+    collection: List[UUID] | None = None
 
 
 class MemoryConfig(BaseModel):
@@ -62,8 +63,8 @@ class MemoryConfig(BaseModel):
     embedding_model: Literal[
         "sand/MiniLM-L6-v2", "sand/UAE-Large-v1"
     ] = "sand/MiniLM-L6-v2"
-    default_collection: MEMORY_COLLECTION_ID = uuid4()
-    extra_collections: List[MEMORY_COLLECTION_ID] = []
+    default_collection: UUID = uuid4()
+    extra_collections: List[UUID] = []
 
     def __setattr__(self, key: str, value: Any) -> None:
         # set immutable attributes

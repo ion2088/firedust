@@ -13,6 +13,9 @@ class InterfaceConfig(BaseConfig):
     name: Literal["slack", "github", "discord", "email", "whatsapp"]
 
 
+# TODO: Finalize interface configurations.
+
+
 class SlackConfig(InterfaceConfig):
     """
     Configuration for Slack InterfaceConfig.

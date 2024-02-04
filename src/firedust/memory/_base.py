@@ -28,11 +28,12 @@ Example:
 """
 
 from typing import List
+from uuid import UUID
 
 from firedust._utils.api import APIClient
 from firedust._utils.errors import MemoryError
 from firedust._utils.types.assistant import AssistantConfig
-from firedust._utils.types.memory import MEMORY_COLLECTION_ID, MEMORY_ID, MemoryItem
+from firedust._utils.types.memory import MemoryItem
 
 
 class Memory:
@@ -81,20 +82,18 @@ class Memory:
             data={"memory": memory.model_dump_json()},
         )
 
-    def remove(self, memory_id: MEMORY_ID) -> None:
+    def remove(self, memory_id: UUID) -> None:
         """
         Removes a memory from the assistant's default memory collection.
 
         Args:
-            memory_id (MEMORY_ID): The ID of the memory item to remove.
+            memory_id (UUID): The ID of the memory item to remove.
         """
         self.api_client.delete(
             f"assistant/{self.config.id}/memory/remove/{memory_id}",
         )
 
-    def list(
-        self, collection_id: MEMORY_COLLECTION_ID | None = None
-    ) -> List[MEMORY_ID]:
+    def list(self, collection_id: UUID | None = None) -> List[UUID]:
         """
         List all memory items in a given collection id. If no collection id is provided,
         the default collection is used.
@@ -108,7 +107,7 @@ class Memory:
         )
 
         if response["status_code"] == 200:
-            memory_ids: List[MEMORY_ID] = response["collection"]
+            memory_ids: List[UUID] = response["collection"]
             return memory_ids
         elif response["status_code"] == 401:
             raise MemoryError("Memory collection not found.")
@@ -149,7 +148,7 @@ class MemoriesCollection:
         self.config = config
         self.api_client = api_client
 
-    def attach(self, id: MEMORY_COLLECTION_ID) -> None:
+    def attach(self, id: UUID) -> None:
         """
         Attaches an existing memory collection to the assistant.
         """
@@ -167,7 +166,7 @@ class MemoriesCollection:
         else:
             raise MemoryError(f"Unknown response: {response}")
 
-    def detach(self, id: MEMORY_COLLECTION_ID) -> None:
+    def detach(self, id: UUID) -> None:
         """
         Detaches an existing memory collection from the assistant.
         """
@@ -187,7 +186,7 @@ class MemoriesCollection:
         else:
             raise MemoryError(f"Unknown response: {response}")
 
-    def list(self) -> List[MEMORY_COLLECTION_ID]:
+    def list(self) -> List[UUID]:
         """
         List all memory collections attached to the assistant.
         """

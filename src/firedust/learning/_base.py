@@ -27,7 +27,8 @@ class Learning:
         """
         The fastest way to teach the assistant is by providing data in
         string format. This can be documentation, code, examples, or any
-        other data that you want the assistant to learn from.
+        other data. The assistant will learn the information and use it
+        to answer questions and perform tasks.
 
         Args:
             text (str): The text to learn.

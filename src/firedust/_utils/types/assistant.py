@@ -1,7 +1,9 @@
-from typing import Any, List
+from typing import Any, List, Literal
 from uuid import UUID, uuid4
 
-from ._base import BaseConfig
+from pydantic import BaseModel
+
+from ._base import UNIX_TIMESTAMP, BaseConfig
 from .ability import AbilityConfig
 from .inference import InferenceConfig
 from .interface import Interfaces
@@ -41,3 +43,20 @@ class AssistantConfig(BaseConfig):
             )
 
         return super().__setattr__(key, value)
+
+
+class Message(BaseModel):
+    """
+    Represents a message between the user and the assistant.
+
+    Args:
+        user_id (UUID, optional): The unique identifier of the user. Defaults to None.
+        author (Literal["user", "assistant"]): The author of the message.
+        text (str): The text of the message.
+        timestamp (UNIX_TIMESTAMP, optional): The timestamp of the message. Defaults to None.
+    """
+
+    user_id: UUID | None = None
+    author: Literal["user", "assistant"]
+    text: str
+    timestamp: UNIX_TIMESTAMP | None = None

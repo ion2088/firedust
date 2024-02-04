@@ -3,6 +3,8 @@ from uuid import UUID
 
 from pydantic import BaseModel
 
+UNIX_TIMESTAMP = int | float
+
 
 class BaseConfig(BaseModel):
     """
