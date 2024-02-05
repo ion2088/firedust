@@ -50,12 +50,14 @@ class Message(BaseModel):
     Represents a message between the user and the assistant.
 
     Args:
+        assistant_id (UUID): The unique identifier of the assistant.
         user_id (UUID, optional): The unique identifier of the user. Defaults to None.
         author (Literal["user", "assistant"]): The author of the message.
         text (str): The text of the message.
         timestamp (UNIX_TIMESTAMP, optional): The timestamp of the message. Defaults to None.
     """
 
+    assistant_id: UUID
     user_id: UUID | None = None
     author: Literal["user", "assistant"]
     text: str
