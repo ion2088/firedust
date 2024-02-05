@@ -59,4 +59,4 @@ class Message(BaseModel):
     user_id: UUID | None = None
     author: Literal["user", "assistant"]
     text: str
-    timestamp: UNIX_TIMESTAMP | None = None
+    timestamp: UNIX_TIMESTAMP
