@@ -1,5 +1,5 @@
 from typing import Any, List, Literal
-from uuid import UUID, uuid4
+from uuid import UUID
 
 from pydantic import BaseModel
 
@@ -15,20 +15,20 @@ class AssistantConfig(BaseConfig):
     Represents the configuration of an AI Assistant.
 
     Args:
-        id (UUID, optional): The unique identifier of the assistant. Defaults to uuid4().
-        name (str, optional): The name of the assistant. Defaults to "Sam".
-        instructions (List[str], optional): The instructions of the assistant. Defaults to ["You are a helpful assistant."].
-        inference (InferenceConfig, optional): The inference configuration of the assistant. Defaults to InferenceConfig().
-        memory (MemoryConfig, optional): The memory configuration of the assistant. Defaults to MemoryConfig().
+        id (UUID): The unique identifier of the assistant.
+        name (str): The name of the assistant.
+        instructions (List[str]): The instructions of the assistant.
+        inference (InferenceConfig): The inference configuration of the assistant.
+        memory (MemoryConfig): The memory configuration of the assistant.
         abilities (List[Ability], optional): The abilities of the assistant. Defaults to None.
         deployments (List[Interface], optional): The deployments of the assistant. Defaults to None.
     """
 
-    id: UUID = uuid4()
-    name: str = "Sam"
-    instructions: List[str] = ["You are a helpful assistant."]
-    inference: InferenceConfig = InferenceConfig()
-    memory: MemoryConfig = MemoryConfig()
+    id: UUID
+    name: str
+    instructions: List[str]
+    inference: InferenceConfig
+    memory: MemoryConfig
     abilities: List[AbilityConfig] = []
     interfaces: Interfaces = Interfaces()
 

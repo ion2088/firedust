@@ -1,4 +1,4 @@
-from typing import Any, List, Literal
+from typing import Any, Dict, List, Literal
 from uuid import UUID, uuid4
 
 from pydantic import BaseModel, field_validator
@@ -6,6 +6,13 @@ from pydantic import BaseModel, field_validator
 from firedust._utils import checks
 
 from ._base import UNIX_TIMESTAMP, BaseConfig
+
+EMBEDDING_MODELS = Literal["mistral-embed"]
+EMBEDDING_PROVIDERS = Literal["mistral"]
+
+EMBEDDING_MODELS_MAP: Dict[EMBEDDING_PROVIDERS, List[EMBEDDING_MODELS]] = {
+    "mistral": ["mistral-embed"],
+}
 
 
 class MemoryItem(BaseConfig):
@@ -60,9 +67,8 @@ class MemoryConfig(BaseModel):
     Configuration for Assistant's memory.
     """
 
-    embedding_model: Literal[
-        "sand/MiniLM-L6-v2", "sand/UAE-Large-v1"
-    ] = "sand/MiniLM-L6-v2"
+    embedding_model: EMBEDDING_MODELS = "mistral-embed"
+    embedding_model_provider: EMBEDDING_PROVIDERS = "mistral"
     default_collection: UUID = uuid4()
     extra_collections: List[UUID] = []
 

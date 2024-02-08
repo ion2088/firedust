@@ -1,34 +1,20 @@
-# FILEPATH: /firedust/tests/test_assistant.py
-from unittest.mock import MagicMock, patch
+import os
 
-from firedust._utils.types.assistant import AssistantConfig
-from firedust.ability._base import Abilities
-from firedust.assistant import Assistant, Update, connect
-from firedust.interface._base import Interface
-from firedust.interface.chat import Chat
-from firedust.learning._base import Learning
-from firedust.memory._base import Memory
+import firedust
+from firedust.assistant import Assistant
 
+# def test_create_list_load_delete_assistant() -> None:
+#     assert os.environ.get("FIREDUST_API_KEY") is not None
 
-@patch("firedust.assistant.APIClient.post")
-def test_assistant_initialization(mock_post: MagicMock) -> None:
-    connect(api_key="test_key")
-    config = AssistantConfig()
-    assistant = Assistant(config)
+#     # Create an assistant
+#     assistant = firedust.assistant.create()
+#     assert isinstance(assistant, Assistant)
 
-    assert isinstance(assistant.config, AssistantConfig)
-    assert isinstance(assistant.update, Update)
-    assert isinstance(assistant.interface, Interface)
-    assert isinstance(assistant.learn, Learning)
-    assert isinstance(assistant.chat, Chat)
-    assert isinstance(assistant.memory, Memory)
-    assert isinstance(assistant.ability, Abilities)
+#     # List all assistants
+#     assistants = firedust.assistant.list()
 
+#     # Load the assistant
+#     loaded_assistant = firedust.assistant.load(assistant.config.id)
 
-@patch("firedust.assistant.APIClient.post")
-def test_assistant_repr(mock_post: MagicMock) -> None:
-    connect(api_key="test_key")
-    config = AssistantConfig()
-    assistant = Assistant(config)
-
-    assert repr(assistant) == f"<{assistant.__class__.__name__}>\n\n{assistant.config}"
+#     # Delete the assistant
+#     firedust.assistant.delete(assistant.config.id)

@@ -42,13 +42,20 @@ from firedust._utils.api import APIClient
 from firedust._utils.errors import AssistantError
 from firedust._utils.types.assistant import AssistantConfig
 from firedust._utils.types.inference import InferenceConfig
+from firedust._utils.types.memory import MemoryConfig
 from firedust.ability._base import Abilities
 from firedust.interface._base import Interface
 from firedust.interface.chat import Chat
 from firedust.learning._base import Learning
 from firedust.memory._base import Memory
 
-DEFAULT_CONFIG = AssistantConfig()
+DEFAULT_CONFIG = AssistantConfig(
+    id=uuid4(),
+    name="Sam",
+    instructions=["You are a helpful assistant."],
+    inference=InferenceConfig(),
+    memory=MemoryConfig(),
+)
 LOG = logging.getLogger("firedust")
 
 
@@ -59,6 +66,7 @@ class Assistant:
 
     Attributes:
         config (AssistantConfig): The assistant configuration.
+        api_client (APIClient): The API client.
         update (Update): Methods to update the configuration of the assistant.
         interface (Interface): Deploy and interact with the assistant on Slack, email, Discord and other interfaces.
         learn (Learning): Methods to train the assistant on your data.
@@ -67,28 +75,65 @@ class Assistant:
         ability (Ability): Methods to manage and interact with the assistant's abilities.
     """
 
-    def __init__(self, config: AssistantConfig = DEFAULT_CONFIG) -> None:
+    config: AssistantConfig
+    api_client: APIClient
+
+    update: "Update"
+    interface: Interface
+    learn: Learning
+    chat: Chat
+    memory: Memory
+    ability: Abilities
+
+    def __init__(self) -> None:
+        raise AssistantError(
+            """
+            The Assistant class is not meant to be instantiated directly. \n\n
+            
+            To create or load an assistant, use the following methods: \n
+            firedust.assistant.create(assistant_config) \n
+            firedust.assistant.load(assistant_id)
+            """
+        )
+
+    @classmethod
+    def _init(self, config: AssistantConfig) -> "Assistant":
         """
         Initializes a new instance of the Assistant class.
 
+        The initialization method is reserved for internal use only.
+        To create or load an assistant, use the following methods:
+        ```
+            firedust.assistant.create(assistant_config)
+            firedust.assistant.load(assistant_id)
+        ```
+
         Args:
             config (AssistantConfig, optional): The assistant configuration. Defaults to DEFAULT_CONFIG.
+
+        Returns:
+            Assistant: The assistant instance.
         """
 
+        # Create a new Assistant instance
+        assistant = self.__new__(self)
+
         # configuration
-        self.api_client = APIClient()
-        self.config = config
-        _validate(config, self.api_client)
+        assistant.api_client = APIClient()
+        assistant.config = config
+        _validate(config, assistant.api_client)
 
         # management
-        self.update = Update(self.config, self.api_client)
-        self.interface = Interface(self.config, self.api_client)
+        assistant.update = Update(assistant.config, assistant.api_client)
+        assistant.interface = Interface(assistant.config, assistant.api_client)
 
         # essence
-        self.learn = Learning(self.config, self.api_client)
-        self.chat = Chat(config, self.api_client)
-        self.memory = Memory(config, self.api_client)
-        self.ability = Abilities(config, self.api_client)
+        assistant.learn = Learning(assistant.config, assistant.api_client)
+        assistant.chat = Chat(config, assistant.api_client)
+        assistant.memory = Memory(config, assistant.api_client)
+        assistant.ability = Abilities(config, assistant.api_client)
+
+        return assistant
 
     def __repr__(self) -> str:
         "Return a string representation of the Assistant"
@@ -179,7 +224,7 @@ def create(
     """
     api_client = api_client or APIClient()
     response = api_client.post(
-        f"{api_client.base_url}/assistant",
+        f"{api_client.base_url}/assistant/{config.id}/create",
         data={"assistant": config.model_dump_json()},
     )
 
@@ -187,12 +232,14 @@ def create(
         # TODO: Add error handlers and more explicit msgs
         raise AssistantError("An error occured while creating the assistant")
 
-    LOG.info("Assistant created successfully in the cloud.")
+    LOG.info(
+        f"Assistant {config.name} was created successfully and saved in the cloud."
+    )
 
-    return Assistant(config)
+    return Assistant._init(config)
 
 
-def load(id: UUID, api_client: APIClient | None = None) -> Assistant:
+def load(assistant_id: UUID, api_client: APIClient | None = None) -> Assistant:
     """
     Loads an existing assistant from the cloud.
 
@@ -203,16 +250,16 @@ def load(id: UUID, api_client: APIClient | None = None) -> Assistant:
         Assistant: The loaded assistant.
     """
     api_client = api_client or APIClient()
-    response = api_client.get(f"{api_client.base_url}/assistant/{id}/load")
+    response = api_client.get(f"{api_client.base_url}/assistant/{assistant_id}/load")
 
     if response["status"] != 200:
         # TODO: Add more explicit error handling
         raise AssistantError(
-            f"An error occured while loading the assistant with id {id}"
+            f"An error occured while loading the assistant with id {assistant_id}"
         )
 
     assistant_config = AssistantConfig(**response["data"])
-    return Assistant(assistant_config)
+    return Assistant._init(config=assistant_config)
 
 
 def list(api_client: APIClient | None = None) -> List[AssistantConfig]:
