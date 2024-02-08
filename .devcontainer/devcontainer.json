@@ -1,24 +1,21 @@
-// For format details, see https://aka.ms/devcontainer.json. For config options, see the README at:
-// https://github.com/microsoft/vscode-dev-containers/tree/v0.241.1/containers/docker-existing-dockerfile
 {
-	"name": "Existing Dockerfile",
-	// Sets the run context to one level up instead of the .devcontainer folder.
+	"name": "Firedust",
 	"context": "..",
-	// Update the 'dockerFile' property if you aren't using the standard 'Dockerfile' filename.
 	"dockerFile": "../Dockerfile",
 	"build": {
 	  "target": "firedust-dev"
 	},
-	"mounts": [
-	  "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=cached"
-	],
 	"runArgs": [
-	  "--network", "host"
+		"--network=host",
+		"-e", "DEV_NAME=${localEnv:DEV_NAME}",
+		"-e", "DEV_EMAIL=${localEnv:DEV_EMAIL}"
 	],
-	// Add the IDs of extensions you want installed when the container is created.
+	"mounts": [
+		"source=/home/ubuntu/.ssh,target=/root/.ssh,type=bind,consistency=cached"
+	],
+	"postCreateCommand": "git config --global user.name $DEV_NAME && git config --global user.email $DEV_EMAIL && chmod 600 /root/.ssh/id_rsa",
 	"customizations": {
 		"vscode": {
-			"remoteUser": "dev",
 			"extensions": [
 				"ms-azuretools.vscode-docker",
 				"ms-python.python",
