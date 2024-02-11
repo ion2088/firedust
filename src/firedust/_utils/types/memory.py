@@ -1,7 +1,7 @@
 from typing import Any, Dict, List, Literal
 from uuid import UUID, uuid4
 
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, Field, field_serializer, field_validator
 
 from firedust._utils import checks
 
@@ -37,12 +37,14 @@ class MemoryItem(BaseConfig):
     source: str | None = None
 
     @field_validator("context")
+    @classmethod
     def validate_context_length(cls, context: str) -> str | Exception:
         if len(context) > 2000:
             raise ValueError("Memory context exceeds maximum length of 2000 characters")
         return context
 
     @field_validator("timestamp")
+    @classmethod
     def validate_timestamp(
         cls, timestamp: UNIX_TIMESTAMP
     ) -> UNIX_TIMESTAMP | Exception:
@@ -53,13 +55,40 @@ class MemoryItem(BaseConfig):
             raise ValueError(f"Invalid timestamp: {e}")
         return timestamp
 
+    @field_serializer("collection", when_used="always")
+    def serialize_id(self, value: UUID) -> str:
+        return str(value)
 
-class MemoriesCollectionItem(BaseConfig):
+
+class MemoriesCollection(BaseConfig):
     """
     Represents a collection of memories used by the assistant.
     """
 
-    collection: List[UUID] | None = None
+    collection_id: UUID
+    memory_ids: List[UUID] | None = None
+
+    def __setattr__(self, key: str, value: Any) -> None:
+        # set immutable attributes
+        if key == "collection_id":
+            raise AttributeError(
+                """
+                Cannot set attribute 'collection_id', it is immutable.
+                To add a memory to the collection use assistant.memory.collection.add method.
+                """
+            )
+
+        return super().__setattr__(key, value)
+
+    @field_serializer("collection_id", when_used="always")
+    def serialize_collection_id(self, value: UUID) -> str:
+        return str(value)
+
+    @field_serializer("memory_ids", when_used="always")
+    def serialize_memory_ids(self, value: List[UUID] | None) -> List[str] | None:
+        if value is None:
+            return None
+        return [str(memory_id) for memory_id in value]
 
 
 class MemoryConfig(BaseModel):
@@ -67,9 +96,9 @@ class MemoryConfig(BaseModel):
     Configuration for Assistant's memory.
     """
 
+    default_collection: UUID = Field(default_factory=uuid4)
     embedding_model: EMBEDDING_MODELS = "mistral-embed"
     embedding_model_provider: EMBEDDING_PROVIDERS = "mistral"
-    default_collection: UUID = uuid4()
     extra_collections: List[UUID] = []
 
     def __setattr__(self, key: str, value: Any) -> None:
@@ -90,3 +119,11 @@ class MemoryConfig(BaseModel):
             )
 
         return super().__setattr__(key, value)
+
+    @field_serializer("default_collection", when_used="always")
+    def serialize_default_collection(self, value: UUID) -> str:
+        return str(value)
+
+    @field_serializer("extra_collections", when_used="always")
+    def serialize_extra_collections(self, value: List[UUID]) -> List[str]:
+        return [str(collection) for collection in value]

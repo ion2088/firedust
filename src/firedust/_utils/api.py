@@ -3,9 +3,10 @@ from typing import Any, AsyncIterator, Dict, Iterator
 
 import httpx
 
-from firedust._utils.errors import APIError, MissingFiredustKeyError
+from firedust._utils.errors import MissingFiredustKeyError
 
-BASE_URL = "https://api.firedust.ai/v1"
+# BASE_URL = "https://api.firedust.ai/v1"
+BASE_URL = "http://0.0.0.0:8080"
 
 
 class APIClient:
@@ -41,16 +42,16 @@ class APIClient:
         }
 
     # sync methods
-    def get(self, url: str, params: Dict[str, Any] | None = None) -> Dict[str, Any]:
+    def get(self, url: str, params: Dict[str, Any] | None = None) -> httpx.Response:
         return self._request_sync("get", url, params=params)
 
-    def post(self, url: str, data: Dict[str, Any] | None = None) -> Dict[str, Any]:
+    def post(self, url: str, data: Dict[str, Any] | None = None) -> httpx.Response:
         return self._request_sync("post", url, data=data)
 
-    def put(self, url: str, data: Dict[str, Any] | None = None) -> Dict[str, Any]:
+    def put(self, url: str, data: Dict[str, Any] | None = None) -> httpx.Response:
         return self._request_sync("put", url, data=data)
 
-    def delete(self, url: str) -> Dict[str, Any]:
+    def delete(self, url: str) -> httpx.Response:
         return self._request_sync("delete", url)
 
     def get_stream(
@@ -72,20 +73,20 @@ class APIClient:
     # async methods
     async def get_async(
         self, url: str, params: Dict[str, Any] | None = None
-    ) -> Dict[str, Any]:
+    ) -> httpx.Response:
         return await self._request_async("get", url, params=params)
 
     async def post_async(
         self, url: str, data: Dict[str, Any] | None = None
-    ) -> Dict[str, Any]:
+    ) -> httpx.Response:
         return await self._request_async("post", url, data=data)
 
     async def put_async(
         self, url: str, data: Dict[str, Any] | None = None
-    ) -> Dict[str, Any]:
+    ) -> httpx.Response:
         return await self._request_async("put", url, data=data)
 
-    async def delete_async(self, url: str) -> Dict[str, Any]:
+    async def delete_async(self, url: str) -> httpx.Response:
         return await self._request_async("delete", url)
 
     async def get_stream_async(
@@ -117,14 +118,12 @@ class APIClient:
         url: str,
         params: Dict[str, Any] | None = None,
         data: Dict[str, Any] | None = None,
-    ) -> Dict[str, Any] | Any:
+    ) -> httpx.Response:
         url = self.base_url + url
         response = httpx.request(
-            method, url, params=params, json=data, headers=self.headers
+            method, url, params=params, json=data, headers=self.headers, timeout=30
         )
-        _handle_status_codes(response)
-
-        return response.json()
+        return response
 
     async def _request_async(
         self,
@@ -132,26 +131,10 @@ class APIClient:
         url: str,
         params: Dict[str, Any] | None = None,
         data: Dict[str, Any] | None = None,
-    ) -> Dict[str, Any] | Any:
+    ) -> httpx.Response:
         url = self.base_url + url
         async with httpx.AsyncClient() as client:
             response = await client.request(
-                method, url, params=params, json=data, headers=self.headers
+                method, url, params=params, json=data, headers=self.headers, timeout=30
             )
-            _handle_status_codes(response)
-
-            return response.json()
-
-
-def _handle_status_codes(response: httpx.Response) -> None:
-    if response.status_code == 400:
-        raise APIError("Bad Request", response.status_code)
-    elif response.status_code == 401:
-        raise APIError("Unauthorized", response.status_code)
-    elif response.status_code == 403:
-        raise APIError("Forbidden", response.status_code)
-    elif response.status_code == 404:
-        raise APIError("Not Found", response.status_code)
-    elif response.status_code == 500:
-        raise APIError("Internal Server Error", response.status_code)
-    # TODO: Customize status codes and error messages
+            return response

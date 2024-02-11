@@ -68,7 +68,8 @@ class Memory:
         response = self.api_client.get(
             f"assistant/{self.config.id}/memory/recall/{query}",
         )
-        return [MemoryItem(**memory) for memory in response["memories"]]
+        data = response.json()
+        return [MemoryItem(**memory) for memory in data["memories"]]
 
     def add(self, memory: MemoryItem) -> None:
         """
@@ -79,7 +80,7 @@ class Memory:
         """
         self.api_client.post(
             f"assistant/{self.config.id}/memory/add/",
-            data={"memory": memory.model_dump_json()},
+            data={"memory": memory.model_dump()},
         )
 
     def remove(self, memory_id: UUID) -> None:
@@ -106,10 +107,10 @@ class Memory:
             f"assistant/{self.config.id}/memory/collections/list/{collection_id}",
         )
 
-        if response["status_code"] == 200:
-            memory_ids: List[UUID] = response["collection"]
+        if response.status_code == 200:
+            memory_ids: List[UUID] = response.json()["collection"]
             return memory_ids
-        elif response["status_code"] == 401:
+        elif response.status_code == 401:
             raise MemoryError("Memory collection not found.")
         else:
             raise MemoryError(f"Unknown response: {response}")
@@ -156,12 +157,12 @@ class MemoriesCollection:
             f"assistant/{self.config.id}/memory/collections/attach/{id}",
         )
 
-        if response["status_code"] == 200:
+        if response.status_code == 200:
             self.config.memory.extra_collections.append(id)
             return
-        elif response["status_code"] == 401:
+        elif response.status_code == 401:
             raise MemoryError("Memory collection not found.")
-        elif response["status_code"] == 402:
+        elif response.status_code == 402:
             raise MemoryError("Memory collection already attached.")
         else:
             raise MemoryError(f"Unknown response: {response}")
@@ -174,14 +175,14 @@ class MemoriesCollection:
             f"assistant/{self.config.id}/memory/collections/detach/{id}",
         )
 
-        if response["status_code"] == 200:
+        if response.status_code == 200:
             self.config.memory.extra_collections.remove(id)
             return
-        elif response["status_code"] == 401:
+        elif response.status_code == 401:
             raise MemoryError("Memory collection not found.")
-        elif response["status_code"] == 402:
+        elif response.status_code == 402:
             raise MemoryError("Memory collection already detached.")
-        elif response["status_code"] == 403:
+        elif response.status_code == 403:
             raise MemoryError("Cannot detach default memory collection.")
         else:
             raise MemoryError(f"Unknown response: {response}")

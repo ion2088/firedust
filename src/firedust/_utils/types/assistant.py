@@ -1,7 +1,7 @@
 from typing import Any, List, Literal
 from uuid import UUID
 
-from pydantic import BaseModel
+from pydantic import BaseModel, field_serializer
 
 from ._base import UNIX_TIMESTAMP, BaseConfig
 from .ability import AbilityConfig
@@ -15,7 +15,6 @@ class AssistantConfig(BaseConfig):
     Represents the configuration of an AI Assistant.
 
     Args:
-        id (UUID): The unique identifier of the assistant.
         name (str): The name of the assistant.
         instructions (List[str]): The instructions of the assistant.
         inference (InferenceConfig): The inference configuration of the assistant.
@@ -24,7 +23,6 @@ class AssistantConfig(BaseConfig):
         deployments (List[Interface], optional): The deployments of the assistant. Defaults to None.
     """
 
-    id: UUID
     name: str
     instructions: List[str]
     inference: InferenceConfig
@@ -62,3 +60,13 @@ class Message(BaseModel):
     author: Literal["user", "assistant"]
     text: str
     timestamp: UNIX_TIMESTAMP
+
+    @field_serializer("assistant_id", when_used="always")
+    def serialize_assistant_id(self, value: UUID) -> str:
+        return str(value)
+
+    @field_serializer("user_id", when_used="always")
+    def serialize_user_id(self, value: UUID | None) -> str | None:
+        if value is None:
+            return None
+        return str(value)

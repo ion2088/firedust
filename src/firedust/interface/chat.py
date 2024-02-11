@@ -74,9 +74,9 @@ class Chat:
             params={"message": message, "user_id": user_id},
         )
 
-        if response["status_code"] != 200:
-            raise Exception(response["message"])
+        if response.status_code != 200:
+            raise Exception(response.json()["message"])
 
-        completion: str = response["completion"]
+        completion: str = response.json()["completion"]
 
         return completion

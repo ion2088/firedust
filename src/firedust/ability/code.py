@@ -51,7 +51,7 @@ class CodeAbility:
             f"assistant/{self.config.id}/ability/code/write",
             data={"instruction": instruction},
         )
-        code: str = response["data"]["code"]
+        code: str = response.json()["data"]["code"]
         return code
 
     def execute(self, code: str) -> None:

@@ -208,7 +208,7 @@ class Update:
         self.config.inference = inference_config
         self.api_client.put(
             f"assistant/{self.config.id}/update/inference",
-            data={"inference": inference_config.model_dump_json()},
+            data={"inference": inference_config.model_dump()},
         )
 
 
@@ -224,11 +224,11 @@ def create(
     """
     api_client = api_client or APIClient()
     response = api_client.post(
-        f"{api_client.base_url}/assistant/{config.id}/create",
-        data={"assistant": config.model_dump_json()},
+        "/assistant/create",
+        data=config.model_dump(),
     )
 
-    if response["status"] != 200:
+    if response.status_code != 200:
         # TODO: Add error handlers and more explicit msgs
         raise AssistantError("An error occured while creating the assistant")
 
@@ -250,15 +250,15 @@ def load(assistant_id: UUID, api_client: APIClient | None = None) -> Assistant:
         Assistant: The loaded assistant.
     """
     api_client = api_client or APIClient()
-    response = api_client.get(f"{api_client.base_url}/assistant/{assistant_id}/load")
+    response = api_client.get(f"/assistant/{assistant_id}/load")
 
-    if response["status"] != 200:
+    if response.status_code != 200:
         # TODO: Add more explicit error handling
         raise AssistantError(
             f"An error occured while loading the assistant with id {assistant_id}"
         )
 
-    assistant_config = AssistantConfig(**response["data"])
+    assistant_config = AssistantConfig(**response.json()["data"])
     return Assistant._init(config=assistant_config)
 
 
@@ -270,14 +270,14 @@ def list(api_client: APIClient | None = None) -> List[AssistantConfig]:
         List[AssistantConfig]: A list of all the assistants.
     """
     api_client = api_client or APIClient()
-    response = api_client.get(f"{api_client.base_url}/assistants/list")
+    response = api_client.get("/assistants/list")
 
-    if response["status"] != 200:
+    if response.status_code != 200:
         # TODO: Add more explicit error handling
         raise AssistantError("An error occured while listing the assistants")
 
     assistants = []
-    for assistant in response["data"]:
+    for assistant in response.json()["data"]:
         assistants.append(AssistantConfig(**assistant))
 
     return assistants
@@ -291,9 +291,9 @@ def delete(id: UUID, api_client: APIClient | None = None) -> None:
         id (UUID): The ID of the assistant to delete.
     """
     api_client = api_client or APIClient()
-    response = api_client.delete(f"{api_client.base_url}/assistant/{id}/delete")
+    response = api_client.delete(f"/assistant/{id}/delete")
 
-    if response["status"] != 200:
+    if response.status_code != 200:
         # TODO: Add more explicit error handling
         raise AssistantError(
             f"An error occured while deleting the assistant with id {id}"
@@ -326,11 +326,11 @@ def _validate(config: AssistantConfig, api_client: APIClient | None = None) -> N
     """
     api_client = api_client or APIClient()
     response = api_client.post(
-        f"{api_client.base_url}/assistant/{config.id}/validate",
-        data={"assistant": config.model_dump_json()},
+        f"/assistant/{config.id}/validate",
+        data={"assistant": config.model_dump()},
     )
 
-    if response["status"] == 401:
+    if response.status_code == 401:
         # Assistant with the same ID but different configuration exists
         raise AssistantError(
             f"""

@@ -1,9 +1,9 @@
 from typing import Any
 from uuid import UUID
 
-from pydantic import BaseModel
+from pydantic import BaseModel, field_serializer
 
-UNIX_TIMESTAMP = int | float
+UNIX_TIMESTAMP = float  # see: https://www.unixtimestamp.com/
 
 
 class BaseConfig(BaseModel):
@@ -20,3 +20,7 @@ class BaseConfig(BaseModel):
             raise AttributeError("Cannot set attribute 'id', it is immutable.")
 
         return super().__setattr__(key, value)
+
+    @field_serializer("id", when_used="always")
+    def serialize_id(self, value: UUID) -> str:
+        return str(value)

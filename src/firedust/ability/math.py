@@ -42,6 +42,6 @@ class MathAbility:
             f"assistant/{self.config.id}/ability/math/solve",
             data={"problem": problem},
         )
-        solution: str = response["data"]["solution"]
+        solution: str = response.json()["data"]["solution"]
 
         return solution

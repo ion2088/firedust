@@ -51,10 +51,10 @@ class EmailInterface:
             data={"instruction": instruction},
         )
 
-        if response["status_code"] != 200:
+        if response.status_code != 200:
             raise EmailError("Failed to compose email.")
 
-        return Email(**response["data"])
+        return Email(**response.json()["data"])
 
     def send(self, to: str, email: Email) -> None:
         """
@@ -66,10 +66,10 @@ class EmailInterface:
         """
         response = self.api_client.post(
             f"assistant/{self.assistant_config.id}/interface/email/send",
-            data={"to": to, "email": email.model_dump_json()},
+            data={"to": to, "email": email.model_dump()},
         )
 
-        if response["status_code"] != 200:
+        if response.status_code != 200:
             raise EmailError("Failed to send email.")
 
     def deploy(self, config: EmailConfig) -> None:
@@ -82,9 +82,9 @@ class EmailInterface:
 
         response = self.api_client.post(
             f"assistant/{self.assistant_config.id}/interface/email/deploy",
-            data={"email": config.model_dump_json()},
+            data={"email": config.model_dump()},
         )
-        if response["status_code"] != 200:
+        if response.status_code != 200:
             raise EmailError("Failed to deploy assistant to email.")
 
         self.email_config = config

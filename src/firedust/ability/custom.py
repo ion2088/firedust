@@ -56,10 +56,10 @@ class CustomAbility:
         """
         response = self.api_client.post(
             f"assistants/{self.config.id}/abilities/custom/create",
-            data={"ability": config.model_dump_json()},
+            data={"ability": config.model_dump()},
         )
 
-        if response["status_code"] != 200:
+        if response.status_code != 200:
             raise CustomAbilityError("Failed to create custom ability.")
 
     def execute(self, ability_id: str, instruction: str) -> str:
@@ -74,8 +74,8 @@ class CustomAbility:
             data={"id": ability_id, "instruction": instruction},
         )
 
-        if response["status_code"] != 200:
+        if response.status_code != 200:
             raise CustomAbilityError("Failed to execute custom ability.")
 
-        result: str = response["data"]["result"]
+        result: str = response.json()["data"]["result"]
         return result

@@ -8,7 +8,8 @@
 	"runArgs": [
 		"--network=host",
 		"-e", "DEV_NAME=${localEnv:DEV_NAME}",
-		"-e", "DEV_EMAIL=${localEnv:DEV_EMAIL}"
+		"-e", "DEV_EMAIL=${localEnv:DEV_EMAIL}",
+		"-e", "FIREDUST_API_KEY=${localEnv:FIREDUST_API_KEY}"
 	],
 	"mounts": [
 		"source=/home/ubuntu/.ssh,target=/root/.ssh,type=bind,consistency=cached"

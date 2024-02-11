@@ -1,10 +1,7 @@
 from abc import ABC
 from typing import Any, List, Literal
-from uuid import UUID, uuid4
 
 from ._base import BaseConfig
-
-ABILITY_ID = UUID
 
 
 class AbilityConfig(BaseConfig, ABC):
@@ -12,7 +9,6 @@ class AbilityConfig(BaseConfig, ABC):
     Represents a configuration for an ability.
     """
 
-    id: ABILITY_ID = uuid4()
     name: str
     description: str
     instructions: List[str]

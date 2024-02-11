@@ -50,10 +50,10 @@ class SlackInterface:
             data=config.dict(),
         )
 
-        if response["status_code"] != 200:
+        if response.status_code != 200:
             raise SlackError("Failed to deploy assistant to Slack.")
 
-        self.slack_config = SlackConfig(**response["data"])
+        self.slack_config = SlackConfig(**response.json()["data"])
         self.assistant_config.interfaces.slack = self.slack_config
 
     def send(self) -> None:

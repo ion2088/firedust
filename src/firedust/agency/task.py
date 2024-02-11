@@ -50,10 +50,10 @@ class Task:
             data={"task": task},
         )
 
-        if response["status_code"] != 200:
-            raise Exception(response["message"])
+        if response.status_code != 200:
+            raise Exception(response.json()["message"])
 
-        metadata: Dict[str, str] = response
+        metadata: Dict[str, str] = response.json()
 
         return metadata
 
@@ -89,10 +89,10 @@ class Schedule:
             data={"task": task},
         )
 
-        if response["status_code"] != 200:
-            raise Exception(response["message"])
+        if response.status_code != 200:
+            raise Exception(response.json()["message"])
 
-        metadata: Dict[str, str] = response
+        metadata: Dict[str, str] = response.json()
 
         return metadata
 
@@ -107,10 +107,10 @@ class Schedule:
             f"assistant/{self.config.id}/agency/task/schedule/list",
         )
 
-        if response["status_code"] != 200:
-            raise Exception(response["message"])
+        if response.status_code != 200:
+            raise Exception(response.json()["message"])
 
         scheduled_tasks: List[ScheduledTask] = [
-            ScheduledTask(**task) for task in response["result"]
+            ScheduledTask(**task) for task in response.json()["result"]
         ]
         return scheduled_tasks
