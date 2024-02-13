@@ -49,10 +49,8 @@ class Task:
             f"assistant/{self.config.id}/agency/task/run",
             data={"task": task},
         )
-
         if response.status_code != 200:
             raise Exception(response.json()["message"])
-
         metadata: Dict[str, str] = response.json()
 
         return metadata

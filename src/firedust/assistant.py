@@ -39,7 +39,7 @@ from typing import List
 from uuid import UUID, uuid4
 
 from firedust._utils.api import APIClient
-from firedust._utils.errors import AssistantError
+from firedust._utils.errors import APIError, AssistantError
 from firedust._utils.types.assistant import AssistantConfig
 from firedust._utils.types.inference import InferenceConfig
 from firedust._utils.types.memory import MemoryConfig
@@ -121,7 +121,7 @@ class Assistant:
         # configuration
         assistant.api_client = APIClient()
         assistant.config = config
-        _validate(config, assistant.api_client)
+        # _validate(config, assistant.api_client)
 
         # management
         assistant.update = Update(assistant.config, assistant.api_client)
@@ -171,31 +171,20 @@ class Update:
         """
         self.config.name = name
         self.api_client.put(
-            f"assistant/{self.config.id}/update/name/{name}",
+            f"/assistant/{self.config.id}/update/name/{name}",
         )
 
-    def add_instruction(self, instruction: str) -> None:
+    def instructions(self, instructions: List[str]) -> None:
         """
-        Adds an instruction to the assistant.
+        Updates the instructions of the assistant.
 
         Args:
-            instruction (str): The instruction to add.
+            instructions (List[str]): The new instructions of the assistant.
         """
-        self.config.instructions.append(instruction)
-        self.api_client.put(
-            f"assistant/{self.config.id}/update/instructions/add/{instruction}",
-        )
-
-    def remove_instruction(self, instruction: str) -> None:
-        """
-        Removes an instruction from the assistant.
-
-        Args:
-            instruction (str): The instruction to remove.
-        """
-        self.config.instructions.remove(instruction)
-        self.api_client.put(
-            f"assistant/{self.config.id}/update/instructions/remove/{instruction}",
+        self.config.instructions = instructions
+        self.api_client.post(
+            f"/assistant/{self.config.id}/update/instructions",
+            data={"instructions": instructions},
         )
 
     def inference_config(self, inference_config: InferenceConfig) -> None:
@@ -206,8 +195,8 @@ class Update:
             inference_config (InferenceConfig): The new inference configuration.
         """
         self.config.inference = inference_config
-        self.api_client.put(
-            f"assistant/{self.config.id}/update/inference",
+        self.api_client.post(
+            f"/assistant/{self.config.id}/update/inference",
             data={"inference": inference_config.model_dump()},
         )
 
@@ -223,17 +212,15 @@ def create(
         api_client (APIClient): The API client.
     """
     api_client = api_client or APIClient()
-    response = api_client.post(
-        "/assistant/create",
-        data=config.model_dump(),
-    )
-
+    response = api_client.post("/assistant/create", data=config.model_dump())
+    response_json = response.json()
     if response.status_code != 200:
-        # TODO: Add error handlers and more explicit msgs
-        raise AssistantError("An error occured while creating the assistant")
+        raise APIError(
+            f"An error occured while creating the assistant: {response_json['message']}"
+        )
 
     LOG.info(
-        f"Assistant {config.name} was created successfully and saved in the cloud."
+        f"Assistant {config.name} (ID: {config.id}) was created successfully and saved in the cloud."
     )
 
     return Assistant._init(config)
@@ -251,14 +238,13 @@ def load(assistant_id: UUID, api_client: APIClient | None = None) -> Assistant:
     """
     api_client = api_client or APIClient()
     response = api_client.get(f"/assistant/{assistant_id}/load")
-
+    response_json = response.json()
     if response.status_code != 200:
-        # TODO: Add more explicit error handling
         raise AssistantError(
-            f"An error occured while loading the assistant with id {assistant_id}"
+            f"An error occured while loading the assistant with id {assistant_id}: {response_json['message']}"
         )
 
-    assistant_config = AssistantConfig(**response.json()["data"])
+    assistant_config = AssistantConfig(**response_json["data"]["assistant"])
     return Assistant._init(config=assistant_config)
 
 
@@ -270,14 +256,16 @@ def list(api_client: APIClient | None = None) -> List[AssistantConfig]:
         List[AssistantConfig]: A list of all the assistants.
     """
     api_client = api_client or APIClient()
-    response = api_client.get("/assistants/list")
-
+    response = api_client.get("/assistant/list")
+    response_json = response.json()
     if response.status_code != 200:
         # TODO: Add more explicit error handling
-        raise AssistantError("An error occured while listing the assistants")
+        raise APIError(
+            f"An error occured while listing the assistants: {response_json['message']}"
+        )
 
     assistants = []
-    for assistant in response.json()["data"]:
+    for assistant in response_json["data"]["assistants"]:
         assistants.append(AssistantConfig(**assistant))
 
     return assistants
@@ -292,11 +280,10 @@ def delete(id: UUID, api_client: APIClient | None = None) -> None:
     """
     api_client = api_client or APIClient()
     response = api_client.delete(f"/assistant/{id}/delete")
-
+    response_json = response.json()
     if response.status_code != 200:
-        # TODO: Add more explicit error handling
-        raise AssistantError(
-            f"An error occured while deleting the assistant with id {id}"
+        raise APIError(
+            f"An error occured while deleting the assistant with id {id}: {response_json['message']}"
         )
 
     LOG.info(f"Assistant with id {id} deleted successfully.")
