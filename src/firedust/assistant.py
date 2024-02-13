@@ -183,8 +183,8 @@ class Update:
         """
         self.config.instructions = instructions
         self.api_client.post(
-            f"/assistant/{self.config.id}/update/instructions",
-            data={"instructions": instructions},
+            "/assistant/update/instructions",
+            data={"id": str(self.config.id), "instructions": instructions},
         )
 
     def inference_config(self, inference_config: InferenceConfig) -> None:
@@ -196,8 +196,11 @@ class Update:
         """
         self.config.inference = inference_config
         self.api_client.post(
-            f"/assistant/{self.config.id}/update/inference",
-            data={"inference": inference_config.model_dump()},
+            "/assistant/update/inference",
+            data={
+                "id": str(self.config.id),
+                "inference": inference_config.model_dump(),
+            },
         )
 
 
