@@ -27,6 +27,7 @@ class MemoryItem(BaseConfig):
         timestamp (UNIX_TIMESTAMP): The time when the memory was created.
         type (Literal["text", "image", "audio", "video"]): The type of the memory. Defaults to "text".
         source (str, optional): The source of the memory. Defaults to None.
+        relevance (float, optional): The relevance score of the memory to the given query. Defaults to None.
     """
 
     collection: UUID
@@ -35,6 +36,7 @@ class MemoryItem(BaseConfig):
     timestamp: UNIX_TIMESTAMP
     type: Literal["text", "image", "audio", "video"] = "text"
     source: str | None = None
+    relevance: float | None = None
 
     @field_validator("context")
     @classmethod

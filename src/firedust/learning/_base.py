@@ -34,8 +34,8 @@ class Learning:
             text (str): The text to learn.
         """
         self.api_client.post(
-            f"assistant/{self.assistant.id}/learn/text",
-            data={"text": text},
+            "learn/fast",
+            data={"assistant_id": self.assistant.id, "text": text},
         )
 
     def from_pdf(self, pdf: Union[str, Path]) -> None:
@@ -47,8 +47,8 @@ class Learning:
         """
         with open(pdf, "rb") as f:
             self.api_client.post(
-                f"assistant/{self.assistant.id}/learn/pdf",
-                data={"pdf": f},
+                "learn/pdf",
+                data={"assistant_id": self.assistant.id, "pdf": f},
             )
 
     def from_url(self, url: str) -> None:
@@ -59,8 +59,8 @@ class Learning:
             url (str): The URL to the resource.
         """
         self.api_client.post(
-            f"assistant/{self.assistant.id}/learn/url",
-            data={"url": url},
+            "learn/url",
+            data={"assistant_id": self.assistant.id, "url": url},
         )
 
     def from_image(self, image: Union[str, Path]) -> None:
@@ -72,8 +72,8 @@ class Learning:
         """
         with open(image, "rb") as f:
             self.api_client.post(
-                f"assistant/{self.assistant.id}/learn/image",
-                data={"image": f},
+                "learn/image",
+                data={"assistant_id": self.assistant.id, "image": f},
             )
 
     def from_audio(self, audio: Union[str, Path]) -> None:
@@ -85,8 +85,8 @@ class Learning:
         """
         with open(audio, "rb") as f:
             self.api_client.post(
-                f"assistant/{self.assistant.id}/learn/audio",
-                data={"audio": f},
+                "learn/audio",
+                data={"assistant_id": self.assistant.id, "audio": f},
             )
 
     def from_video(self, video: Union[str, Path]) -> None:

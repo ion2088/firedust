@@ -47,3 +47,37 @@ def test_create_list_load_delete_assistant() -> None:
 
     # Delete
     firedust.assistant.delete(assistant_id)
+
+
+@pytest.mark.skipif(
+    os.environ.get("FIREDUST_API_KEY") is None,
+    reason="The environment variable FIREDUST_API_KEY is not set.",
+)
+def test_delete_non_existing_assistant() -> None:
+    # with pytest.raises(ValueError) as excinfo:
+    #     firedust.assistant.delete("non-existing-id")
+    pass
+
+
+@pytest.mark.skipif(
+    os.environ.get("FIREDUST_API_KEY") is None,
+    reason="The environment variable FIREDUST_API_KEY is not set.",
+)
+def test_load_non_existing_assistant() -> None:
+    pass
+
+
+@pytest.mark.skipif(
+    os.environ.get("FIREDUST_API_KEY") is None,
+    reason="The environment variable FIREDUST_API_KEY is not set.",
+)
+def test_create_assistant_with_invalid_inference_config() -> None:
+    pass
+
+
+@pytest.mark.skipif(
+    os.environ.get("FIREDUST_API_KEY") is None,
+    reason="The environment variable FIREDUST_API_KEY is not set.",
+)
+def test_update_non_existing_assistant() -> None:
+    pass

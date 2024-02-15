@@ -184,7 +184,7 @@ class Update:
         self.config.instructions = instructions
         self.api_client.post(
             "/assistant/update/instructions",
-            data={"id": str(self.config.id), "instructions": instructions},
+            data={"assistant_id": str(self.config.id), "instructions": instructions},
         )
 
     def inference_config(self, inference_config: InferenceConfig) -> None:
@@ -198,7 +198,7 @@ class Update:
         self.api_client.post(
             "/assistant/update/inference",
             data={
-                "id": str(self.config.id),
+                "assistant_id": str(self.config.id),
                 "inference": inference_config.model_dump(),
             },
         )
@@ -289,7 +289,7 @@ def delete(id: UUID, api_client: APIClient | None = None) -> None:
             f"An error occured while deleting the assistant with id {id}: {response_json['message']}"
         )
 
-    LOG.info(f"Assistant with id {id} deleted successfully.")
+    LOG.info(f"Assistant (ID: {id}) deleted successfully.")
 
 
 def connect(api_key: str) -> None:

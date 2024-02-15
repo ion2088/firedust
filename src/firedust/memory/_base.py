@@ -60,10 +60,20 @@ class Memory:
         Args:
             query (str): The query to search memories for.
             limit (int): The maximum number of memories to return.
+
+        Returns:
+            List[MemoryItem]: The list of memories that match the query.
+
+        Raises:
+            MemoryError: If the query exceeds the maximum length of 1900 characters.
+            MemoryError: If the recall limit exceeds 500.
         """
 
         if limit > 500:
             raise MemoryError("Recall limit cannot exceed 500.")
+
+        if len(query) > 1900:
+            raise MemoryError("Query exceeds maximum length of 1900 characters.")
 
         response = self.api_client.get(
             f"assistant/{self.config.id}/memory/recall/{query}",
