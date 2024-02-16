@@ -1,6 +1,6 @@
 from typing import Dict, List, Literal
 
-from pydantic import BaseModel
+from pydantic import BaseModel, model_validator
 
 TOKENS = int
 
@@ -33,3 +33,11 @@ INFERENCE_MODELS_MAP: Dict[INFERENCE_PROVIDER, List[INFERENCE_MODEL]] = {
 class InferenceConfig(BaseModel):
     provider: INFERENCE_PROVIDER = "mistral"
     model: INFERENCE_MODEL = "mistral-medium"
+
+    @model_validator(mode="after")
+    def validate_model(self) -> "InferenceConfig":
+        if self.model not in INFERENCE_MODELS_MAP[self.provider]:
+            raise ValueError(
+                f"Invalid model for provider {self.provider}: {self.model}"
+            )
+        return self

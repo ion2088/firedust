@@ -17,6 +17,7 @@ class MissingFiredustKeyError(Exception):
 class APIError(Exception):
     def __init__(self, message: str, code: int = 500) -> None:
         self.code = code
+        self.message = message
         super().__init__(message)
 
     def __str__(self) -> str:
@@ -102,6 +103,16 @@ class AbilityError(Exception):
 class CustomAbilityError(AbilityError):
     """
     Default error for the CustomAbility class.
+    """
+
+    def __init__(self, message: str) -> None:
+        super().__init__(message)
+
+
+# TEST ERROR
+class TestError(Exception):
+    """
+    Default error for the Test class.
     """
 
     def __init__(self, message: str) -> None:

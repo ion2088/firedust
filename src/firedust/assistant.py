@@ -40,6 +40,7 @@ from uuid import UUID, uuid4
 
 from firedust._utils.api import APIClient
 from firedust._utils.errors import APIError, AssistantError
+from firedust._utils.types.api import APIContent
 from firedust._utils.types.assistant import AssistantConfig
 from firedust._utils.types.inference import InferenceConfig
 from firedust._utils.types.memory import MemoryConfig
@@ -216,10 +217,10 @@ def create(
     """
     api_client = api_client or APIClient()
     response = api_client.post("/assistant/create", data=config.model_dump())
-    response_json = response.json()
-    if response.status_code != 200:
+    if not response.is_success:
         raise APIError(
-            f"An error occured while creating the assistant: {response_json['message']}"
+            code=response.status_code,
+            message=f"Failed to create the assistant with config {config}: {response.text}",
         )
 
     LOG.info(
@@ -241,13 +242,14 @@ def load(assistant_id: UUID, api_client: APIClient | None = None) -> Assistant:
     """
     api_client = api_client or APIClient()
     response = api_client.get(f"/assistant/{assistant_id}/load")
-    response_json = response.json()
-    if response.status_code != 200:
-        raise AssistantError(
-            f"An error occured while loading the assistant with id {assistant_id}: {response_json['message']}"
+    if not response.is_success:
+        raise APIError(
+            code=response.status_code,
+            message=f"Failed to load the assistant with id {assistant_id}: {response.text}",
         )
 
-    assistant_config = AssistantConfig(**response_json["data"]["assistant"])
+    content = APIContent(**response.json())
+    assistant_config = AssistantConfig(**content.data["assistant"])
     return Assistant._init(config=assistant_config)
 
 
@@ -260,15 +262,15 @@ def list(api_client: APIClient | None = None) -> List[AssistantConfig]:
     """
     api_client = api_client or APIClient()
     response = api_client.get("/assistant/list")
-    response_json = response.json()
-    if response.status_code != 200:
-        # TODO: Add more explicit error handling
+    if not response.is_success:
         raise APIError(
-            f"An error occured while listing the assistants: {response_json['message']}"
+            code=response.status_code,
+            message=f"An error occured while listing the assistants: {response.text}",
         )
 
+    content = APIContent(**response.json())
     assistants = []
-    for assistant in response_json["data"]["assistants"]:
+    for assistant in content.data["assistants"]:
         assistants.append(AssistantConfig(**assistant))
 
     return assistants
@@ -283,10 +285,10 @@ def delete(id: UUID, api_client: APIClient | None = None) -> None:
     """
     api_client = api_client or APIClient()
     response = api_client.delete(f"/assistant/{id}/delete")
-    response_json = response.json()
-    if response.status_code != 200:
+    if not response.is_success:
         raise APIError(
-            f"An error occured while deleting the assistant with id {id}: {response_json['message']}"
+            code=response.status_code,
+            message=f"An error occured while deleting the assistant with id {id}: {response.text}",
         )
 
     LOG.info(f"Assistant (ID: {id}) deleted successfully.")

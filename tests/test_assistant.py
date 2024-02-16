@@ -1,8 +1,10 @@
 import os
+import uuid
 
 import pytest
 
 import firedust
+from firedust._utils.errors import APIError
 from firedust._utils.types.inference import InferenceConfig
 from firedust.assistant import Assistant
 
@@ -12,7 +14,7 @@ from firedust.assistant import Assistant
     reason="The environment variable FIREDUST_API_KEY is not set.",
 )
 def test_create_list_load_delete_assistant() -> None:
-    assert os.environ.get("FIREDUST_API_KEY") is not None
+    assert os.environ.get("FIREDUST_API_KEY") != ""
 
     # Create an assistant
     assistant = firedust.assistant.create()
@@ -54,9 +56,13 @@ def test_create_list_load_delete_assistant() -> None:
     reason="The environment variable FIREDUST_API_KEY is not set.",
 )
 def test_delete_non_existing_assistant() -> None:
-    # with pytest.raises(ValueError) as excinfo:
-    #     firedust.assistant.delete("non-existing-id")
-    pass
+    try:
+        firedust.assistant.delete(uuid.uuid4())
+    except APIError as e:
+        assert e.code == 404
+        assert "Assistant not found." in e.message
+    except Exception as e:
+        assert False, f"Unexpected exception: {e}"
 
 
 @pytest.mark.skipif(
@@ -64,20 +70,10 @@ def test_delete_non_existing_assistant() -> None:
     reason="The environment variable FIREDUST_API_KEY is not set.",
 )
 def test_load_non_existing_assistant() -> None:
-    pass
-
-
-@pytest.mark.skipif(
-    os.environ.get("FIREDUST_API_KEY") is None,
-    reason="The environment variable FIREDUST_API_KEY is not set.",
-)
-def test_create_assistant_with_invalid_inference_config() -> None:
-    pass
-
-
-@pytest.mark.skipif(
-    os.environ.get("FIREDUST_API_KEY") is None,
-    reason="The environment variable FIREDUST_API_KEY is not set.",
-)
-def test_update_non_existing_assistant() -> None:
-    pass
+    try:
+        firedust.assistant.load(uuid.uuid4())
+    except APIError as e:
+        assert e.code == 404
+        assert "Assistant not found." in e.message
+    except Exception as e:
+        assert False, f"Unexpected exception: {e}"

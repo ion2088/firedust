@@ -31,7 +31,7 @@ class APIClient:
             MissingFiredustKeyError: If the API key is not provided and not found in the environment variable.
         """
         api_key = api_key or os.environ.get("FIREDUST_API_KEY")
-        if api_key is None:
+        if not api_key:
             raise MissingFiredustKeyError()
 
         self.base_url = base_url
