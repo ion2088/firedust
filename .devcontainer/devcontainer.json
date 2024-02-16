@@ -12,18 +12,30 @@
 		"-e", "FIREDUST_API_KEY=${localEnv:FIREDUST_API_KEY}"
 	],
 	"mounts": [
-		"source=/home/ubuntu/.ssh,target=/root/.ssh,type=bind,consistency=cached"
+		// ----------------------------------------
+		// SSH keys
+		// mac ssh keys
+		"source=/Users/$(whoami)/.ssh,target=/root/.ssh,type=bind,consistency=cached",
+		// linux ssh keys
+		// "source=/home/$(whoami)/.ssh,target=/root/.ssh,type=bind,consistency=cached",
+		// windows ssh keys
+		// "source=C:\\Users\\$(whoami)\\.ssh,target=/root/.ssh,type=bind,consistency=cached"
+		// TODO: comment out the lines for the OS you are not using
+		// ----------------------------------------
 	],
 	"postCreateCommand": "git config --global user.name $DEV_NAME && git config --global user.email $DEV_EMAIL && chmod 600 /root/.ssh/id_rsa",
 	"customizations": {
 		"vscode": {
 			"extensions": [
-				"ms-azuretools.vscode-docker",
 				"ms-python.python",
 				"ms-python.vscode-pylance",
-				"charliermarsh.ruff",
+				"ms-python.isort",
 				"ms-python.black-formatter",
-				"github.vscode-github-actions"
+				"charliermarsh.ruff",
+				"github.vscode-github-actions",
+				"github.copilot-chat",
+				"github.copilot",
+				"ms-azuretools.vscode-docker"
 			]
 		}
 	}
