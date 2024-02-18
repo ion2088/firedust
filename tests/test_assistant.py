@@ -3,7 +3,6 @@ import uuid
 
 import pytest
 
-import firedust
 from firedust._utils.errors import APIError
 from firedust._utils.types.inference import InferenceConfig
 from firedust.assistant import Assistant
@@ -17,12 +16,12 @@ def test_create_list_load_delete_assistant() -> None:
     assert os.environ.get("FIREDUST_API_KEY") != ""
 
     # Create an assistant
-    assistant = firedust.assistant.create()
+    assistant = Assistant.create()
     assert isinstance(assistant, Assistant)
     assistant_id = assistant.config.id
 
     # List all assistants
-    assistants_list = firedust.assistant.list()
+    assistants_list = Assistant.list()
     existing_ids = [assistant.id for assistant in assistants_list]
     assert assistant_id in existing_ids
 
@@ -37,10 +36,10 @@ def test_create_list_load_delete_assistant() -> None:
     new_inference_config = InferenceConfig(provider="openai", model="gpt-4")
     assistant.update.name(new_name)
     assistant.update.instructions(new_instructions)
-    assistant.update.inference_config(new_inference_config)
+    assistant.update.inference(new_inference_config)
 
     # Load
-    loaded_assistant = firedust.assistant.load(assistant_id)
+    loaded_assistant = Assistant.load(assistant_id)
     assert isinstance(loaded_assistant, Assistant)
     assert loaded_assistant.config.id == assistant_id
     assert loaded_assistant.config.name == new_name
@@ -48,7 +47,7 @@ def test_create_list_load_delete_assistant() -> None:
     assert loaded_assistant.config.inference == new_inference_config
 
     # Delete
-    firedust.assistant.delete(assistant_id)
+    Assistant.delete(assistant_id, confirm_delete=True)
 
 
 @pytest.mark.skipif(
@@ -57,7 +56,7 @@ def test_create_list_load_delete_assistant() -> None:
 )
 def test_delete_non_existing_assistant() -> None:
     try:
-        firedust.assistant.delete(uuid.uuid4())
+        Assistant.delete(uuid.uuid4(), confirm_delete=True)
     except APIError as e:
         assert e.code == 404
         assert "Assistant not found." in e.message
@@ -71,7 +70,7 @@ def test_delete_non_existing_assistant() -> None:
 )
 def test_load_non_existing_assistant() -> None:
     try:
-        firedust.assistant.load(uuid.uuid4())
+        Assistant.load(uuid.uuid4())
     except APIError as e:
         assert e.code == 404
         assert "Assistant not found." in e.message

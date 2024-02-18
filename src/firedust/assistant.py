@@ -6,12 +6,15 @@ The main entry point.
 This module implements the Assistant class and its related functions.
 
 Quickstart:
-    import firedust
+    ```python
+    import os
+    from firedust.assistant import Assistant
 
-    firedust.assistant.connect("API_KEY")
+    # Set your key
+    os.environ["FIREDUST_API_KEY"] = "your_api_key"
 
     # Create a new assistant with a default configuration
-    assistant = firedust.assistant.create()
+    assistant = Assistant.create()
 
     # Train the assistant on your data
     documents = [
@@ -23,7 +26,7 @@ Quickstart:
     for doc in documents:
         assistant.learn.fast(doc)
 
-    # Chat with the assistant
+    # Chat with the assistant, training data is available immediately
     response = assistant.chat.stream("Tell me about the Book of the Dead")
 
     for msg in response:
@@ -31,11 +34,11 @@ Quickstart:
 
     # Deploy the assistant
     assistant.deploy.slack(SLACK_CONFIG)
+    ```
 """
 
 import logging
-import os
-from typing import List
+from typing import Any, List
 from uuid import UUID, uuid4
 
 from firedust._utils.api import APIClient
@@ -59,11 +62,23 @@ DEFAULT_CONFIG = AssistantConfig(
 )
 LOG = logging.getLogger("firedust")
 
+_start_assistant_example = """
+    ```py
+    from firedust.assistant import Assistant \n\n
+
+    new_assistant = Assistant.create(assistant_config) \n
+    existing_assistant = Assistant.load(assistant_id)
+
+    # See available assistants
+    assistants_list = Assistant.list()
+    ````
+"""
+
 
 class Assistant:
     """
     The Assistant class is the main entry point for interacting with Firedust.
-    It is used to create, load, train, deploy and interact with an assistant.
+    It is used to create, load, train, deploy and interact with an AI assistant.
 
     Attributes:
         config (AssistantConfig): The assistant configuration.
@@ -74,94 +89,269 @@ class Assistant:
         chat (Chat): Methods to chat with the assistant.
         memory (Memory): Methods to interact with the assistant's memory.
         ability (Ability): Methods to manage and interact with the assistant's abilities.
+
+    Private Attributes:
+        _allow_instantiation (bool): A private attribute to discourage direct instantiation of the Assistant class.
     """
 
-    config: AssistantConfig
-    api_client: APIClient
+    _config: AssistantConfig
+    _api_client: APIClient
 
-    update: "Update"
-    interface: Interface
-    learn: Learning
-    chat: Chat
-    memory: Memory
-    ability: Abilities
+    _update: "_Update"
+    _interface: Interface
+    _learn: Learning
+    _chat: Chat
+    _memory: Memory
+    _ability: Abilities
 
-    def __init__(self) -> None:
-        raise AssistantError(
-            """
-            The Assistant class is not meant to be instantiated directly. \n\n
-            
-            To create or load an assistant, use the following methods: \n
-            firedust.assistant.create(assistant_config) \n
-            firedust.assistant.load(assistant_id)
-            """
-        )
+    # assistant should be instantiated using the create and load classmethods
+    _allow_instantiation: bool = False
 
-    @classmethod
-    def _init(self, config: AssistantConfig) -> "Assistant":
-        """
+    def __init__(
+        self, config: AssistantConfig, api_client: APIClient | None = None
+    ) -> None:
+        f"""
         Initializes a new instance of the Assistant class.
 
-        The initialization method is reserved for internal use only.
         To create or load an assistant, use the following methods:
-        ```
-            firedust.assistant.create(assistant_config)
-            firedust.assistant.load(assistant_id)
-        ```
+        { _start_assistant_example }
 
         Args:
             config (AssistantConfig, optional): The assistant configuration. Defaults to DEFAULT_CONFIG.
-
-        Returns:
-            Assistant: The assistant instance.
+            api_client (APIClient, optional): The API client. Defaults to None.
         """
 
-        # Create a new Assistant instance
-        assistant = self.__new__(self)
+        # prevent direct instantiation
+        if not self._allow_instantiation:
+            raise AssistantError(
+                f"""
+                To load an assistant or create a new one, use the following methods: \n\n
+                
+                { _start_assistant_example }
+                """
+            )
 
         # configuration
-        assistant.api_client = APIClient()
-        assistant.config = config
-        # _validate(config, assistant.api_client)
+        self._config = config
+        self._api_client = api_client or APIClient()
 
         # management
-        assistant.update = Update(assistant.config, assistant.api_client)
-        assistant.interface = Interface(assistant.config, assistant.api_client)
+        self._update = _Update(self)
+        self._interface = Interface(self._config, self._api_client)
 
         # essence
-        assistant.learn = Learning(assistant.config, assistant.api_client)
-        assistant.chat = Chat(config, assistant.api_client)
-        assistant.memory = Memory(config, assistant.api_client)
-        assistant.ability = Abilities(config, assistant.api_client)
+        self._learn = Learning(self._config, self._api_client)
+        self._chat = Chat(self._config, self._api_client)
+        self._memory = Memory(self._config, self._api_client)
+        self._ability = Abilities(self._config, self._api_client)
 
+    def __setattr__(self, key: str, value: str) -> None:
+        """
+        Raise a custom error when trying to set an attribute directly.
+        To update the assistant, use the methods assistant.update.* or create a new one.
+        """
+        if not key.startswith("_"):
+            self._raise_setter_error(key)
+        return super().__setattr__(key, value)
+
+    @property
+    def config(self) -> AssistantConfig:
+        return self._config
+
+    @property
+    def api_client(self) -> APIClient:
+        return self._api_client
+
+    @property
+    def update(self) -> "_Update":
+        return self._update
+
+    @property
+    def interface(self) -> Interface:
+        return self._interface
+
+    @property
+    def learn(self) -> Learning:
+        return self._learn
+
+    @property
+    def chat(self) -> Chat:
+        return self._chat
+
+    @property
+    def memory(self) -> Memory:
+        return self._memory
+
+    @property
+    def ability(self) -> Abilities:
+        return self._ability
+
+    @classmethod
+    def _create_instance(
+        cls, config: AssistantConfig, api_client: APIClient
+    ) -> "Assistant":
+        """
+        Reserved for internal use only with the create and load methods.
+        Creates a new instance of the Assistant class.
+
+        Args:
+            config (AssistantConfig): The assistant configuration.
+            api_client (APIClient): The API client.
+
+        Returns:
+            Assistant: A new instance of the Assistant class.
+        """
+        cls._allow_instantiation = True
+        assistant = cls(config, api_client)
+        cls._allow_instantiation = False
         return assistant
 
-    def __repr__(self) -> str:
-        "Return a string representation of the Assistant"
-        return f"<{self.__class__.__name__}>\n\n{self.config}"
+    @classmethod
+    def create(
+        cls,
+        config: AssistantConfig = DEFAULT_CONFIG,
+        api_client: APIClient | None = None,
+    ) -> "Assistant":
+        """
+        Creates a new assistant with the specified configuration.
+
+        Args:
+            config (AssistantConfig): The assistant configuration. Defaults to DEFAULT_CONFIG.
+            api_client (APIClient, optional): The API client. Defaults to None.
+
+        Returns:
+            Assistant: A new instance of the Assistant class.
+        """
+        api_client = api_client or APIClient()
+        response = api_client.post("/assistant/create", data=config.model_dump())
+        if not response.is_success:
+            raise APIError(
+                code=response.status_code,
+                message=f"Failed to create the assistant with config {config}: {response.text}",
+            )
+        LOG.info(
+            f"Assistant {config.name} (ID: {config.id}) was created successfully and saved in the cloud."
+        )
+        return cls._create_instance(config, api_client)
+
+    @classmethod
+    def load(
+        cls, assistant_id: UUID, api_client: APIClient | None = None
+    ) -> "Assistant":
+        """
+        Loads an existing assistant with the specified ID.
+
+        Args:
+            assistant_id (UUID): The unique identifier of the assistant.
+            api_client (APIClient, optional): The API client. Defaults to None.
+
+        Returns:
+            Assistant: A new instance of the Assistant class.
+        """
+        api_client = api_client or APIClient()
+        response = api_client.get(f"/assistant/{assistant_id}/load")
+        if not response.is_success:
+            raise APIError(
+                code=response.status_code,
+                message=f"Failed to load the assistant with id {assistant_id}: {response.text}",
+            )
+        content = APIContent(**response.json())
+        config = AssistantConfig(**content.data["assistant"])
+        return cls._create_instance(config, api_client)
+
+    @staticmethod
+    def list(api_client: APIClient | None = None) -> List[AssistantConfig]:
+        """
+        Lists all the existing assistants.
+
+        Args:
+            api_client (APIClient, optional): The API client. Defaults to None.
+        """
+        api_client = api_client or APIClient()
+        response = api_client.get("/assistant/list")
+        if not response.is_success:
+            raise APIError(
+                code=response.status_code,
+                message=f"Failed to list the assistants: {response.text}",
+            )
+        content = APIContent(**response.json())
+        return [
+            AssistantConfig(**assistant) for assistant in content.data["assistants"]
+        ]
+
+    @staticmethod
+    def delete(
+        assistant_id: UUID,
+        api_client: APIClient | None = None,
+        confirm_delete: bool = False,
+    ) -> None:
+        """
+        Deletes an existing assistant with the specified ID.
+
+        Args:
+            assistant_id (UUID): The unique identifier of the assistant.
+            api_client (APIClient, optional): The API client. Defaults to None.
+        """
+        if not confirm_delete:
+            raise AssistantError(
+                "Assistant will be permanently deleted. To confirm, set confirm_delete=True."
+            )
+
+        api_client = api_client or APIClient()
+        response = api_client.delete(f"/assistant/{assistant_id}/delete")
+        if not response.is_success:
+            raise APIError(
+                code=response.status_code,
+                message=f"An error occured while deleting the assistant with id {id}: {response.text}",
+            )
+        LOG.info(f"Successfully deleted assistant {assistant_id}.")
+
+    @staticmethod
+    def _raise_setter_error(attribute: str) -> None:
+        raise AttributeError(
+            f"""
+                Unable to set attribute '{attribute}'. Assistant class is immutable and doesn't support direct attribute assignment.\n
+                To update assistant, use assistant.update.* methods or create a new assistant with the desired configuration following the example below:\n\n
+                { _start_assistant_example }
+            """
+        )
 
 
-class Update:
+class _Update:
     """
     A collection of methods to update the configuration of the assistant.
 
     To update the assistant, you can use the following methods:
         assistant.update.name("Sam")
-        assistant.update.add_instruction("You are a helpful assistant.")
-        assistant.update.remove_instruction("You are a helpful assistant.")
-        assistant.update.inference_config(InferenceConfig())
+        assistant.update.instructions(["You are a helpful assistant.", "..."])
+        assistant.update.inference_config(new_config)
     """
 
-    def __init__(self, config: AssistantConfig, api_client: APIClient) -> None:
+    def __init__(self, assistant: Assistant) -> None:
         """
         Initializes a new instance of the Update class.
 
         Args:
-            config (AssistantConfig): The assistant configuration.
-            api_client (APIClient): The API client.
+            assistant (Assistant): The assistant.
         """
-        self.config = config
-        self.api_client = api_client
+        self._assistant = assistant
+
+    def __setattr__(self, __name: str, __value: str) -> None:
+        """
+        Raise a custom error when trying to set an attribute directly.
+        To change the assistant, use assistant.update.* methods or create a new one.
+        """
+        if not __name.startswith("_"):
+            self.assistant._raise_setter_error(__name)
+        return super().__setattr__(__name, __value)
+
+    @property
+    def assistant(self) -> Assistant:
+        return self._assistant
+
+    @property
+    def api_client(self) -> APIClient:
+        return self.assistant.api_client
 
     def name(self, name: str) -> None:
         """
@@ -170,9 +360,15 @@ class Update:
         Args:
             name (str): The new name of the assistant.
         """
-        self.config.name = name
+        self.assistant._config = AssistantConfig(
+            id=self.assistant._config.id,
+            name=name,
+            instructions=self.assistant._config.instructions,
+            inference=self.assistant._config.inference,
+            memory=self.assistant._config.memory,
+        )
         self.api_client.put(
-            f"/assistant/{self.config.id}/update/name/{name}",
+            f"/assistant/{self.assistant.config.id}/update/name/{name}",
         )
 
     def instructions(self, instructions: List[str]) -> None:
@@ -182,152 +378,39 @@ class Update:
         Args:
             instructions (List[str]): The new instructions of the assistant.
         """
-        self.config.instructions = instructions
+        self.assistant._config = AssistantConfig(
+            id=self.assistant._config.id,
+            name=self.assistant._config.name,
+            instructions=instructions,
+            inference=self.assistant._config.inference,
+            memory=self.assistant._config.memory,
+        )
         self.api_client.post(
             "/assistant/update/instructions",
-            data={"assistant_id": str(self.config.id), "instructions": instructions},
+            data={
+                "assistant_id": str(self.assistant.config.id),
+                "instructions": instructions,
+            },
         )
 
-    def inference_config(self, inference_config: InferenceConfig) -> None:
+    def inference(self, inference_config: InferenceConfig) -> None:
         """
         Updates the inference configuration of the assistant.
 
         Args:
             inference_config (InferenceConfig): The new inference configuration.
         """
-        self.config.inference = inference_config
+        self.assistant._config = AssistantConfig(
+            id=self.assistant._config.id,
+            name=self.assistant._config.name,
+            instructions=self.assistant._config.instructions,
+            inference=inference_config,
+            memory=self.assistant._config.memory,
+        )
         self.api_client.post(
             "/assistant/update/inference",
             data={
-                "assistant_id": str(self.config.id),
+                "assistant_id": str(self.assistant.config.id),
                 "inference": inference_config.model_dump(),
             },
-        )
-
-
-def create(
-    config: AssistantConfig = DEFAULT_CONFIG, api_client: APIClient | None = None
-) -> Assistant | None:
-    """
-    Creates a new assistant.
-
-    Args:
-        config (AssistantConfig, optional): The assistant configuration. Defaults to DEFAULT_CONFIG.
-        api_client (APIClient): The API client.
-    """
-    api_client = api_client or APIClient()
-    response = api_client.post("/assistant/create", data=config.model_dump())
-    if not response.is_success:
-        raise APIError(
-            code=response.status_code,
-            message=f"Failed to create the assistant with config {config}: {response.text}",
-        )
-
-    LOG.info(
-        f"Assistant {config.name} (ID: {config.id}) was created successfully and saved in the cloud."
-    )
-
-    return Assistant._init(config)
-
-
-def load(assistant_id: UUID, api_client: APIClient | None = None) -> Assistant:
-    """
-    Loads an existing assistant from the cloud.
-
-    Args:
-        id (UUID): The ID of the assistant to load.
-
-    Returns:
-        Assistant: The loaded assistant.
-    """
-    api_client = api_client or APIClient()
-    response = api_client.get(f"/assistant/{assistant_id}/load")
-    if not response.is_success:
-        raise APIError(
-            code=response.status_code,
-            message=f"Failed to load the assistant with id {assistant_id}: {response.text}",
-        )
-
-    content = APIContent(**response.json())
-    assistant_config = AssistantConfig(**content.data["assistant"])
-    return Assistant._init(config=assistant_config)
-
-
-def list(api_client: APIClient | None = None) -> List[AssistantConfig]:
-    """
-    Lists all the available assistants.
-
-    Returns:
-        List[AssistantConfig]: A list of all the assistants.
-    """
-    api_client = api_client or APIClient()
-    response = api_client.get("/assistant/list")
-    if not response.is_success:
-        raise APIError(
-            code=response.status_code,
-            message=f"An error occured while listing the assistants: {response.text}",
-        )
-
-    content = APIContent(**response.json())
-    assistants = []
-    for assistant in content.data["assistants"]:
-        assistants.append(AssistantConfig(**assistant))
-
-    return assistants
-
-
-def delete(id: UUID, api_client: APIClient | None = None) -> None:
-    """
-    Deletes an existing assistant from the cloud.
-
-    Args:
-        id (UUID): The ID of the assistant to delete.
-    """
-    api_client = api_client or APIClient()
-    response = api_client.delete(f"/assistant/{id}/delete")
-    if not response.is_success:
-        raise APIError(
-            code=response.status_code,
-            message=f"An error occured while deleting the assistant with id {id}: {response.text}",
-        )
-
-    LOG.info(f"Assistant (ID: {id}) deleted successfully.")
-
-
-def connect(api_key: str) -> None:
-    """
-    Connect to the Firedust cloud. Method is reserved to handle
-    more complex authentication procedures in the future.
-
-    Args:
-        api_key (str): The API key to authenticate requests.
-    """
-    os.environ["FIREDUST_API_KEY"] = api_key
-
-
-def _validate(config: AssistantConfig, api_client: APIClient | None = None) -> None:
-    """
-    Validates the assistant configuration.
-    If the assistant ID already exists, the configuration will be validated.
-
-    For new assistants, use firedust.assistant.create(assistant_config)
-
-    Args:
-        config (AssistantConfig): The assistant configuration.
-        api_client (APIClient): The API client.
-    """
-    api_client = api_client or APIClient()
-    response = api_client.post(
-        f"/assistant/{config.id}/validate",
-        data={"assistant": config.model_dump()},
-    )
-
-    if response.status_code == 401:
-        # Assistant with the same ID but different configuration exists
-        raise AssistantError(
-            f"""
-            An assistant with id {config.id} but a with different 
-            configuration already exists. To create a new assistant, please
-            use firedust.assistant.create(assistant_config)
-            """
         )

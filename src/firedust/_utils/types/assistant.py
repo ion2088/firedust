@@ -10,7 +10,7 @@ from .interface import Interfaces
 from .memory import MemoryConfig
 
 
-class AssistantConfig(BaseConfig):
+class AssistantConfig(BaseConfig, frozen=True):
     """
     Represents the configuration of an AI Assistant.
 
@@ -20,7 +20,7 @@ class AssistantConfig(BaseConfig):
         inference (InferenceConfig): The inference configuration of the assistant.
         memory (MemoryConfig): The memory configuration of the assistant.
         abilities (List[Ability], optional): The abilities of the assistant. Defaults to None.
-        deployments (List[Interface], optional): The deployments of the assistant. Defaults to None.
+        interfaces (List[Interface], optional): The deployments of the assistant. Defaults to None.
     """
 
     name: str
@@ -30,20 +30,8 @@ class AssistantConfig(BaseConfig):
     abilities: List[AbilityConfig] = []
     interfaces: Interfaces = Interfaces()
 
-    def __setattr__(self, key: str, value: Any) -> None:
-        # set immutable attributes
-        if key == "memory":
-            raise AttributeError(
-                """
-                Cannot set attribute 'memory', it is immutable.
-                To use a different memory configuration, create a new Assistant.
-            """
-            )
 
-        return super().__setattr__(key, value)
-
-
-class Message(BaseModel):
+class Message(BaseModel, frozen=True):
     """
     Represents a message between the user and the assistant.
 
