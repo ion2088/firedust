@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Literal
+from typing import Any, List, Literal
 from uuid import UUID, uuid4
 
 from pydantic import BaseModel, Field, field_serializer, field_validator
@@ -9,10 +9,7 @@ from ._base import UNIX_TIMESTAMP, BaseConfig
 
 EMBEDDING_MODELS = Literal["mistral-embed"]
 EMBEDDING_PROVIDERS = Literal["mistral"]
-
-EMBEDDING_MODELS_MAP: Dict[EMBEDDING_PROVIDERS, List[EMBEDDING_MODELS]] = {
-    "mistral": ["mistral-embed"],
-}
+MAX_MEMORY_CONTEXT: int = 2000
 
 
 class MemoryItem(BaseConfig):
@@ -27,7 +24,7 @@ class MemoryItem(BaseConfig):
         timestamp (UNIX_TIMESTAMP): The time when the memory was created.
         type (Literal["text", "image", "audio", "video"]): The type of the memory. Defaults to "text".
         source (str, optional): The source of the memory. Defaults to None.
-        relevance (float, optional): The relevance score of the memory to the given query. Defaults to None.
+        relevance (float, optional): The relevance of the memory. Defaults to None.
     """
 
     collection: UUID
@@ -41,8 +38,10 @@ class MemoryItem(BaseConfig):
     @field_validator("context")
     @classmethod
     def validate_context_length(cls, context: str) -> str | Exception:
-        if len(context) > 2000:
-            raise ValueError("Memory context exceeds maximum length of 2000 characters")
+        if len(context) > MAX_MEMORY_CONTEXT:
+            raise ValueError(
+                f"Memory context exceeds maximum length of {MAX_MEMORY_CONTEXT} characters"
+            )
         return context
 
     @field_validator("timestamp")
@@ -58,7 +57,7 @@ class MemoryItem(BaseConfig):
         return timestamp
 
     @field_serializer("collection", when_used="always")
-    def serialize_id(self, value: UUID) -> str:
+    def serialize_collection_id(self, value: UUID) -> str:
         return str(value)
 
 

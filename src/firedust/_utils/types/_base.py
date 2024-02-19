@@ -22,5 +22,5 @@ class BaseConfig(BaseModel):
         return super().__setattr__(key, value)
 
     @field_serializer("id", when_used="always")
-    def serialize_id(self, value: UUID) -> str:
+    def serialize_config_id(self, value: UUID) -> str:
         return str(value)

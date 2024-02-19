@@ -35,8 +35,8 @@ class Learning:
             text (str): The text to learn.
         """
         response = self.api_client.post(
-            "learn/fast",
-            data={"assistant_id": self.assistant.id, "text": text},
+            "/learn/fast",
+            data={"assistant_id": str(self.assistant.id), "text": text},
         )
         if not response.is_success:
             raise APIError(f"Failed to teach the assistant: {response.text}")
@@ -50,8 +50,8 @@ class Learning:
         """
         with open(pdf, "rb") as f:
             response = self.api_client.post(
-                "learn/pdf",
-                data={"assistant_id": self.assistant.id, "pdf": f},
+                "/learn/pdf",
+                data={"assistant_id": str(self.assistant.id), "pdf": f},
             )
             if not response.is_success:
                 raise APIError(f"Failed to teach the assistant: {response.text}")
@@ -64,8 +64,8 @@ class Learning:
             url (str): The URL to the resource.
         """
         response = self.api_client.post(
-            "learn/url",
-            data={"assistant_id": self.assistant.id, "url": url},
+            "/learn/url",
+            data={"assistant_id": str(self.assistant.id), "url": url},
         )
         if not response.is_success:
             raise APIError(f"Failed to teach the assistant: {response.text}")
@@ -79,8 +79,8 @@ class Learning:
         """
         with open(image, "rb") as f:
             response = self.api_client.post(
-                "learn/image",
-                data={"assistant_id": self.assistant.id, "image": f},
+                "/learn/image",
+                data={"assistant_id": str(self.assistant.id), "image": f},
             )
             if not response.is_success:
                 raise APIError(f"Failed to teach the assistant: {response.text}")
@@ -94,8 +94,8 @@ class Learning:
         """
         with open(audio, "rb") as f:
             response = self.api_client.post(
-                "learn/audio",
-                data={"assistant_id": self.assistant.id, "audio": f},
+                "/learn/audio",
+                data={"assistant_id": str(self.assistant.id), "audio": f},
             )
             if not response.is_success:
                 raise APIError(f"Failed to teach the assistant: {response.text}")

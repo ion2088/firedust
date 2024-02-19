@@ -1,4 +1,4 @@
-import firedust
+from firedust.assistant import Assistant
 
 
 def test_learn_fast() -> None:
@@ -27,11 +27,19 @@ def test_learn_fast() -> None:
     may impair our ability to predict demand and impact our supply mix, and we may incur additional costs.
     """
 
-    # assistant = firedust.assistant.create()
-    # response = assistant.learn.fast(text)
+    # test learning
+    assistant = Assistant.create()
+    assistant.learn.fast(text)
 
-    # firedust.assistant.delete(assistant.config.id)
-    pass
+    # test memories recall
+    memories = assistant.memory.recall("Info about purchase obligations.", limit=10)
+    expected_recall = "we have increased our purchase obligations with existing suppliers, added new suppliers, and entered into prepaid supply and capacity agreements."
+    assert any(
+        expected_recall in memory.context.replace("\n   ", "") for memory in memories
+    )
+
+    # remove test assistant
+    Assistant.delete(assistant_id=assistant.config.id, confirm_delete=True)
 
 
 def test_learn_pdf() -> None:

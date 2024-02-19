@@ -31,7 +31,8 @@ from typing import List
 from uuid import UUID
 
 from firedust._utils.api import APIClient
-from firedust._utils.errors import MemoryError
+from firedust._utils.errors import APIError, MemoryError
+from firedust._utils.types.api import APIContent
 from firedust._utils.types.assistant import AssistantConfig
 from firedust._utils.types.memory import MemoryItem
 
@@ -65,21 +66,32 @@ class Memory:
             List[MemoryItem]: The list of memories that match the query.
 
         Raises:
-            MemoryError: If the query exceeds the maximum length of 1900 characters.
-            MemoryError: If the recall limit exceeds 500.
+            AttributeError: If the query or limit are invalid.
+            APIError: If the API request fails.
         """
 
+        # Check if the query and limit are within the allowed limits
         if limit > 500:
-            raise MemoryError("Recall limit cannot exceed 500.")
-
+            raise AttributeError("Recall limit cannot exceed 500.")
         if len(query) > 1900:
-            raise MemoryError("Query exceeds maximum length of 1900 characters.")
+            raise AttributeError("Query exceeds maximum length of 1900 characters.")
 
-        response = self.api_client.get(
-            f"assistant/{self.config.id}/memory/recall/{query}",
+        # Fetch memories from the API
+        response = self.api_client.post(
+            "/memory/recall",
+            data={
+                "assistant_id": str(self.config.id),
+                "query": query,
+                "limit": limit,
+            },
         )
-        data = response.json()
-        return [MemoryItem(**memory) for memory in data["memories"]]
+        if not response.is_success:
+            raise APIError(
+                code=response.status_code,
+                message=f"Failed to recall memories: {response.text}",
+            )
+        content = APIContent(**response.json())
+        return [MemoryItem(**memory) for memory in content.data["memories"]]
 
     def add(self, memory: MemoryItem) -> None:
         """

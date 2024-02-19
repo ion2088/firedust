@@ -38,7 +38,7 @@ Quickstart:
 """
 
 import logging
-from typing import Any, List
+from typing import List
 from uuid import UUID, uuid4
 
 from firedust._utils.api import APIClient
@@ -294,7 +294,7 @@ class Assistant:
         """
         if not confirm_delete:
             raise AssistantError(
-                "Assistant will be permanently deleted. To confirm, set confirm_delete=True."
+                "Assistant and all its memories will be permanently deleted. To confirm, set confirm_delete=True."
             )
 
         api_client = api_client or APIClient()
