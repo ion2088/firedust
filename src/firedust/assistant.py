@@ -302,7 +302,7 @@ class Assistant:
         if not response.is_success:
             raise APIError(
                 code=response.status_code,
-                message=f"An error occured while deleting the assistant with id {id}: {response.text}",
+                message=f"An error occured while deleting the assistant with id {assistant_id}: {response.text}",
             )
         LOG.info(f"Successfully deleted assistant {assistant_id}.")
 
@@ -360,15 +360,20 @@ class _Update:
         Args:
             name (str): The new name of the assistant.
         """
+        response = self.api_client.put(
+            f"/assistant/{self.assistant.config.id}/update/name/{name}",
+        )
+        if not response.is_success:
+            raise APIError(
+                code=response.status_code,
+                message=f"Failed to update the name of the assistant with id {self.assistant.config.id}: {response.text}",
+            )
         self.assistant._config = AssistantConfig(
             id=self.assistant._config.id,
             name=name,
             instructions=self.assistant._config.instructions,
             inference=self.assistant._config.inference,
             memory=self.assistant._config.memory,
-        )
-        self.api_client.put(
-            f"/assistant/{self.assistant.config.id}/update/name/{name}",
         )
 
     def instructions(self, instructions: List[str]) -> None:
@@ -378,19 +383,24 @@ class _Update:
         Args:
             instructions (List[str]): The new instructions of the assistant.
         """
+        response = self.api_client.post(
+            "/assistant/update/instructions",
+            data={
+                "assistant_id": str(self.assistant.config.id),
+                "instructions": instructions,
+            },
+        )
+        if not response.is_success:
+            raise APIError(
+                code=response.status_code,
+                message=f"Failed to update the instructions of the assistant with id {self.assistant.config.id}: {response.text}",
+            )
         self.assistant._config = AssistantConfig(
             id=self.assistant._config.id,
             name=self.assistant._config.name,
             instructions=instructions,
             inference=self.assistant._config.inference,
             memory=self.assistant._config.memory,
-        )
-        self.api_client.post(
-            "/assistant/update/instructions",
-            data={
-                "assistant_id": str(self.assistant.config.id),
-                "instructions": instructions,
-            },
         )
 
     def inference(self, inference_config: InferenceConfig) -> None:
@@ -400,17 +410,22 @@ class _Update:
         Args:
             inference_config (InferenceConfig): The new inference configuration.
         """
+        response = self.api_client.post(
+            "/assistant/update/inference",
+            data={
+                "assistant_id": str(self.assistant.config.id),
+                "inference": inference_config.model_dump(),
+            },
+        )
+        if not response.is_success:
+            raise APIError(
+                code=response.status_code,
+                message=f"Failed to update the inference configuration of the assistant with id {self.assistant.config.id}: {response.text}",
+            )
         self.assistant._config = AssistantConfig(
             id=self.assistant._config.id,
             name=self.assistant._config.name,
             instructions=self.assistant._config.instructions,
             inference=inference_config,
             memory=self.assistant._config.memory,
-        )
-        self.api_client.post(
-            "/assistant/update/inference",
-            data={
-                "assistant_id": str(self.assistant.config.id),
-                "inference": inference_config.model_dump(),
-            },
         )

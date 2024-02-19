@@ -2,6 +2,7 @@ from pathlib import Path
 from typing import Union
 
 from firedust._utils.api import APIClient
+from firedust._utils.errors import APIError
 from firedust._utils.types.assistant import AssistantConfig
 
 
@@ -33,10 +34,12 @@ class Learning:
         Args:
             text (str): The text to learn.
         """
-        self.api_client.post(
+        response = self.api_client.post(
             "learn/fast",
             data={"assistant_id": self.assistant.id, "text": text},
         )
+        if not response.is_success:
+            raise APIError(f"Failed to teach the assistant: {response.text}")
 
     def from_pdf(self, pdf: Union[str, Path]) -> None:
         """
@@ -46,10 +49,12 @@ class Learning:
             pdf (Union[str, Path]): The path to the PDF file.
         """
         with open(pdf, "rb") as f:
-            self.api_client.post(
+            response = self.api_client.post(
                 "learn/pdf",
                 data={"assistant_id": self.assistant.id, "pdf": f},
             )
+            if not response.is_success:
+                raise APIError(f"Failed to teach the assistant: {response.text}")
 
     def from_url(self, url: str) -> None:
         """
@@ -58,10 +63,12 @@ class Learning:
         Args:
             url (str): The URL to the resource.
         """
-        self.api_client.post(
+        response = self.api_client.post(
             "learn/url",
             data={"assistant_id": self.assistant.id, "url": url},
         )
+        if not response.is_success:
+            raise APIError(f"Failed to teach the assistant: {response.text}")
 
     def from_image(self, image: Union[str, Path]) -> None:
         """
@@ -71,10 +78,12 @@ class Learning:
             image (Union[str, Path]): The path to the image.
         """
         with open(image, "rb") as f:
-            self.api_client.post(
+            response = self.api_client.post(
                 "learn/image",
                 data={"assistant_id": self.assistant.id, "image": f},
             )
+            if not response.is_success:
+                raise APIError(f"Failed to teach the assistant: {response.text}")
 
     def from_audio(self, audio: Union[str, Path]) -> None:
         """
@@ -84,10 +93,12 @@ class Learning:
             audio (Union[str, Path]): The path to the audio file.
         """
         with open(audio, "rb") as f:
-            self.api_client.post(
+            response = self.api_client.post(
                 "learn/audio",
                 data={"assistant_id": self.assistant.id, "audio": f},
             )
+            if not response.is_success:
+                raise APIError(f"Failed to teach the assistant: {response.text}")
 
     def from_video(self, video: Union[str, Path]) -> None:
         """
@@ -97,7 +108,9 @@ class Learning:
             video (Union[str, Path]): The path to the video file.
         """
         with open(video, "rb") as f:
-            self.api_client.post(
+            response = self.api_client.post(
                 f"assistant/{self.assistant.id}/learn/video",
                 data={"video": f},
             )
+            if not response.is_success:
+                raise APIError(f"Failed to teach the assistant: {response.text}")
