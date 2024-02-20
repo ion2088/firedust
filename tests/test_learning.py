@@ -1,6 +1,14 @@
+import os
+
+import pytest
+
 from firedust.assistant import Assistant
 
 
+@pytest.mark.skipif(
+    os.environ.get("FIREDUST_API_KEY") is None,
+    reason="The environment variable FIREDUST_API_KEY is not set.",
+)
 def test_learn_fast() -> None:
     text = """
     Demand for our data center systems and products has surged over the last three quarters and our demand visibility extends into next year. To
