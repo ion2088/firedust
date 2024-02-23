@@ -37,17 +37,21 @@ class Message(BaseModel, frozen=True):
 
     Args:
         assistant_id (UUID): The unique identifier of the assistant.
+        timestamp (UNIX_TIMESTAMP, optional): The timestamp of the message. Defaults to None.
         user_id (UUID, optional): The unique identifier of the user. Defaults to None.
         author (Literal["user", "assistant"]): The author of the message.
         text (str): The text of the message.
-        timestamp (UNIX_TIMESTAMP, optional): The timestamp of the message. Defaults to None.
+        memory_references (List[UUID], optional): The references to memories. Defaults to None.
+        conversation_references (List[UUID], optional): The references to conversations. Defaults to None.
     """
 
     assistant_id: UUID
+    timestamp: UNIX_TIMESTAMP
     user_id: UUID | None = None
     author: Literal["user", "assistant"]
     text: str
-    timestamp: UNIX_TIMESTAMP
+    memory_references: List[UUID] | None = None
+    conversation_references: List[UUID] | None = None
 
     @field_serializer("assistant_id", when_used="always")
     def serialize_assistant_id(self, value: UUID) -> str:
@@ -58,3 +62,17 @@ class Message(BaseModel, frozen=True):
         if value is None:
             return None
         return str(value)
+
+    @field_serializer("memory_references", when_used="always")
+    def serialize_memory_references(self, value: List[UUID] | None) -> List[str] | None:
+        if value is None:
+            return None
+        return [str(ref) for ref in value]
+
+    @field_serializer("conversation_references", when_used="always")
+    def serialize_conversation_references(
+        self, value: List[UUID] | None
+    ) -> List[str] | None:
+        if value is None:
+            return None
+        return [str(ref) for ref in value]

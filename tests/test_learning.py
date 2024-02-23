@@ -68,13 +68,3 @@ def test_learn_audio() -> None:
 
 def test_learn_video() -> None:
     pass
-
-
-def test_learn_fast_large_text() -> None:
-    text = """
-
-    """
-    # assistant = firedust.assistant.create()
-
-    # firedust.assistant.delete(assistant.config.id)
-    pass

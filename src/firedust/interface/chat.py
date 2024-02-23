@@ -18,10 +18,12 @@ Example:
     print(response)
 """
 
+from datetime import datetime
 from typing import Iterator
 from uuid import UUID
 
 from firedust._utils.api import APIClient
+from firedust._utils.errors import APIError
 from firedust._utils.types.assistant import AssistantConfig
 
 
@@ -48,14 +50,26 @@ class Chat:
 
         Args:
             message (str): The message to send.
-            user_id (str): An optional user id. Defaults to None.
-        """
+            user_id (UUID, optional): The unique identifier of the user. Defaults to None.
 
-        for msg in self.api_client.get_stream(
-            f"assistant/{self.config.id}/chat/stream",
-            params={"message": message, "user_id": user_id},
-        ):
-            yield msg
+        Yields:
+            Iterator[bytes]: The response from the assistant.
+        """
+        user_id_str = str(user_id) if user_id is not None else None
+
+        try:
+            for msg in self.api_client.post_stream(
+                "/chat/stream",
+                data={
+                    "assistant_id": str(self.config.id),
+                    "message": message,
+                    "user_id": user_id_str,
+                    "timestamp": datetime.now().timestamp(),
+                },
+            ):
+                yield msg
+        except Exception as e:
+            raise APIError(f"Failed to stream the conversation: {e}")
 
     def complete(self, message: str, user_id: UUID | None = None) -> str:
         """
@@ -64,7 +78,7 @@ class Chat:
 
         Args:
             message (str): The message to send.
-            user_id (str): An optional user id. Defaults to None.
+            user_id (UUID, optional): The unique identifier of the user. Defaults to None.
 
         Returns:
             str: The response from the assistant.
@@ -74,7 +88,7 @@ class Chat:
             params={"message": message, "user_id": user_id},
         )
 
-        if response.status_code != 200:
+        if not response.is_success:
             raise Exception(response.json()["message"])
 
         completion: str = response.json()["completion"]
