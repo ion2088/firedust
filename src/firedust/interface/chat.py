@@ -20,11 +20,11 @@ Example:
 
 from datetime import datetime
 from typing import Iterator
-from uuid import UUID
+from uuid import UUID, uuid4
 
 from firedust._utils.api import APIClient
 from firedust._utils.errors import APIError
-from firedust._utils.types.assistant import AssistantConfig
+from firedust._utils.types.assistant import AssistantConfig, UserMessage
 
 
 class Chat:
@@ -55,17 +55,18 @@ class Chat:
         Yields:
             Iterator[bytes]: The response from the assistant.
         """
-        user_id_str = str(user_id) if user_id is not None else None
+        user_message = UserMessage(
+            id=uuid4(),
+            assistant_id=self.config.id,
+            user_id=str(user_id) if user_id is not None else None,
+            message=message,
+            timestamp=datetime.now().timestamp(),
+        )
 
         try:
             for msg in self.api_client.post_stream(
                 "/chat/stream",
-                data={
-                    "assistant_id": str(self.config.id),
-                    "message": message,
-                    "user_id": user_id_str,
-                    "timestamp": datetime.now().timestamp(),
-                },
+                data=user_message.model_dump(),
             ):
                 yield msg
         except Exception as e:

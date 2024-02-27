@@ -11,6 +11,5 @@ from firedust.assistant import Assistant
 )
 def test_chat_streaming() -> None:
     assistant = Assistant.create()
-
     response = assistant.chat.stream("Hi, how are you?")
     x = 10

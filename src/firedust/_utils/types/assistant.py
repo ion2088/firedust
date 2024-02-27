@@ -1,4 +1,5 @@
-from typing import List, Literal
+from datetime import datetime
+from typing import List
 from uuid import UUID
 
 from pydantic import BaseModel, field_serializer
@@ -16,7 +17,7 @@ class AssistantConfig(BaseConfig, frozen=True):
 
     Args:
         name (str): The name of the assistant.
-        instructions (List[str]): The instructions of the assistant.
+        instructions (str): The instructions of the assistant.
         inference (InferenceConfig): The inference configuration of the assistant.
         memory (MemoryConfig): The memory configuration of the assistant.
         abilities (List[Ability], optional): The abilities of the assistant. Defaults to None.
@@ -31,27 +32,21 @@ class AssistantConfig(BaseConfig, frozen=True):
     interfaces: Interfaces = Interfaces()
 
 
-class Message(BaseModel, frozen=True):
+class UserMessage(BaseConfig, frozen=True):
     """
-    Represents a message between the user and the assistant.
+    Represents a message from the user to the assistant.
 
     Args:
         assistant_id (UUID): The unique identifier of the assistant.
-        timestamp (UNIX_TIMESTAMP, optional): The timestamp of the message. Defaults to None.
-        user_id (UUID, optional): The unique identifier of the user. Defaults to None.
-        author (Literal["user", "assistant"]): The author of the message.
-        text (str): The text of the message.
-        memory_references (List[UUID], optional): The references to memories. Defaults to None.
-        conversation_references (List[UUID], optional): The references to conversations. Defaults to None.
+        user_id (UUID, optional): The unique identifier of the user.
+        message (str): The text of the message.
+        timestamp (UNIX_TIMESTAMP): The timestamp of the message.
     """
 
     assistant_id: UUID
-    timestamp: UNIX_TIMESTAMP
     user_id: UUID | None = None
-    author: Literal["user", "assistant"]
-    text: str
-    memory_references: List[UUID] | None = None
-    conversation_references: List[UUID] | None = None
+    timestamp: UNIX_TIMESTAMP = datetime.now().timestamp()
+    message: str
 
     @field_serializer("assistant_id", when_used="always")
     def serialize_assistant_id(self, value: UUID) -> str:
@@ -63,16 +58,53 @@ class Message(BaseModel, frozen=True):
             return None
         return str(value)
 
-    @field_serializer("memory_references", when_used="always")
-    def serialize_memory_references(self, value: List[UUID] | None) -> List[str] | None:
+
+class AssistantMessage(BaseConfig, frozen=True):
+    """
+    Represents a message from the assistant to the user.
+
+    Args:
+        assistant_id (UUID): The unique identifier of the assistant.
+        user_id (UUID): The unique identifier of the user.
+        response_to_id (UUID): The unique identifier of the message to which the assistant is responding.
+        message (str): The text of the message.
+        timestamp (UNIX_TIMESTAMP): The time when the message was sent.
+        context (str): The context of the message.
+        memory_refs (List[UUID], optional): The memory references of the message. Defaults to None.
+        conversation_refs (List[UUID], optional): The conversation references of the message. Defaults to None.
+    """
+
+    assistant_id: UUID
+    user_id: UUID | None = None
+    response_to_id: UUID
+    timestamp: UNIX_TIMESTAMP
+    message: str
+    context: "Context"
+
+    @field_serializer("assistant_id", when_used="always")
+    def serialize_assistant_id(self, value: UUID) -> str:
+        return str(value)
+
+    @field_serializer("user_id", when_used="always")
+    def serialize_user_id(self, value: UUID | None) -> str | None:
         if value is None:
             return None
+        return str(value)
+
+    @field_serializer("response_to_id", when_used="always")
+    def serialize_response_to_id(self, value: UUID) -> str:
+        return str(value)
+
+
+class Context(BaseModel):
+    instructions: str
+    memory_refs: List[UUID]
+    conversation_refs: List[UUID]
+
+    @field_serializer("memory_refs", when_used="always")
+    def serialize_memory_refs(self, value: List[UUID]) -> List[str]:
         return [str(ref) for ref in value]
 
-    @field_serializer("conversation_references", when_used="always")
-    def serialize_conversation_references(
-        self, value: List[UUID] | None
-    ) -> List[str] | None:
-        if value is None:
-            return None
+    @field_serializer("conversation_refs", when_used="always")
+    def serialize_conversation_refs(self, value: List[UUID]) -> List[str]:
         return [str(ref) for ref in value]
