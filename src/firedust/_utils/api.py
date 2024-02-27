@@ -66,7 +66,9 @@ class APIClient:
         self, url: str, data: Dict[str, Any] | None = None
     ) -> Iterator[bytes]:
         url = self.base_url + url
-        with httpx.stream("post", url, json=data, headers=self.headers) as response:
+        with httpx.stream(
+            "post", url, json=data, headers=self.headers, timeout=300
+        ) as response:
             for chunk in response.iter_bytes():
                 yield chunk
 
