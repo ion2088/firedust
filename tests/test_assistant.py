@@ -27,12 +27,12 @@ def test_create_list_load_delete_assistant() -> None:
 
     # Update
     new_name = "Frodo"
-    new_instructions = [
-        "Do not let the ring corrupt you.",
-        "Take it to Modrdor.",
-        "Destroy it in the fires of Mount Doom.",
-        "Take care of Sam.",
-    ]
+    new_instructions = """
+        1. Do not let the ring corrupt you.
+        2. Take it to Modrdor.
+        3. Destroy it in the fires of Mount Doom.
+        4. Take care of Sam.
+    """
     new_inference_config = InferenceConfig(provider="openai", model="gpt-4")
     assistant.update.name(new_name)
     assistant.update.instructions(new_instructions)

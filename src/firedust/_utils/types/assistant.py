@@ -1,4 +1,4 @@
-from typing import Any, List, Literal
+from typing import List, Literal
 from uuid import UUID
 
 from pydantic import BaseModel, field_serializer
@@ -24,7 +24,7 @@ class AssistantConfig(BaseConfig, frozen=True):
     """
 
     name: str
-    instructions: List[str]
+    instructions: str
     inference: InferenceConfig
     memory: MemoryConfig
     abilities: List[AbilityConfig] = []

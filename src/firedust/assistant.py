@@ -56,7 +56,7 @@ from firedust.memory._base import Memory
 DEFAULT_CONFIG = AssistantConfig(
     id=uuid4(),
     name="Sam",
-    instructions=["You are a helpful assistant."],
+    instructions="You are a helpful assistant.",
     inference=InferenceConfig(),
     memory=MemoryConfig(),
 )
@@ -323,7 +323,7 @@ class _Update:
 
     To update the assistant, you can use the following methods:
         assistant.update.name("Sam")
-        assistant.update.instructions(["You are a helpful assistant.", "..."])
+        assistant.update.instructions("You are a helpful assistant..."])
         assistant.update.inference_config(new_config)
     """
 
@@ -376,7 +376,7 @@ class _Update:
             memory=self.assistant._config.memory,
         )
 
-    def instructions(self, instructions: List[str]) -> None:
+    def instructions(self, instructions: str) -> None:
         """
         Updates the instructions of the assistant.
 
