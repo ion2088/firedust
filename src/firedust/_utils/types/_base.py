@@ -4,6 +4,7 @@ from uuid import UUID
 from pydantic import BaseModel, field_serializer
 
 UNIX_TIMESTAMP = float  # see: https://www.unixtimestamp.com/
+STREAM_STOP_EVENT = "[[STOP]]"
 
 
 class BaseConfig(BaseModel):

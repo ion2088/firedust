@@ -18,12 +18,14 @@ Example:
     print(response)
 """
 
+import json
 from datetime import datetime
 from typing import Iterator
 from uuid import UUID, uuid4
 
 from firedust._utils.api import APIClient
 from firedust._utils.errors import APIError
+from firedust._utils.types.api import MessageStreamEvent
 from firedust._utils.types.assistant import AssistantConfig, UserMessage
 
 
@@ -43,7 +45,9 @@ class Chat:
         self.config = config
         self.api_client = api_client
 
-    def stream(self, message: str, user_id: UUID | None = None) -> Iterator[bytes]:
+    def stream(
+        self, message: str, user_id: UUID | None = None
+    ) -> Iterator[MessageStreamEvent]:
         """
         Streams a conversation with the assistant.
         Add a user id to keep chat histories separate for different users.
@@ -53,7 +57,7 @@ class Chat:
             user_id (UUID, optional): The unique identifier of the user. Defaults to None.
 
         Yields:
-            Iterator[bytes]: The response from the assistant.
+            Iterator[MessageStreamEvent]: The response from the assistant.
         """
         user_message = UserMessage(
             id=uuid4(),
@@ -68,7 +72,7 @@ class Chat:
                 "/chat/stream",
                 data=user_message.model_dump(),
             ):
-                yield msg
+                yield MessageStreamEvent(**json.loads(msg.decode("utf-8")))
         except Exception as e:
             raise APIError(f"Failed to stream the conversation: {e}")
 

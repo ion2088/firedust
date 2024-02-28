@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import List
 from uuid import UUID
 
-from pydantic import BaseModel, field_serializer
+from pydantic import field_serializer, field_validator
 
 from ._base import UNIX_TIMESTAMP, BaseConfig
 from .ability import AbilityConfig
@@ -30,6 +30,22 @@ class AssistantConfig(BaseConfig, frozen=True):
     memory: MemoryConfig
     abilities: List[AbilityConfig] = []
     interfaces: Interfaces = Interfaces()
+
+    @field_validator("name")
+    @classmethod
+    def validate_name(cls, name: str) -> str | Exception:
+        if len(name) > 50:
+            raise ValueError("Assistant name exceeds maximum length of 50 characters")
+        if len(name) < 1:
+            raise ValueError("Assistant name must be at least 1 character")
+        return name
+
+    @field_validator("instructions")
+    @classmethod
+    def validate_instructions(cls, instructions: str) -> str | Exception:
+        if len(instructions) < 20:
+            raise ValueError("Assistant instructions must be at least 20 characters")
+        return instructions
 
 
 class UserMessage(BaseConfig, frozen=True):
@@ -69,9 +85,8 @@ class AssistantMessage(BaseConfig, frozen=True):
         response_to_id (UUID): The unique identifier of the message to which the assistant is responding.
         message (str): The text of the message.
         timestamp (UNIX_TIMESTAMP): The time when the message was sent.
-        context (str): The context of the message.
-        memory_refs (List[UUID], optional): The memory references of the message. Defaults to None.
-        conversation_refs (List[UUID], optional): The conversation references of the message. Defaults to None.
+        memory_refs (List[UUID], optional): The unique identifiers of the memories referenced by the message. Defaults to [].
+        conversation_refs (List[UUID], optional): The unique identifiers of the conversations referenced by the message. Defaults to [].
     """
 
     assistant_id: UUID
@@ -79,7 +94,8 @@ class AssistantMessage(BaseConfig, frozen=True):
     response_to_id: UUID
     timestamp: UNIX_TIMESTAMP
     message: str
-    context: "Context"
+    memory_refs: List[UUID] = []
+    conversation_refs: List[UUID] = []
 
     @field_serializer("assistant_id", when_used="always")
     def serialize_assistant_id(self, value: UUID) -> str:
@@ -95,16 +111,10 @@ class AssistantMessage(BaseConfig, frozen=True):
     def serialize_response_to_id(self, value: UUID) -> str:
         return str(value)
 
-
-class Context(BaseModel):
-    instructions: str
-    memory_refs: List[UUID]
-    conversation_refs: List[UUID]
-
     @field_serializer("memory_refs", when_used="always")
     def serialize_memory_refs(self, value: List[UUID]) -> List[str]:
-        return [str(ref) for ref in value]
+        return [str(x) for x in value]
 
     @field_serializer("conversation_refs", when_used="always")
     def serialize_conversation_refs(self, value: List[UUID]) -> List[str]:
-        return [str(ref) for ref in value]
+        return [str(x) for x in value]
