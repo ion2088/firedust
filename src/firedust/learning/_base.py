@@ -1,5 +1,6 @@
 from pathlib import Path
-from typing import Union
+from typing import List, Union
+from uuid import UUID
 
 from firedust._utils.api import APIClient
 from firedust._utils.errors import APIError
@@ -24,7 +25,7 @@ class Learning:
         self.assistant = assistant
         self.api_client = api_client
 
-    def fast(self, text: str) -> None:
+    def fast(self, text: str) -> List[UUID]:
         """
         The fastest way to teach the assistant is by providing data in
         string format. This can be documentation, code, examples, or any
@@ -33,6 +34,9 @@ class Learning:
 
         Args:
             text (str): The text to learn.
+
+        Returns:
+            memory_ids (List[UUID]): A list of memory ids.
         """
         response = self.api_client.post(
             "/learn/fast",
@@ -40,6 +44,11 @@ class Learning:
         )
         if not response.is_success:
             raise APIError(f"Failed to teach the assistant: {response.text}")
+
+        memory_ids = [
+            UUID(_id) for _id in response.json()["content"]["data"]["memory_ids"]
+        ]
+        return memory_ids
 
     def from_pdf(self, pdf: Union[str, Path]) -> None:
         """

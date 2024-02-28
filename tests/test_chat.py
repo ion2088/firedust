@@ -2,6 +2,7 @@ import os
 
 import pytest
 
+from firedust._utils.types.api import MessageStreamEvent
 from firedust.assistant import Assistant
 
 
@@ -10,10 +11,28 @@ from firedust.assistant import Assistant
     reason="The environment variable FIREDUST_API_KEY is not set.",
 )
 def test_chat_streaming() -> None:
+    # Create a test assistant
     assistant = Assistant.create()
     response = assistant.chat.stream("Hi, how are you?")
 
-    for x in response:
-        print(x.message)
+    # Check the response
+    for _e in response:
+        assert isinstance(_e, MessageStreamEvent)
+        assert isinstance(_e.message, str)
 
-    w = 10
+    # Learn new stuff
+    memory_id1 = assistant.learn.fast(
+        "Due to our product introduction cycles, we are almost always in various stages of transitioning the architecture of our Data Center, Professional Visualization, and Gaming products. We will have a broader and faster Data Center product launch cadence to meet a growing and diverse set of AI opportunities."
+    )
+    memory_id2 = assistant.learn.fast(
+        "Deployment of new products to customers creates additional challenges due to the complexity of our technologies, which has impacted and may in the future impact the timing of customer purchases or otherwise impact our demand."
+    )
+    memory_ids = memory_id1 + memory_id2
+
+    # Check that the response takes into consideration the new stuff
+    full_message = ""
+
+    # Check that the new stuff is referenced in the last event
+
+    # Remove the test assistant
+    Assistant.delete(assistant.config.id, confirm_delete=True)
