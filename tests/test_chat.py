@@ -30,9 +30,16 @@ def test_chat_streaming() -> None:
     memory_ids = memory_id1 + memory_id2
 
     # Check that the response takes into consideration the new stuff
-    full_message = ""
+    answer = ""
+    for _e in assistant.chat.stream(
+        "Why are we almost a always in various stages of transitioning the architecture of our Data Center, Professional Visualization, and Gaming products?"
+    ):
+        answer += _e.message
+    assert "product introduction cycles" in answer.lower()
 
     # Check that the new stuff is referenced in the last event
+    assert memory_ids[0] in _e.memory_refs
+    assert memory_ids[1] in _e.memory_refs
 
     # Remove the test assistant
     Assistant.delete(assistant.config.id, confirm_delete=True)
