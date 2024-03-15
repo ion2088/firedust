@@ -5,8 +5,8 @@ import httpx
 
 from firedust._utils.errors import MissingFiredustKeyError
 
-# BASE_URL = "https://api.firedust.ai/v1"
-BASE_URL = "http://0.0.0.0:8080"
+BASE_URL = "https://api.firedustx.com/v1"
+# BASE_URL = "http://0.0.0.0:8080"
 
 
 class APIClient:
