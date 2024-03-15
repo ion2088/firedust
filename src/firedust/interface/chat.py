@@ -72,7 +72,11 @@ class Chat:
                 "/chat/stream",
                 data=user_message.model_dump(),
             ):
-                yield MessageStreamEvent(**json.loads(msg.decode("utf-8")))
+                # Split the response into individual messages
+                parts = msg.decode("utf-8").split("\n")
+                for m in parts:
+                    yield MessageStreamEvent(**json.loads(m))
+
         except Exception as e:
             raise APIError(f"Failed to stream the conversation: {e}")
 
