@@ -5,7 +5,7 @@ import httpx
 
 from firedust._utils.errors import MissingFiredustKeyError
 
-BASE_URL = "https://api.firedustx.com/v1"
+BASE_URL = "https://api.firedustx.com"
 # BASE_URL = "http://0.0.0.0:8080"
 
 
