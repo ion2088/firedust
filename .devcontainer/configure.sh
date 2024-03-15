@@ -9,5 +9,6 @@ chmod 600 /root/.ssh/id_rsa
 
 # testpypi
 poetry config pypi-token.testpypi "$TEST_PYPI_TOKEN"
+poetry config repositories.testpypi https://test.pypi.org/legacy/
 
 echo "Done."
