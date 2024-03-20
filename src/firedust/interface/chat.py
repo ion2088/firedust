@@ -19,8 +19,9 @@ Example:
 """
 
 import json
+import re
 from datetime import datetime
-from typing import Iterator
+from typing import Iterable, Iterator
 from uuid import UUID, uuid4
 
 from firedust._utils.api import APIClient
@@ -67,15 +68,43 @@ class Chat:
             timestamp=datetime.now().timestamp(),
         )
 
+        # Processing stream response
+        self._previous_stream_chunk = ""
+
+        def _process_stream_chunk(chunk: str) -> Iterable[MessageStreamEvent]:
+            chunk_split = re.split(r"\n\ndata: ", chunk)
+
+            # Process each data object in the chunk
+            for data in chunk_split:
+                if not data:
+                    continue
+
+                # Manage incomplete data objects
+                if self._previous_stream_chunk:
+                    # If the delimiter \n\ndata is present in the combined chunks, it means we have to split and re-process it
+                    data = self._previous_stream_chunk + data
+                    self._previous_stream_chunk = ""
+                    yield from _process_stream_chunk(data)
+
+                # Remove the first "data: " from the first chunk and trailing whitespace
+                data = re.sub(r"^data: ", "", data).strip()
+
+                try:
+                    data_dict = json.loads(data)
+                except json.JSONDecodeError as e:
+                    # Probably incomplete data, so we keep it for the next chunk
+                    self._previous_stream_chunk = data
+                    continue
+
+                yield MessageStreamEvent(**data_dict)
+
         try:
             for msg in self.api_client.post_stream(
                 "/chat/stream",
                 data=user_message.model_dump(),
             ):
-                # Split the response into individual messages
-                parts = msg.decode("utf-8").split("\n")
-                for m in parts:
-                    yield MessageStreamEvent(**json.loads(m))
+                msg_decoded = msg.decode("utf-8")
+                yield from _process_stream_chunk(msg_decoded)
 
         except Exception as e:
             raise APIError(f"Failed to stream the conversation: {e}")
