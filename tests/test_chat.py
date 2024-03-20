@@ -43,3 +43,17 @@ def test_chat_streaming() -> None:
 
     # Remove the test assistant
     Assistant.delete(assistant.config.id, confirm_delete=True)
+
+
+@pytest.mark.skipif(
+    os.environ.get("FIREDUST_API_KEY") is None,
+    reason="The environment variable FIREDUST_API_KEY is not set.",
+)
+def test_chat_complete() -> None:
+    # Create a test assistant
+    assistant = Assistant.create()
+    response = assistant.chat.complete("Hi, how are you?")
+    assert isinstance(response, str)
+
+    # Remove the test assistant
+    Assistant.delete(assistant.config.id, confirm_delete=True)

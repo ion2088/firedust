@@ -121,14 +121,20 @@ class Chat:
         Returns:
             str: The response from the assistant.
         """
-        response = self.api_client.get(
-            f"assistant/{self.config.id}/chat/complete",
-            params={"message": message, "user_id": user_id},
+        user_message = UserMessage(
+            id=uuid4(),
+            assistant_id=self.config.id,
+            user_id=str(user_id) if user_id is not None else None,
+            message=message,
+            timestamp=datetime.now().timestamp(),
         )
 
+        response = self.api_client.post(
+            "/chat/complete",
+            data=user_message.model_dump(),
+        )
         if not response.is_success:
             raise Exception(response.json()["message"])
 
-        completion: str = response.json()["completion"]
-
+        completion: str = response.json()["message"]
         return completion
