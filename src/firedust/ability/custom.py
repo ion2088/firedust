@@ -59,7 +59,7 @@ class CustomAbility:
             data={"ability": config.model_dump()},
         )
 
-        if response.status_code != 200:
+        if not response.is_success:
             raise CustomAbilityError("Failed to create custom ability.")
 
     def execute(self, ability_id: str, instruction: str) -> str:
@@ -74,7 +74,7 @@ class CustomAbility:
             data={"id": ability_id, "instruction": instruction},
         )
 
-        if response.status_code != 200:
+        if not response.is_success:
             raise CustomAbilityError("Failed to execute custom ability.")
 
         result: str = response.json()["data"]["result"]

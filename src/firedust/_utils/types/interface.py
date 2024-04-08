@@ -2,18 +2,32 @@ from typing import Literal
 
 from pydantic import BaseModel
 
-from ._base import BaseConfig
 
-
-class InterfaceConfig(BaseConfig):
+class InterfaceConfig(BaseModel):
     """
     Represents an interface of the assistant.
     """
 
-    name: Literal["slack", "github", "discord", "email", "whatsapp"]
+    interface: Literal["slack", "github", "discord", "email", "whatsapp"]
 
 
-# TODO: Finalize interface configurations.
+class SlackTokens(BaseModel):
+    """
+    Represents the credentials of a Slack app.
+    """
+
+    app_token: str
+    bot_token: str
+
+
+class SlackCredentials(BaseModel):
+    """
+    Represents the credentials of a Slack app.
+    """
+
+    signing_secret: str
+    client_id: str
+    client_secret: str
 
 
 class SlackConfig(InterfaceConfig):
@@ -21,10 +35,12 @@ class SlackConfig(InterfaceConfig):
     Configuration for Slack InterfaceConfig.
     """
 
-    name: Literal["slack"] = "slack"
-    token: str
-    signing_secret: str
-    channel: str
+    description: str
+    interface: Literal["slack"] = "slack"
+    app_id: str | None = None  # This is filled-in by the API
+    credentials: SlackCredentials | None = None  # This is filled-in by the API
+    tokens: SlackTokens | None = None  # This is filled-in by the API
+    iid: str | None = None  # This is filled-in by the API
 
 
 class DiscordConfig(InterfaceConfig):
@@ -32,7 +48,7 @@ class DiscordConfig(InterfaceConfig):
     Configuration for Discord InterfaceConfig.
     """
 
-    name: Literal["discord"] = "discord"
+    interface: Literal["discord"] = "discord"
     token: str
     channel: str
 
@@ -42,7 +58,7 @@ class GithubConfig(InterfaceConfig):
     Configuration for Github InterfaceConfig.
     """
 
-    name: Literal["github"] = "github"
+    interface: Literal["github"] = "github"
     token: str
     channel: str
 
@@ -53,7 +69,7 @@ class EmailConfig(InterfaceConfig):
     Configuration for Email InterfaceConfig.
     """
 
-    name: Literal["email"] = "email"
+    interface: Literal["email"] = "email"
     email: str
     password: str
     host: str

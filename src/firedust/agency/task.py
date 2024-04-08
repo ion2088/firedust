@@ -49,7 +49,7 @@ class Task:
             f"assistant/{self.config.id}/agency/task/run",
             data={"task": task},
         )
-        if response.status_code != 200:
+        if not response.is_success:
             raise Exception(response.json()["message"])
         metadata: Dict[str, str] = response.json()
 
@@ -87,7 +87,7 @@ class Schedule:
             data={"task": task},
         )
 
-        if response.status_code != 200:
+        if not response.is_success:
             raise Exception(response.json()["message"])
 
         metadata: Dict[str, str] = response.json()
@@ -105,7 +105,7 @@ class Schedule:
             f"assistant/{self.config.id}/agency/task/schedule/list",
         )
 
-        if response.status_code != 200:
+        if not response.is_success:
             raise Exception(response.json()["message"])
 
         scheduled_tasks: List[ScheduledTask] = [

@@ -43,7 +43,7 @@ class Workflow:
             f"assistant/{self.config.id}/agency/workflow/run",
             data={"workflow": workflow.model_dump()},
         )
-        if response.status_code != 200:
+        if not response.is_success:
             raise Exception(response.json()["message"])
 
         metadata: Dict[str, str] = response.json()
@@ -60,7 +60,7 @@ class Workflow:
         response = self.api_client.get(
             f"assistant/{self.config.id}/agency/workflow/list",
         )
-        if response.status_code != 200:
+        if not response.is_success:
             raise Exception(response.json()["message"])
 
         workflows: List[WorkflowConfig] = [
@@ -82,7 +82,7 @@ class Workflow:
         response = self.api_client.delete(
             f"assistant/{self.config.id}/agency/workflow/remove/{workflow_id}",
         )
-        if response.status_code != 200:
+        if not response.is_success:
             raise Exception(response.json()["message"])
 
         metadata: Dict[str, str] = response.json()
