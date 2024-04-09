@@ -230,7 +230,7 @@ class Assistant:
                 message=f"Failed to create the assistant with config {config}: {response.text}",
             )
         LOG.info(
-            f"Assistant {config.name} (ID: {config.id}) was created successfully and saved in the cloud."
+            f"Assistant {config.name} (ID: {config.id}) was created successfully and saved to the cloud."
         )
         return cls._create_instance(config, api_client)
 

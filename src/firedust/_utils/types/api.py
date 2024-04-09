@@ -23,7 +23,7 @@ class MessageStreamEvent(BaseModel, frozen=True):
     """
 
     assistant_id: UUID
-    user_id: UUID | None = None
+    user_id: str | None = None
     timestamp: UNIX_TIMESTAMP
     message: str
     stream_ended: bool
@@ -32,12 +32,6 @@ class MessageStreamEvent(BaseModel, frozen=True):
 
     @field_serializer("assistant_id", when_used="always")
     def serialize_assistant_id(self, value: UUID) -> str:
-        return str(value)
-
-    @field_serializer("user_id", when_used="always")
-    def serialize_user_id(self, value: UUID | None) -> str | None:
-        if value is None:
-            return None
         return str(value)
 
     @field_serializer("memory_refs", when_used="always")

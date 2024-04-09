@@ -22,7 +22,7 @@ import json
 import re
 from datetime import datetime
 from typing import Iterable, Iterator
-from uuid import UUID, uuid4
+from uuid import uuid4
 
 from firedust._utils.api import APIClient
 from firedust._utils.errors import APIError
@@ -47,7 +47,7 @@ class Chat:
         self.api_client = api_client
 
     def stream(
-        self, message: str, user_id: UUID | None = None
+        self, message: str, user_id: str | None = None
     ) -> Iterator[MessageStreamEvent]:
         """
         Streams a conversation with the assistant.
@@ -55,7 +55,7 @@ class Chat:
 
         Args:
             message (str): The message to send.
-            user_id (UUID, optional): The unique identifier of the user. Defaults to None.
+            user_id (str, optional): The unique identifier of the user. Defaults to None.
 
         Yields:
             Iterator[MessageStreamEvent]: The response from the assistant.
@@ -63,7 +63,7 @@ class Chat:
         user_message = UserMessage(
             id=uuid4(),
             assistant_id=self.config.id,
-            user_id=str(user_id) if user_id is not None else None,
+            user_id=user_id,
             message=message,
             timestamp=datetime.now().timestamp(),
         )
@@ -91,7 +91,7 @@ class Chat:
 
                 try:
                     data_dict = json.loads(data)
-                except json.JSONDecodeError as e:
+                except json.JSONDecodeError as _:
                     # Probably incomplete data, so we keep it for the next chunk
                     self._previous_stream_chunk = data
                     continue
@@ -109,14 +109,14 @@ class Chat:
         except Exception as e:
             raise APIError(f"Failed to stream the conversation: {e}")
 
-    def complete(self, message: str, user_id: UUID | None = None) -> str:
+    def complete(self, message: str, user_id: str | None = None) -> str:
         """
         Completes a conversation with the assistant.
         Add a user id to keep chat histories separate for different users.
 
         Args:
             message (str): The message to send.
-            user_id (UUID, optional): The unique identifier of the user. Defaults to None.
+            user_id (str, optional): The unique identifier of the user. Defaults to None.
 
         Returns:
             str: The response from the assistant.
@@ -124,7 +124,7 @@ class Chat:
         user_message = UserMessage(
             id=uuid4(),
             assistant_id=self.config.id,
-            user_id=str(user_id) if user_id is not None else None,
+            user_id=user_id,
             message=message,
             timestamp=datetime.now().timestamp(),
         )

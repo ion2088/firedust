@@ -47,7 +47,7 @@ class SlackInterface:
         """
         self.assistant_config: AssistantConfig = config
         self.api_client: APIClient = api_client
-        self.config: SlackConfig | None = None
+        self.config: SlackConfig | None = config.interfaces.slack
 
     def create_app(self, description: str, configuration_token: str) -> httpx.Response:
         """
