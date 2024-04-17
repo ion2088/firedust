@@ -40,7 +40,6 @@ class SlackConfig(InterfaceConfig):
     app_id: str | None = None  # This is filled-in by the API
     credentials: SlackCredentials | None = None  # This is filled-in by the API
     tokens: SlackTokens | None = None  # This is filled-in by the API
-    iid: str | None = None  # This is filled-in by the API
 
 
 class DiscordConfig(InterfaceConfig):
