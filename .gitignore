@@ -33,6 +33,9 @@ venv.bak/
 .dmypy.json
 dmypy.json
 
+# ruff
+.ruff_cache/
+
 # Ignore VSCode settings
 .vscode/
 

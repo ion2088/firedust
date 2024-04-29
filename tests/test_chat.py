@@ -52,7 +52,7 @@ def test_chat_streaming() -> None:
 def test_chat_complete() -> None:
     # Create a test assistant
     assistant = Assistant.create()
-    response = assistant.chat.complete("Hi, how are you?")
+    response = assistant.chat.message("Hi, how are you?")
     assert isinstance(response, str)
 
     # Remove the test assistant

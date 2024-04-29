@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "firedust"
 version = "0.0.8"
-description = "A simple framework to build and deploy AI Assistants."
+description = "A simple framework to build and deploy AI tools."
 authors = ["ion <ion2088@proton.me>"]
 readme = "README.md"
 license = "Apache-2.0"

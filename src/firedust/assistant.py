@@ -305,6 +305,7 @@ class Assistant:
                 message=f"An error occured while deleting the assistant with id {assistant_id}: {response.text}",
             )
         LOG.info(f"Successfully deleted assistant {assistant_id}.")
+        return
 
     @staticmethod
     def _raise_setter_error(attribute: str) -> None:

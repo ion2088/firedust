@@ -54,13 +54,13 @@ class UserMessage(BaseConfig, frozen=True):
 
     Args:
         assistant_id (UUID): The unique identifier of the assistant.
-        user_id (str, optional): The unique identifier of the user.
+        user_id (str): The unique identifier of the user.
         message (str): The text of the message.
         timestamp (UNIX_TIMESTAMP): The timestamp of the message.
     """
 
     assistant_id: UUID
-    user_id: str | None = None
+    user_id: str
     timestamp: UNIX_TIMESTAMP = datetime.now().timestamp()
     message: str
 
@@ -75,7 +75,7 @@ class AssistantMessage(BaseConfig, frozen=True):
 
     Args:
         assistant_id (UUID): The unique identifier of the assistant.
-        user_id (str, optional): The unique identifier of the user.
+        user_id (str): The unique identifier of the user.
         response_to_id (UUID): The unique identifier of the message to which the assistant is responding.
         message (str): The text of the message.
         timestamp (UNIX_TIMESTAMP): The time when the message was sent.
@@ -84,7 +84,7 @@ class AssistantMessage(BaseConfig, frozen=True):
     """
 
     assistant_id: UUID
-    user_id: str | None = None
+    user_id: str
     response_to_id: UUID
     timestamp: UNIX_TIMESTAMP
     message: str

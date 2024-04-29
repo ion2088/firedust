@@ -101,7 +101,7 @@ class Memory:
             memory (MemoryItem): The memory item to add.
         """
         self.api_client.post(
-            f"assistant/{self.config.id}/memory/add/",
+            f"/assistant/{self.config.id}/memory/add/",
             data={"memory": memory.model_dump()},
         )
 
@@ -113,7 +113,7 @@ class Memory:
             memory_id (UUID): The ID of the memory item to remove.
         """
         self.api_client.delete(
-            f"assistant/{self.config.id}/memory/remove/{memory_id}",
+            f"/assistant/{self.config.id}/memory/remove/{memory_id}",
         )
 
     def list(self, collection_id: UUID | None = None) -> List[UUID]:
@@ -126,7 +126,7 @@ class Memory:
             collection_id = self.config.memory.default_collection
 
         response = self.api_client.get(
-            f"assistant/{self.config.id}/memory/collections/list/{collection_id}",
+            f"/assistant/{self.config.id}/memory/collections/list/{collection_id}",
         )
 
         if response.status_code == 200:
@@ -176,7 +176,7 @@ class MemoriesCollection:
         Attaches an existing memory collection to the assistant.
         """
         response = self.api_client.post(
-            f"assistant/{self.config.id}/memory/collections/attach/{id}",
+            f"/assistant/{self.config.id}/memory/collections/attach/{id}",
         )
 
         if response.status_code == 200:
@@ -194,7 +194,7 @@ class MemoriesCollection:
         Detaches an existing memory collection from the assistant.
         """
         response = self.api_client.post(
-            f"assistant/{self.config.id}/memory/collections/detach/{id}",
+            f"/assistant/{self.config.id}/memory/collections/detach/{id}",
         )
 
         if response.status_code == 200:

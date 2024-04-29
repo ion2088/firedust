@@ -23,7 +23,7 @@ class MessageStreamEvent(BaseModel, frozen=True):
     """
 
     assistant_id: UUID
-    user_id: str | None = None
+    user_id: str
     timestamp: UNIX_TIMESTAMP
     message: str
     stream_ended: bool

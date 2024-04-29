@@ -43,7 +43,7 @@ def test_learn_fast() -> None:
     memories = assistant.memory.recall("Info about purchase obligations.", limit=10)
     expected_recall = "we have increased our purchase obligations with existing suppliers, added new suppliers, and entered into prepaid supply and capacity agreements."
     assert any(
-        expected_recall in memory.context.replace("\n   ", "") for memory in memories
+        expected_recall in memory.content.replace("\n   ", "") for memory in memories
     )
 
     # remove test assistant

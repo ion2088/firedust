@@ -47,15 +47,15 @@ class Chat:
         self.api_client = api_client
 
     def stream(
-        self, message: str, user_id: str | None = None
+        self, message: str, user_id: str = "default"
     ) -> Iterator[MessageStreamEvent]:
         """
-        Streams a conversation with the assistant.
+        Streams an assistant response to a message.
         Add a user id to keep chat histories separate for different users.
 
         Args:
             message (str): The message to send.
-            user_id (str, optional): The unique identifier of the user. Defaults to None.
+            user_id (str, optional): The unique identifier of the user. Defaults to "default".
 
         Yields:
             Iterator[MessageStreamEvent]: The response from the assistant.
@@ -109,14 +109,14 @@ class Chat:
         except Exception as e:
             raise APIError(f"Failed to stream the conversation: {e}")
 
-    def complete(self, message: str, user_id: str | None = None) -> str:
+    def message(self, message: str, user_id: str = "default") -> str:
         """
-        Completes a conversation with the assistant.
+        Returns a response from the assistant to a message.
         Add a user id to keep chat histories separate for different users.
 
         Args:
             message (str): The message to send.
-            user_id (str, optional): The unique identifier of the user. Defaults to None.
+            user_id (str, optional): The unique identifier of the user. Defaults to "default".
 
         Returns:
             str: The response from the assistant.
@@ -130,11 +130,43 @@ class Chat:
         )
 
         response = self.api_client.post(
-            "/chat/complete",
+            "/chat/message",
             data=user_message.model_dump(),
+        )
+        if not response.is_success:
+            raise Exception(response.json())
+
+        completion: str = response.json()["message"]
+        return completion
+
+    def learn_user_history(self, user_id: str, messages: Iterable[UserMessage]) -> None:
+        """
+        Upload a chat history of the user to the assistant's memory.
+
+        Args:
+            user_id (str): The unique identifier of the user.
+            messages (Iterable[UserMessage]): The messages of the user.
+        """
+        response = self.api_client.post(
+            "/chat/learn/history",
+            data={
+                "assistant_id": self.config.id,
+                "user_id": user_id,
+                "messages": messages,
+            },
         )
         if not response.is_success:
             raise Exception(response.json()["message"])
 
-        completion: str = response.json()["message"]
-        return completion
+    def forget_user_history(self, user_id: str) -> None:
+        """
+        Remove the chat history of the user from the assistant's memory.
+
+        Args:
+            user_id (str): The unique identifier of the user.
+        """
+        response = self.api_client.delete(
+            f"/chat/delete/history/{self.config.id}/{user_id}",
+        )
+        if not response.is_success:
+            raise Exception(response.json()["message"])

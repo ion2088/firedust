@@ -19,7 +19,7 @@ class MemoryItem(BaseConfig):
 
     Args:
         collection (UUID): The collection that contains the memory.
-        context (str): The context of the memory.
+        content (str): The content of the memory.
         embedding (List[float]): The embedding of the memory.
         timestamp (UNIX_TIMESTAMP): The time when the memory was created.
         type (Literal["text", "image", "audio", "video"]): The type of the memory. Defaults to "text".
@@ -28,19 +28,19 @@ class MemoryItem(BaseConfig):
     """
 
     collection: UUID
-    context: str
+    content: str
     embedding: List[float]
     timestamp: UNIX_TIMESTAMP
     type: Literal["text", "image", "audio", "video"] = "text"
     source: str | None = None
     relevance: float | None = None
 
-    @field_validator("context")
+    @field_validator("content")
     @classmethod
     def validate_context_length(cls, context: str) -> str | Exception:
         if len(context) > MAX_MEMORY_CONTEXT:
             raise ValueError(
-                f"Memory context exceeds maximum length of {MAX_MEMORY_CONTEXT} characters"
+                f"Memory content exceeds maximum length of {MAX_MEMORY_CONTEXT} characters"
             )
         return context
 

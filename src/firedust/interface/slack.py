@@ -12,6 +12,7 @@ class SlackInterface:
 
     Example:
         import firedust
+        from firedust.interface import SlackTokens
 
         assistant = firedust.assistant.load("ASSISTANT_ID")
 
@@ -25,7 +26,7 @@ class SlackInterface:
         # Install the app and set the Slack App and Bot tokens, you can find them here:
         # https://api.slack.com/apps/<app_id>
         # https://api.slack.com/apps/<app_id>/oauth
-        tokens = firedust.interface.SlackTokens(
+        tokens = SlackTokens(
             app_token="SLACK_APP_TOKEN",
             bot_token="SLACK_BOT_TOKEN",
         )
@@ -60,9 +61,9 @@ class SlackInterface:
             httpx.Response: The response from the API.
         """
         response = self.api_client.post(
-            "/interface/slack/create_app",
+            "/interface/slack/create",
             data={
-                "assistant_id": self.assistant_config.id,
+                "assistant_id": str(self.assistant_config.id),
                 "description": description,
                 "configuration_token": configuration_token,
             },
@@ -70,7 +71,7 @@ class SlackInterface:
         if not response.is_success:
             raise SlackError(f"Failed to create Slack app: {response.text}")
 
-        self.slack_config = SlackConfig(**response.json()["data"])
+        self.config = SlackConfig(**response.json()["data"])
 
         return response
 
@@ -84,10 +85,15 @@ class SlackInterface:
         Returns:
             httpx.Response: The response from the API.
         """
+        if self.config is None:
+            raise SlackError(
+                "Slack configuration not found. Please, create an app first. Hint: assistant.interfece.slack.create_app()"
+            )
+
         response = self.api_client.post(
             "/interface/slack/set_tokens",
             data={
-                "assistant_id": self.assistant_config.id,
+                "assistant_id": str(self.assistant_config.id),
                 "app_token": tokens.app_token,
                 "bot_token": tokens.bot_token,
             },
@@ -95,7 +101,7 @@ class SlackInterface:
         if not response.is_success:
             raise SlackError(f"Failed to set Slack tokens: {response.text}")
 
-        self.slack_config.tokens = tokens
+        self.config.tokens = tokens
         return response
 
     def deploy(self) -> httpx.Response:
@@ -108,7 +114,7 @@ class SlackInterface:
         response = self.api_client.post(
             "/interface/slack/deploy",
             data={
-                "assistant_id": self.assistant_config.id,
+                "assistant_id": str(self.assistant_config.id),
                 "api_key": self.api_client.api_key,
             },
         )
@@ -116,77 +122,6 @@ class SlackInterface:
             raise SlackError(f"Failed to deploy Slack app: {response.text}")
 
         return response
-
-    # def update_credentials(self, credentials: SlackCredentials) -> httpx.Response:
-    #     """
-    #     Updates the signing secret.
-
-    #     Args:
-    #         credentials (SlackCredentials): The new credentials.
-
-    #     Returns:
-    #         httpx.Response: The response from the API.
-    #     """
-    #     response = self.api_client.post(
-    #         "/interface/slack/update_signing_secret",
-    #         data={
-    #             "assistant_id": self.assistant_config.id,
-    #             **credentials.model_dump(),
-    #         },
-    #     )
-    #     if not response.is_success:
-    #         raise SlackError(f"Failed to set Slack signing secret: {response.text}")
-
-    #     self.assistant_config.interfaces.slack = self.slack_config
-    #     return response
-
-    # def update_description(
-    #     self, description: str, configuration_token: str
-    # ) -> httpx.Response:
-    #     """
-    #     Updates the Slack description. A slack configuration token is required to update the app manifest.
-
-    #     Args:
-    #         description (str): The new description.
-    #         configuration_token (str): The configuration token.
-
-    #     Returns:
-    #         httpx.Response: The response from the API.
-    #     """
-    #     response = self.api_client.post(
-    #         "/interface/slack/update_description",
-    #         data={
-    #             "assistant_id": self.assistant_config.id,
-    #             "description": description,
-    #             "configuration_token": configuration_token,
-    #         },
-    #     )
-    #     if not response.is_success:
-    #         raise SlackError(f"Failed to update Slack description: {response.text}")
-
-    #     self.slack_config.description = description
-    #     return response
-
-    # def activity(self, last: int = 100) -> httpx.Response:
-    #     """
-    #     Not implemented.
-
-    #     Get latest Slack activity of the assistant.
-
-    #     Returns:
-    #         httpx.Response: The response from the API.
-    #     """
-    #     # response = self.api_client.get(
-    #     #     "/interface/slack/activity",
-    #     #     params={
-    #     #         "assistant_id": self.assistant_config.id,
-    #     #     },
-    #     # )
-    #     # if not response.is_success:
-    #     #     raise SlackError(f"Failed to get Slack activity: {response.text}")
-
-    #     # return response
-    #     raise NotImplementedError("This method is not implemented yet.")
 
     def delete(self, configuration_token: str) -> httpx.Response:
         """
@@ -198,7 +133,7 @@ class SlackInterface:
         response = self.api_client.post(
             "/interface/slack/delete",
             data={
-                "assistant_id": self.assistant_config.id,
+                "assistant_id": str(self.assistant_config.id),
                 "configuration_token": configuration_token,
             },
         )
