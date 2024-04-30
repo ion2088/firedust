@@ -21,7 +21,7 @@ from firedust._utils.types.memory import MemoryConfig
 
 # STEP 1
 # add your slack configuration token, you can find it here: https://api.slack.com/apps
-SLACK_CONFIGURATION_ACCESS_TOKEN = "xoxe.xoxp-1-Mi0yLTY4MDA5NjI4MDg2MjQtNjc5MDgzMjE2ODY0MS02ODMwMjc0MTcwMTE5LTcwNDI0NzYwNTUxNTItYzhhYTA5NTMxYmY0ZDQ3MzY5YTdjNWI2OGEyYjVkNTJhZjAyZDY3YWM0YmJlZTc5ZjYxMjkzZjdmNjk1YTA2YQ"
+SLACK_CONFIGURATION_ACCESS_TOKEN = "xoxe.xoxp-1-Mi0yLTY4MDA5NjI4MDg2MjQtNjc5MDgzMjE2ODY0MS02ODMwMjc0MTcwMTE5LTcwMjU4MDgzMDM0NzktNWNkYWVhMTVmNTE3ZTNlZjk4NTRkYjhjNjg4YjYzZDM4ZmM2OGNlZmFjNTBiZTY3MDk4NzhiNTNjZTMwZWEyYg"
 
 # create an assistant, let's name it Joe
 assistant_config = AssistantConfig(
@@ -41,8 +41,8 @@ joe.interface.slack.create_app(
 
 # STEP 2
 # install the app in your slack workspace and generate tokens. See here: https://api.slack.com/apps/
-SLACK_APP_TOKEN = "xapp-1-A070FC8FEUW-7024538598692-66911ca67ea7db95b85715c8e7f146c1708c3b9c8c10daa5a1d8ee0ba9096b7b"
-SLACK_BOT_TOKEN = "xoxb-6800962808624-7007527987511-172tvospuZv01hmx77QaX3Yq"
+SLACK_APP_TOKEN = "xapp-1-A070RQPJEDD-7040405227762-c94d1accf4b9b9fc528267b8e44836a0103c41d9e5ffc1b17144cfb8c266caa4"
+SLACK_BOT_TOKEN = "xoxb-6800962808624-7063189460304-0BXUkWie0dGn5Zyiv9SqLcWx"
 
 joe.interface.slack.set_tokens(
     tokens=SlackTokens(app_token=SLACK_APP_TOKEN, bot_token=SLACK_BOT_TOKEN)
