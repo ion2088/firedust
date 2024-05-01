@@ -1,5 +1,5 @@
 from typing import Any
-from uuid import UUID
+from uuid import UUID, uuid4
 
 from pydantic import BaseModel, field_serializer
 
@@ -13,7 +13,7 @@ class BaseConfig(BaseModel):
     All configuration models should inherit from this class.
     """
 
-    id: UUID
+    id: UUID = uuid4()
 
     def __setattr__(self, key: str, value: Any) -> None:
         # set immutable attributes
