@@ -1,7 +1,7 @@
 from typing import Any
 from uuid import UUID, uuid4
 
-from pydantic import BaseModel, field_serializer
+from pydantic import BaseModel, Field, field_serializer
 
 UNIX_TIMESTAMP = float  # see: https://www.unixtimestamp.com/
 STREAM_STOP_EVENT = "[[STOP]]"
@@ -13,7 +13,7 @@ class BaseConfig(BaseModel):
     All configuration models should inherit from this class.
     """
 
-    id: UUID = uuid4()
+    id: UUID = Field(default_factory=uuid4)
 
     def __setattr__(self, key: str, value: Any) -> None:
         # set immutable attributes
