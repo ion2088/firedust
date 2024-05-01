@@ -22,7 +22,6 @@ import json
 import re
 from datetime import datetime
 from typing import Iterable, Iterator
-from uuid import uuid4
 
 from firedust.utils.api import APIClient
 from firedust.utils.errors import APIError
@@ -61,7 +60,6 @@ class Chat:
             Iterator[MessageStreamEvent]: The response from the assistant.
         """
         user_message = UserMessage(
-            id=uuid4(),
             assistant_id=self.config.id,
             user_id=user_id,
             message=message,
@@ -122,7 +120,6 @@ class Chat:
             str: The response from the assistant.
         """
         user_message = UserMessage(
-            id=uuid4(),
             assistant_id=self.config.id,
             user_id=user_id,
             message=message,
@@ -150,9 +147,9 @@ class Chat:
         response = self.api_client.post(
             "/chat/learn/history",
             data={
-                "assistant_id": self.config.id,
+                "assistant_id": str(self.config.id),
                 "user_id": user_id,
-                "messages": messages,
+                "messages": [msg.model_dump() for msg in messages],
             },
         )
         if not response.is_success:
@@ -166,7 +163,7 @@ class Chat:
             user_id (str): The unique identifier of the user.
         """
         response = self.api_client.delete(
-            f"/chat/delete/history/{self.config.id}/{user_id}",
+            f"/chat/delete/history/{str(self.config.id)}/{user_id}",
         )
         if not response.is_success:
             raise Exception(response.json()["message"])

@@ -1,5 +1,3 @@
-from uuid import uuid4
-
 import firedust
 from firedust.utils.types.assistant import AssistantConfig
 from firedust.utils.types.inference import InferenceConfig
@@ -28,7 +26,6 @@ SLACK_CONFIGURATION_ACCESS_TOKEN = "xoxe.xoxp-1-Mi0yLTY4MDA5NjI4MDg2MjQtNjc5MDgz
 
 # create an assistant, let's name it Joe
 assistant_config = AssistantConfig(
-    id=uuid4(),
     name="Joe",
     instructions="Joe likes pizza, NY Knicks and can give you a 'How you doin?' when you need it most.",
     memory=MemoryConfig(),
