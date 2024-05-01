@@ -19,6 +19,8 @@ from firedust.utils.types.memory import MemoryConfig
 # TODO: Instead of httpx.Response, return an APIResponse in firedust._utils.api
 # TODO: Update starship to use response.is_success and always return an APIResponse
 # TODO: Files that should not be accessed by end users should be market with a leading underscore.
+# TODO: Add a way to get the assistant by name, not by id
+# TODO: Add git tags to each incremental change in version <git tag> before push
 
 # STEP 1
 # add your slack configuration token, you can find it here: https://api.slack.com/apps
