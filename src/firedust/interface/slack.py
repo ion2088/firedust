@@ -1,9 +1,9 @@
 import httpx
 
-from firedust._utils.api import APIClient
-from firedust._utils.errors import SlackError
-from firedust._utils.types.assistant import AssistantConfig
-from firedust._utils.types.interface import SlackConfig, SlackTokens
+from firedust.utils.api import APIClient
+from firedust.utils.errors import SlackError
+from firedust.utils.types.assistant import AssistantConfig
+from firedust.utils.types.interface import SlackConfig, SlackTokens
 
 
 class SlackInterface:

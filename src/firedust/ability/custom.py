@@ -25,10 +25,10 @@ Usage example:
     assistant.ability.custom.execute(ability_config.id, instruction)
 """
 
-from firedust._utils.api import APIClient
-from firedust._utils.errors import CustomAbilityError
-from firedust._utils.types.ability import CustomAbilityConfig
-from firedust._utils.types.assistant import AssistantConfig
+from firedust.utils.api import APIClient
+from firedust.utils.errors import CustomAbilityError
+from firedust.utils.types.ability import CustomAbilityConfig
+from firedust.utils.types.assistant import AssistantConfig
 
 
 class CustomAbility:

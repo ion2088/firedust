@@ -2,9 +2,9 @@ import os
 from uuid import uuid4
 
 import firedust
-from firedust._utils.types.assistant import AssistantConfig
-from firedust._utils.types.inference import InferenceConfig
-from firedust._utils.types.memory import MemoryConfig
+from firedust.utils.types.assistant import AssistantConfig
+from firedust.utils.types.inference import InferenceConfig
+from firedust.utils.types.memory import MemoryConfig
 
 # check if the api key is set, if not, add it
 if os.environ.get("FIREDUST_API_KEY") is None:

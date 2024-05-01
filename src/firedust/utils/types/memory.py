@@ -3,7 +3,7 @@ from uuid import UUID, uuid4
 
 from pydantic import BaseModel, Field, field_serializer, field_validator
 
-from firedust._utils import checks
+from firedust.utils import checks
 
 from ._base import UNIX_TIMESTAMP, BaseConfig
 

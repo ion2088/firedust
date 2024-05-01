@@ -5,9 +5,9 @@ For more details, see firedust.agency._base
 
 from typing import Dict, List
 
-from firedust._utils.api import APIClient
-from firedust._utils.types.agency import ScheduledTask
-from firedust._utils.types.assistant import AssistantConfig
+from firedust.utils.api import APIClient
+from firedust.utils.types.agency import ScheduledTask
+from firedust.utils.types.assistant import AssistantConfig
 
 
 class Task:

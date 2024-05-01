@@ -20,8 +20,8 @@ Usage example:
     # a task that requires writing and executing code.
 """
 
-from firedust._utils.api import APIClient
-from firedust._utils.types.assistant import AssistantConfig
+from firedust.utils.api import APIClient
+from firedust.utils.types.assistant import AssistantConfig
 
 
 class CodeAbility:

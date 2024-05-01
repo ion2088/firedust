@@ -51,10 +51,10 @@ Usage example:
     assistant.agency.workflow.remove(workflow_id)
 """
 
-from firedust._utils.api import APIClient
-from firedust._utils.types.assistant import AssistantConfig
 from firedust.agency.task import Task
 from firedust.agency.workflow import Workflow
+from firedust.utils.api import APIClient
+from firedust.utils.types.assistant import AssistantConfig
 
 
 class Agency:

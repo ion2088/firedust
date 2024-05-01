@@ -3,9 +3,9 @@ import uuid
 
 import pytest
 
-from firedust._utils.errors import APIError
-from firedust._utils.types.inference import InferenceConfig
 from firedust.assistant import Assistant
+from firedust.utils.errors import APIError
+from firedust.utils.types.inference import InferenceConfig
 
 
 @pytest.mark.skipif(

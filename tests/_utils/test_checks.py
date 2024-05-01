@@ -1,4 +1,4 @@
-from firedust._utils.checks import is_unix_timestamp
+from firedust.utils.checks import is_unix_timestamp
 
 
 def test_is_unix_timestamp() -> None:

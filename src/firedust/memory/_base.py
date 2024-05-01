@@ -30,11 +30,11 @@ Example:
 from typing import List
 from uuid import UUID
 
-from firedust._utils.api import APIClient
-from firedust._utils.errors import APIError, MemoryError
-from firedust._utils.types.api import APIContent
-from firedust._utils.types.assistant import AssistantConfig
-from firedust._utils.types.memory import MemoryItem
+from firedust.utils.api import APIClient
+from firedust.utils.errors import APIError, MemoryError
+from firedust.utils.types.api import APIContent
+from firedust.utils.types.assistant import AssistantConfig
+from firedust.utils.types.memory import MemoryItem
 
 
 class Memory:

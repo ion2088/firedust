@@ -1,10 +1,10 @@
 from uuid import uuid4
 
 import firedust
-from firedust._utils.types.assistant import AssistantConfig
-from firedust._utils.types.inference import InferenceConfig
-from firedust._utils.types.interface import SlackTokens
-from firedust._utils.types.memory import MemoryConfig
+from firedust.utils.types.assistant import AssistantConfig
+from firedust.utils.types.inference import InferenceConfig
+from firedust.utils.types.interface import SlackTokens
+from firedust.utils.types.memory import MemoryConfig
 
 # TODO: Remove AssistantConfig from the parameters and add them separately
 # TODO: Simplify AssistantConfig - simplify memory, inference, remove id
@@ -18,6 +18,7 @@ from firedust._utils.types.memory import MemoryConfig
 # TODO: Add a readme to the slackapp and slack interface folders
 # TODO: Instead of httpx.Response, return an APIResponse in firedust._utils.api
 # TODO: Update starship to use response.is_success and always return an APIResponse
+# TODO: Files that should not be accessed by end users should be market with a leading underscore.
 
 # STEP 1
 # add your slack configuration token, you can find it here: https://api.slack.com/apps

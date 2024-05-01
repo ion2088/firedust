@@ -4,9 +4,9 @@ WIP
 This module is responsible for interfacing with GitHub.
 """
 
-from firedust._utils.api import APIClient
-from firedust._utils.types.assistant import AssistantConfig
-from firedust._utils.types.interface import DiscordConfig
+from firedust.utils.api import APIClient
+from firedust.utils.types.assistant import AssistantConfig
+from firedust.utils.types.interface import DiscordConfig
 
 
 class DiscordInterface:

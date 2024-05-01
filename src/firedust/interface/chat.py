@@ -24,10 +24,10 @@ from datetime import datetime
 from typing import Iterable, Iterator
 from uuid import uuid4
 
-from firedust._utils.api import APIClient
-from firedust._utils.errors import APIError
-from firedust._utils.types.api import MessageStreamEvent
-from firedust._utils.types.assistant import AssistantConfig, UserMessage
+from firedust.utils.api import APIClient
+from firedust.utils.errors import APIError
+from firedust.utils.types.api import MessageStreamEvent
+from firedust.utils.types.assistant import AssistantConfig, UserMessage
 
 
 class Chat:

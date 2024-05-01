@@ -30,11 +30,11 @@ Usage example:
     )
 """
 
-from firedust._utils.api import APIClient
-from firedust._utils.types.assistant import AssistantConfig
 from firedust.ability.code import CodeAbility
 from firedust.ability.custom import CustomAbility
 from firedust.ability.math import MathAbility
+from firedust.utils.api import APIClient
+from firedust.utils.types.assistant import AssistantConfig
 
 
 class Abilities:

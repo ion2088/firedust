@@ -2,8 +2,8 @@ import os
 
 import pytest
 
-from firedust._utils.types.api import MessageStreamEvent
 from firedust.assistant import Assistant
+from firedust.utils.types.api import MessageStreamEvent
 
 
 @pytest.mark.skipif(

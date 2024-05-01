@@ -41,17 +41,17 @@ import logging
 from typing import List
 from uuid import UUID, uuid4
 
-from firedust._utils.api import APIClient
-from firedust._utils.errors import APIError, AssistantError
-from firedust._utils.types.api import APIContent
-from firedust._utils.types.assistant import AssistantConfig
-from firedust._utils.types.inference import InferenceConfig
-from firedust._utils.types.memory import MemoryConfig
 from firedust.ability._base import Abilities
 from firedust.interface._base import Interface
 from firedust.interface.chat import Chat
 from firedust.learning._base import Learning
 from firedust.memory._base import Memory
+from firedust.utils.api import APIClient
+from firedust.utils.errors import APIError, AssistantError
+from firedust.utils.types.api import APIContent
+from firedust.utils.types.assistant import AssistantConfig
+from firedust.utils.types.inference import InferenceConfig
+from firedust.utils.types.memory import MemoryConfig
 
 DEFAULT_CONFIG = AssistantConfig(
     id=uuid4(),
