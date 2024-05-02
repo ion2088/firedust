@@ -137,6 +137,24 @@ class Memory:
         else:
             raise MemoryError(f"Unknown response: {response}")
 
+    def erase_chat_history(self, user_id: str) -> str:
+        """
+        Erase the chat history of a user from the assistant's memory.
+
+        Args:
+            user_id (str): The unique identifier of the user.
+
+        Returns:
+            str: The response from the API.
+        """
+        response = self.api_client.delete(
+            f"/chat/delete/history/{str(self.config.id)}/{user_id}",
+        )
+        if not response.is_success:
+            raise APIError(f"Failed to erase chat history: {response.text}")
+
+        return response.text
+
 
 class MemoriesCollection:
     """

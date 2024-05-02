@@ -11,7 +11,7 @@ BASE_URL = "https://api.firedustx.com"
 
 class APIClient:
     """
-    A client for interacting with the Firedust API.
+    A client for interacting withp the Firedust API.
 
     Attributes:
         base_url (str): The base URL of the Firedust API.

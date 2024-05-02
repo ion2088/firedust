@@ -135,35 +135,3 @@ class Chat:
 
         completion: str = response.json()["message"]
         return completion
-
-    def learn_user_history(self, user_id: str, messages: Iterable[UserMessage]) -> None:
-        """
-        Upload a chat history of the user to the assistant's memory.
-
-        Args:
-            user_id (str): The unique identifier of the user.
-            messages (Iterable[UserMessage]): The messages of the user.
-        """
-        response = self.api_client.post(
-            "/chat/learn/history",
-            data={
-                "assistant_id": str(self.config.id),
-                "user_id": user_id,
-                "messages": [msg.model_dump() for msg in messages],
-            },
-        )
-        if not response.is_success:
-            raise Exception(response.json()["message"])
-
-    def forget_user_history(self, user_id: str) -> None:
-        """
-        Remove the chat history of the user from the assistant's memory.
-
-        Args:
-            user_id (str): The unique identifier of the user.
-        """
-        response = self.api_client.delete(
-            f"/chat/delete/history/{str(self.config.id)}/{user_id}",
-        )
-        if not response.is_success:
-            raise Exception(response.json()["message"])

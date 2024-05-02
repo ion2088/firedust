@@ -1,10 +1,10 @@
 from pathlib import Path
-from typing import List, Union
+from typing import Iterable, List, Union
 from uuid import UUID
 
 from firedust.utils.api import APIClient
 from firedust.utils.errors import APIError
-from firedust.utils.types.assistant import AssistantConfig
+from firedust.utils.types.assistant import AssistantConfig, Message
 
 
 class Learning:
@@ -50,7 +50,7 @@ class Learning:
 
     def from_pdf(self, pdf: Union[str, Path]) -> None:
         """
-        Teaches the assistant from a PDF file.
+        Learn the content of a PDF file.
 
         Args:
             pdf (Union[str, Path]): The path to the PDF file.
@@ -65,7 +65,7 @@ class Learning:
 
     def from_url(self, url: str) -> None:
         """
-        Teaches the assistant from a URL.
+        Learn the content of a web page.
 
         Args:
             url (str): The URL to the resource.
@@ -79,7 +79,7 @@ class Learning:
 
     def from_image(self, image: Union[str, Path]) -> None:
         """
-        Teaches the assistant from an image.
+        Learn the content of an image.
 
         Args:
             image (Union[str, Path]): The path to the image.
@@ -94,7 +94,7 @@ class Learning:
 
     def from_audio(self, audio: Union[str, Path]) -> None:
         """
-        Teaches the assistant from an audio file.
+        Learn the content of an audio file.
 
         Args:
             audio (Union[str, Path]): The path to the audio file.
@@ -109,15 +109,26 @@ class Learning:
 
     def from_video(self, video: Union[str, Path]) -> None:
         """
-        Teaches the assistant from a video file.
+        Learn the content of a video file.
 
         Args:
             video (Union[str, Path]): The path to the video file.
         """
-        with open(video, "rb") as f:
-            response = self.api_client.post(
-                f"assistant/{self.assistant.id}/learn/video",
-                data={"video": f},
-            )
-            if not response.is_success:
-                raise APIError(f"Failed to teach the assistant: {response.text}")
+        raise NotImplementedError()
+
+    def chat_messages(self, messages: Iterable[Message]) -> None:
+        """
+        Learn a chat message history.
+
+        Args:
+            messages (Iterable[Message]): The chat messages.
+        """
+        response = self.api_client.post(
+            "/learn/chat",
+            data={
+                "assistant_id": str(self.assistant.id),
+                "messages": [msg.model_dump() for msg in messages],
+            },
+        )
+        if not response.is_success:
+            raise APIError(f"Failed to teach the assistant: {response.text}")
