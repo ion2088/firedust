@@ -148,7 +148,7 @@ class Memory:
             str: The response from the API.
         """
         response = self.api_client.delete(
-            f"/chat/delete/history/{str(self.config.id)}/{user_id}",
+            f"/chat/forget/history/{str(self.config.id)}/{user_id}",
         )
         if not response.is_success:
             raise APIError(f"Failed to erase chat history: {response.text}")

@@ -10,7 +10,7 @@ from firedust.utils.types.memory import MemoryConfig
 # TODO: Remove memories collection concept - memories are tied to the assistant and can be shared among them
 # TODO: Interact with assistants (create/delete etc) just by name - it has to be unique
 # TODO: Remvove .create and .load from the assistant class, add them to firedust.assistant.*
-# TODO: Make .delete a class component joe.delte(joe.config.id) is ridiculous
+# TODO: Make .delete a class component joe.delete(joe.config.id) is ridiculous
 # TODO: Add some kind of pretty print to show when the assistant is called. Reference the github page with the examples.
 # TODO: Having both config and assistant_config in SlackInterface is clunky, we need to refactor that.
 # TODO: Add a readme to the slackapp and slack interface folders
@@ -19,6 +19,7 @@ from firedust.utils.types.memory import MemoryConfig
 # TODO: Files that should not be accessed by end users should be market with a leading underscore.
 # TODO: Add a way to get the assistant by name, not by id
 # TODO: Add git tags to each incremental change in version <git tag> before push
+# TODO: Add wrapper to firedust and slackapp to assign a error id and encourage users to contact support@firedust.com
 
 # STEP 1
 # add your slack configuration token, you can find it here: https://api.slack.com/apps
