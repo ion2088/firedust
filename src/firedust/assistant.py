@@ -39,7 +39,7 @@ Quickstart:
 
 import logging
 from typing import List
-from uuid import UUID, uuid4
+from uuid import UUID
 
 from firedust.ability._base import Abilities
 from firedust.interface._base import Interface
@@ -54,7 +54,6 @@ from firedust.utils.types.inference import InferenceConfig
 from firedust.utils.types.memory import MemoryConfig
 
 DEFAULT_CONFIG = AssistantConfig(
-    id=uuid4(),
     name="Sam",
     instructions="You are a helpful assistant.",
     inference=InferenceConfig(),
