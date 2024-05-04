@@ -93,49 +93,49 @@ class Memory:
         content = APIContent(**response.json())
         return [MemoryItem(**memory) for memory in content.data["memories"]]
 
-    def add(self, memory: MemoryItem) -> None:
-        """
-        Adds a new memory item to the assistant's default memory collection.
+    # def add(self, memory: MemoryItem) -> None:
+    #     """
+    #     Adds a new memory item to the assistant's default memory collection.
 
-        Args:
-            memory (MemoryItem): The memory item to add.
-        """
-        self.api_client.post(
-            f"/assistant/{self.config.id}/memory/add/",
-            data={"memory": memory.model_dump()},
-        )
+    #     Args:
+    #         memory (MemoryItem): The memory item to add.
+    #     """
+    #     self.api_client.post(
+    #         f"/assistant/{self.config.id}/memory/add/",
+    #         data={"memory": memory.model_dump()},
+    #     )
 
-    def remove(self, memory_id: UUID) -> None:
-        """
-        Removes a memory from the assistant's default memory collection.
+    # def remove(self, memory_id: UUID) -> None:
+    #     """
+    #     Removes a memory from the assistant's default memory collection.
 
-        Args:
-            memory_id (UUID): The ID of the memory item to remove.
-        """
-        self.api_client.delete(
-            f"/assistant/{self.config.id}/memory/remove/{memory_id}",
-        )
+    #     Args:
+    #         memory_id (UUID): The ID of the memory item to remove.
+    #     """
+    #     self.api_client.delete(
+    #         f"/assistant/{self.config.id}/memory/remove/{memory_id}",
+    #     )
 
-    def list(self, collection_id: UUID | None = None) -> List[UUID]:
-        """
-        List all memory items in a given collection id. If no collection id is provided,
-        the default collection is used.
-        """
+    # def list(self, collection_id: UUID | None = None) -> List[UUID]:
+    #     """
+    #     List all memory items in a given collection id. If no collection id is provided,
+    #     the default collection is used.
+    #     """
 
-        if collection_id is None:
-            collection_id = self.config.memory.default_collection
+    #     if collection_id is None:
+    #         collection_id = self.config.memory.default_collection
 
-        response = self.api_client.get(
-            f"/assistant/{self.config.id}/memory/collections/list/{collection_id}",
-        )
+    #     response = self.api_client.get(
+    #         f"/assistant/{self.config.id}/memory/collections/list/{collection_id}",
+    #     )
 
-        if response.status_code == 200:
-            memory_ids: List[UUID] = response.json()["collection"]
-            return memory_ids
-        elif response.status_code == 401:
-            raise MemoryError("Memory collection not found.")
-        else:
-            raise MemoryError(f"Unknown response: {response}")
+    #     if response.status_code == 200:
+    #         memory_ids: List[UUID] = response.json()["collection"]
+    #         return memory_ids
+    #     elif response.status_code == 401:
+    #         raise MemoryError("Memory collection not found.")
+    #     else:
+    #         raise MemoryError(f"Unknown response: {response}")
 
     def erase_chat_history(self, user_id: str) -> str:
         """
@@ -148,7 +148,7 @@ class Memory:
             str: The response from the API.
         """
         response = self.api_client.delete(
-            f"/chat/forget/history/{str(self.config.id)}/{user_id}",
+            f"/memory/forget/chat_history/{str(self.config.id)}/{user_id}",
         )
         if not response.is_success:
             raise APIError(f"Failed to erase chat history: {response.text}")

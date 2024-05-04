@@ -124,7 +124,7 @@ class Learning:
             messages (Iterable[Message]): The chat messages.
         """
         response = self.api_client.post(
-            "/learn/chat",
+            "/learn/chat_messages",
             data={
                 "assistant_id": str(self.assistant.id),
                 "messages": [msg.model_dump() for msg in messages],
