@@ -1,4 +1,4 @@
-from typing import Any, List, Literal
+from typing import Any, List, Literal, Sequence
 from uuid import UUID, uuid4
 
 from pydantic import BaseModel, Field, field_serializer, field_validator
@@ -9,7 +9,7 @@ from ._base import UNIX_TIMESTAMP, BaseConfig
 
 EMBEDDING_MODELS = Literal["mistral-embed"]
 EMBEDDING_PROVIDERS = Literal["mistral"]
-MAX_MEMORY_CONTEXT: int = 2000
+MEX_MEMORY_CONTENT: int = 4000  # max characters for the context of a memory item
 
 
 class MemoryItem(BaseConfig):
@@ -20,16 +20,16 @@ class MemoryItem(BaseConfig):
     Args:
         collection (UUID): The collection that contains the memory.
         content (str): The content of the memory.
-        embedding (List[float]): The embedding of the memory.
+        embedding (Sequence[float]): The embedding of the memory.
         timestamp (UNIX_TIMESTAMP): The time when the memory was created.
         type (Literal["text", "image", "audio", "video"]): The type of the memory. Defaults to "text".
         source (str, optional): The source of the memory. Defaults to None.
-        relevance (float, optional): The relevance of the memory. Defaults to None.
+        relevance (float, optional): Relevance score, provided by the vector search.
     """
 
     collection: UUID
     content: str
-    embedding: List[float]
+    embedding: Sequence[float]
     timestamp: UNIX_TIMESTAMP
     type: Literal["text", "image", "audio", "video"] = "text"
     source: str | None = None
@@ -38,9 +38,9 @@ class MemoryItem(BaseConfig):
     @field_validator("content")
     @classmethod
     def validate_context_length(cls, context: str) -> str | Exception:
-        if len(context) > MAX_MEMORY_CONTEXT:
+        if len(context) > MEX_MEMORY_CONTENT:
             raise ValueError(
-                f"Memory content exceeds maximum length of {MAX_MEMORY_CONTEXT} characters"
+                f"Memory content exceeds maximum length of {MEX_MEMORY_CONTENT} characters"
             )
         return context
 
@@ -67,7 +67,7 @@ class MemoriesCollection(BaseConfig):
     """
 
     collection_id: UUID
-    memory_ids: List[UUID] | None = None
+    memory_ids: Sequence[UUID] | None = None
 
     def __setattr__(self, key: str, value: Any) -> None:
         # set immutable attributes
@@ -86,7 +86,9 @@ class MemoriesCollection(BaseConfig):
         return str(value)
 
     @field_serializer("memory_ids", when_used="always")
-    def serialize_memory_ids(self, value: List[UUID] | None) -> List[str] | None:
+    def serialize_memory_ids(
+        self, value: Sequence[UUID] | None
+    ) -> Sequence[str] | None:
         if value is None:
             return None
         return [str(memory_id) for memory_id in value]
@@ -126,5 +128,5 @@ class MemoryConfig(BaseModel):
         return str(value)
 
     @field_serializer("extra_collections", when_used="always")
-    def serialize_extra_collections(self, value: List[UUID]) -> List[str]:
+    def serialize_extra_collections(self, value: Sequence[UUID]) -> Sequence[str]:
         return [str(collection) for collection in value]
