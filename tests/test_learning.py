@@ -2,7 +2,7 @@ import os
 
 import pytest
 
-from firedust.assistant import Assistant
+import firedust
 
 
 @pytest.mark.skipif(
@@ -36,7 +36,7 @@ def test_learn_fast() -> None:
     """
 
     # test learning
-    assistant = Assistant.create()
+    assistant = firedust.assistant.create()
     assistant.learn.fast(text)
 
     # test memories recall
@@ -47,7 +47,7 @@ def test_learn_fast() -> None:
     )
 
     # remove test assistant
-    Assistant.delete(assistant_id=assistant.config.id, confirm_delete=True)
+    assistant.delete(confirm_delete=True)
 
 
 def test_learn_pdf() -> None:

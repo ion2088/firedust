@@ -2,7 +2,7 @@ import os
 
 import pytest
 
-from firedust.assistant import Assistant
+import firedust
 from firedust.utils.types.api import MessageStreamEvent
 
 
@@ -12,7 +12,7 @@ from firedust.utils.types.api import MessageStreamEvent
 )
 def test_chat_streaming() -> None:
     # Create a test assistant
-    assistant = Assistant.create()
+    assistant = firedust.assistant.create()
     response = assistant.chat.stream("Hi, how are you?")
 
     # Check the response
@@ -42,7 +42,7 @@ def test_chat_streaming() -> None:
     assert memory_ids[1] in _e.memory_refs
 
     # Remove the test assistant
-    Assistant.delete(assistant.config.id, confirm_delete=True)
+    assistant.delete(confirm_delete=True)
 
 
 @pytest.mark.skipif(
@@ -51,9 +51,9 @@ def test_chat_streaming() -> None:
 )
 def test_chat_complete() -> None:
     # Create a test assistant
-    assistant = Assistant.create()
+    assistant = firedust.assistant.create()
     response = assistant.chat.message("Hi, how are you?")
     assert isinstance(response, str)
 
     # Remove the test assistant
-    Assistant.delete(assistant.config.id, confirm_delete=True)
+    assistant.delete(confirm_delete=True)

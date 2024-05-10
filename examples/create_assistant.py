@@ -18,4 +18,4 @@ assistant_config = AssistantConfig(
     memory=MemoryConfig(),
     inference=InferenceConfig(provider="openai", model="gpt-4"),
 )
-sam = firedust.assistant.Assistant.create(assistant_config)
+sam = firedust.assistant.create(assistant_config)

@@ -32,7 +32,7 @@ assistant_config = AssistantConfig(
     memory=MemoryConfig(),
     inference=InferenceConfig(provider="openai", model="gpt-4"),
 )
-joe = firedust.assistant.Assistant.create(assistant_config)
+joe = firedust.assistant.create(assistant_config)
 
 # create a slack app for the assistant
 joe.interface.slack.create_app(
