@@ -6,11 +6,9 @@ from firedust.utils.types.memory import MemoryConfig
 
 # TODO: Remove AssistantConfig from the parameters and add them separately
 # TODO: Simplify AssistantConfig - simplify memory, inference, remove id
-# TODO: Change used_id parameters to user
+# TODO: Change user_id parameters to user
 # TODO: Remove memories collection concept - memories are tied to the assistant and can be shared among them
 # TODO: Interact with assistants (create/delete etc) just by name - it has to be unique
-# TODO: Remvove .create and .load from the assistant class, add them to firedust.assistant.*
-# TODO: Make .delete a class component joe.delete(joe.config.id) is ridiculous
 # TODO: Add some kind of pretty print to show when the assistant is called. Reference the github page with the examples.
 # TODO: Having both config and assistant_config in SlackInterface is clunky, we need to refactor that.
 # TODO: Add a readme to the slackapp and slack interface folders

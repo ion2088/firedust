@@ -98,6 +98,26 @@ class Assistant:
             self._raise_setter_error(key)
         return super().__setattr__(key, value)
 
+    def __repr__(self) -> str:
+        """
+        Provides a developer-friendly string representation of the Assistant instance.
+        Includes all attributes for easy inspection and debugging.
+        """
+        return (
+            f"Assistant(id={self.config.id!r}, "
+            f"name={self.config.name!r}, "
+            f"instructions={self.config.instructions!r}, "
+            f"inference={self.config.inference!r}, "
+            f"memory={self.config.memory!r})"
+        )
+
+    def __str__(self) -> str:
+        """
+        Provides a user-friendly string representation of the Assistant instance.
+        Gives an overview with just the assistant's name and ID.
+        """
+        return f"Assistant '{self.config.name}' (ID: {self.config.id})"
+
     @property
     def config(self) -> AssistantConfig:
         return self._config
