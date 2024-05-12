@@ -47,13 +47,11 @@ from firedust.utils.errors import APIError
 from firedust.utils.types.api import APIContent
 from firedust.utils.types.assistant import AssistantConfig
 from firedust.utils.types.inference import InferenceConfig
-from firedust.utils.types.memory import MemoryConfig
 
 DEFAULT_CONFIG = AssistantConfig(
     name="Sam",
     instructions="You are a helpful assistant.",
     inference=InferenceConfig(),
-    memory=MemoryConfig(),
 )
 LOG = logging.getLogger("firedust")
 
@@ -110,7 +108,7 @@ def load(assistant_id: UUID, api_client: APIClient | None = None) -> "Assistant"
 
 def list(api_client: APIClient | None = None) -> List[AssistantConfig]:
     """
-    Lists all the existing assistants.
+    Lists all existing assistants.
 
     Args:
         api_client (APIClient, optional): The API client. Defaults to None.

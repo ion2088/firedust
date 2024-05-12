@@ -31,7 +31,7 @@ from typing import List
 from uuid import UUID
 
 from firedust.utils.api import APIClient
-from firedust.utils.errors import APIError, MemoryError
+from firedust.utils.errors import APIError
 from firedust.utils.types.api import APIContent
 from firedust.utils.types.assistant import AssistantConfig
 from firedust.utils.types.memory import MemoryItem
@@ -52,7 +52,6 @@ class Memory:
         """
         self.config = config
         self.api_client = api_client
-        self.collections = MemoriesCollection(config, api_client)
 
     def recall(self, query: str, limit: int = 50) -> List[MemoryItem]:
         """
@@ -76,7 +75,7 @@ class Memory:
         if len(query) > 1900:
             raise AttributeError("Query exceeds maximum length of 1900 characters.")
 
-        # Fetch memories from the API
+        # Fetch memories
         response = self.api_client.post(
             "/memory/recall",
             data={
@@ -93,49 +92,119 @@ class Memory:
         content = APIContent(**response.json())
         return [MemoryItem(**memory) for memory in content.data["memories"]]
 
-    # def add(self, memory: MemoryItem) -> None:
-    #     """
-    #     Adds a new memory item to the assistant's default memory collection.
+    def get(self, memory_ids: List[UUID]) -> List[MemoryItem]:
+        """
+        Retrieve a list of memory items by their IDs.
 
-    #     Args:
-    #         memory (MemoryItem): The memory item to add.
-    #     """
-    #     self.api_client.post(
-    #         f"/assistant/{self.config.id}/memory/add/",
-    #         data={"memory": memory.model_dump()},
-    #     )
+        Args:
+            memory_ids (List[UUID]): A list of memory IDs.
 
-    # def remove(self, memory_id: UUID) -> None:
-    #     """
-    #     Removes a memory from the assistant's default memory collection.
+        Returns:
+            List[MemoryItem]: A list of memory items.
 
-    #     Args:
-    #         memory_id (UUID): The ID of the memory item to remove.
-    #     """
-    #     self.api_client.delete(
-    #         f"/assistant/{self.config.id}/memory/remove/{memory_id}",
-    #     )
+        Raises:
+            APIError: If the API request fails.
+        """
+        response = self.api_client.post(
+            "/memory/get",
+            data={
+                "assistant_id": str(self.config.id),
+                "memory_ids": [str(memory_id) for memory_id in memory_ids],
+            },
+        )
+        if not response.is_success:
+            raise APIError(f"Failed to get memories: {response.text}")
 
-    # def list(self, collection_id: UUID | None = None) -> List[UUID]:
-    #     """
-    #     List all memory items in a given collection id. If no collection id is provided,
-    #     the default collection is used.
-    #     """
+        content = APIContent(**response.json())
+        return [MemoryItem(**memory) for memory in content.data["memories"]]
 
-    #     if collection_id is None:
-    #         collection_id = self.config.memory.default_collection
+    def add(self, memories: List[MemoryItem]) -> None:
+        """
+        Adds a new memory item to the assistant's default memory collection.
 
-    #     response = self.api_client.get(
-    #         f"/assistant/{self.config.id}/memory/collections/list/{collection_id}",
-    #     )
+        Args:
+            memories (List[MemoryItem]): The list of memory items to add.
+        """
+        response = self.api_client.put(
+            "/memory/add",
+            data={
+                "assistant_id": str(self.config.id),
+                "memories": [memory.model_dump() for memory in memories],
+            },
+        )
+        if not response.is_success:
+            raise APIError(f"Failed to add memory: {response.text}")
 
-    #     if response.status_code == 200:
-    #         memory_ids: List[UUID] = response.json()["collection"]
-    #         return memory_ids
-    #     elif response.status_code == 401:
-    #         raise MemoryError("Memory collection not found.")
-    #     else:
-    #         raise MemoryError(f"Unknown response: {response}")
+    def delete(self, memory_ids: List[UUID]) -> None:
+        """
+        Removes memories from the assistant's default memory collection.
+
+        Args:
+            memory_ids (List[UUID]): The list of memory IDs to remove.
+        """
+        response = self.api_client.post(
+            "/memory/delete",
+            data={
+                "assistant_id": str(self.config.id),
+                "memory_ids": [str(memory_id) for memory_id in memory_ids],
+            },
+        )
+        if not response.is_success:
+            raise APIError(f"Failed to remove memory: {response.text}")
+
+    def list(self) -> List[UUID]:
+        """
+        List all memory items available to the assistant.
+
+        Returns:
+            List[UUID]: A list of memory IDs.
+        """
+        response = self.api_client.get(
+            f"/memory/list/{self.config.id}",
+        )
+
+        if not response.is_success:
+            raise APIError(f"Failed to list memories: {response.text}")
+
+        content = APIContent(**response.json())
+        return [UUID(memory_id) for memory_id in content.data["memory_ids"]]
+
+    def attach_collection(self, assistant_id: UUID) -> None:
+        """
+        Attach a collection of memories from another assistant.
+
+        Args:
+            assistant_id (UUID): The ID of the assistant whose memories to attach.
+        """
+        if assistant_id == self.config.id:
+            raise ValueError("Cannot attach memories from the same assistant.")
+
+        response = self.api_client.put(
+            f"/memory/collections/attach/{str(self.config.id)}/{str(assistant_id)}",
+        )
+        if not response.is_success:
+            raise APIError(f"Failed to attach collection: {response.text}")
+
+        self.config.shared_memories.append(assistant_id)
+
+    def detach_collection(self, assistant_id: UUID) -> None:
+        """
+        Detach a collection of memories that belongs to another assistant.
+
+        Args:
+            assistant_id (UUID): The ID of the assistant whose memories to detach.
+        """
+        shared_memories = self.config.shared_memories
+        if assistant_id not in shared_memories:
+            raise ValueError("Collection not attached to the assistant.")
+
+        response = self.api_client.delete(
+            f"/memory/collections/detach/{str(self.config.id)}/{str(assistant_id)}",
+        )
+        if not response.is_success:
+            raise APIError(f"Failed to detach collection: {response.text}")
+
+        shared_memories.remove(assistant_id)
 
     def erase_chat_history(self, user_id: str) -> str:
         """
@@ -148,90 +217,9 @@ class Memory:
             str: The response from the API.
         """
         response = self.api_client.delete(
-            f"/memory/forget/chat_history/{str(self.config.id)}/{user_id}",
+            f"/memory/chat_history/forget/{str(self.config.id)}/{user_id}",
         )
         if not response.is_success:
             raise APIError(f"Failed to erase chat history: {response.text}")
 
         return response.text
-
-
-class MemoriesCollection:
-    """
-    Methods to interact with assistant's memories collections.
-    A memory collection is a set of memories that were learned or added
-    to the assistant.
-
-    There are two types of memory collections:
-        1. The default collection, which is immutable and is used to learn new memories
-        and remember interactions with the users.
-        2. Extra collections, borrowed from other assistants. It makes it possible to
-        share knowledge bases between assistants without the need to retrain them.
-
-    Check available collections attached to the assistant:
-        assistant.memory.collection.list()
-
-    Add an extra collection:
-        assistant.memory.collections.attach("COLLECTION_ID")
-
-    Remove an extra collection:
-        assistant.memory.collections.detach("COLLECTION_ID")
-    """
-
-    def __init__(self, config: AssistantConfig, api_client: APIClient) -> None:
-        """
-        Initializes a new instance of the MemoriesCollection class.
-
-        Args:
-            config (AssistantConfig): The assistant configuration.
-            api_client (APIClient): The API client.
-        """
-        self.config = config
-        self.api_client = api_client
-
-    def attach(self, id: UUID) -> None:
-        """
-        Attaches an existing memory collection to the assistant.
-        """
-        response = self.api_client.post(
-            f"/assistant/{self.config.id}/memory/collections/attach/{id}",
-        )
-
-        if response.status_code == 200:
-            self.config.memory.extra_collections.append(id)
-            return
-        elif response.status_code == 401:
-            raise MemoryError("Memory collection not found.")
-        elif response.status_code == 402:
-            raise MemoryError("Memory collection already attached.")
-        else:
-            raise MemoryError(f"Unknown response: {response}")
-
-    def detach(self, id: UUID) -> None:
-        """
-        Detaches an existing memory collection from the assistant.
-        """
-        response = self.api_client.post(
-            f"/assistant/{self.config.id}/memory/collections/detach/{id}",
-        )
-
-        if response.status_code == 200:
-            self.config.memory.extra_collections.remove(id)
-            return
-        elif response.status_code == 401:
-            raise MemoryError("Memory collection not found.")
-        elif response.status_code == 402:
-            raise MemoryError("Memory collection already detached.")
-        elif response.status_code == 403:
-            raise MemoryError("Cannot detach default memory collection.")
-        else:
-            raise MemoryError(f"Unknown response: {response}")
-
-    def list(self) -> List[UUID]:
-        """
-        List all memory collections attached to the assistant.
-        """
-        collection_ids = [
-            self.config.memory.default_collection
-        ] + self.config.memory.extra_collections
-        return collection_ids

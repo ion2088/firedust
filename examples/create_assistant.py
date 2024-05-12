@@ -4,7 +4,6 @@ from uuid import uuid4
 import firedust
 from firedust.utils.types.assistant import AssistantConfig
 from firedust.utils.types.inference import InferenceConfig
-from firedust.utils.types.memory import MemoryConfig
 
 # check if the api key is set, if not, add it
 if os.environ.get("FIREDUST_API_KEY") is None:
@@ -15,7 +14,6 @@ assistant_config = AssistantConfig(
     id=uuid4(),
     name="Sam",
     instructions="You are the assistant of the ring bearer, Frodo. You must protect him at all costs.",
-    memory=MemoryConfig(),
     inference=InferenceConfig(provider="openai", model="gpt-4"),
 )
 sam = firedust.assistant.create(assistant_config)

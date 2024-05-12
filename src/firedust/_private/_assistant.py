@@ -108,7 +108,6 @@ class Assistant:
             f"name={self.config.name!r}, "
             f"instructions={self.config.instructions!r}, "
             f"inference={self.config.inference!r}, "
-            f"memory={self.config.memory!r})"
         )
 
     def __str__(self) -> str:
@@ -264,7 +263,6 @@ class _Update:
             name=name,
             instructions=self.assistant._config.instructions,
             inference=self.assistant._config.inference,
-            memory=self.assistant._config.memory,
         )
 
     def instructions(self, instructions: str) -> None:
@@ -291,7 +289,6 @@ class _Update:
             name=self.assistant._config.name,
             instructions=instructions,
             inference=self.assistant._config.inference,
-            memory=self.assistant._config.memory,
         )
 
     def inference(self, inference_config: InferenceConfig) -> None:
@@ -318,5 +315,4 @@ class _Update:
             name=self.assistant._config.name,
             instructions=self.assistant._config.instructions,
             inference=inference_config,
-            memory=self.assistant._config.memory,
         )

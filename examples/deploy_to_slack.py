@@ -2,22 +2,21 @@ import firedust
 from firedust.utils.types.assistant import AssistantConfig
 from firedust.utils.types.inference import InferenceConfig
 from firedust.utils.types.interface import SlackTokens
-from firedust.utils.types.memory import MemoryConfig
 
 # TODO: Remove AssistantConfig from the parameters and add them separately
 # TODO: Simplify AssistantConfig - simplify memory, inference, remove id
 # TODO: Change user_id parameters to user
 # TODO: Remove memories collection concept - memories are tied to the assistant and can be shared among them
 # TODO: Interact with assistants (create/delete etc) just by name - it has to be unique
-# TODO: Add some kind of pretty print to show when the assistant is called. Reference the github page with the examples.
 # TODO: Having both config and assistant_config in SlackInterface is clunky, we need to refactor that.
 # TODO: Add a readme to the slackapp and slack interface folders
 # TODO: Instead of httpx.Response, return an APIResponse in firedust._utils.api
 # TODO: Update starship to use response.is_success and always return an APIResponse
-# TODO: Files that should not be accessed by end users should be market with a leading underscore.
+# TODO: Files that should not be accessed by end users should be marked with a leading underscore.
 # TODO: Add a way to get the assistant by name, not by id
-# TODO: Add git tags to each incremental change in version <git tag> before push
 # TODO: Add wrapper to firedust and slackapp to assign a error id and encourage users to contact support@firedust.com
+# TODO: Update and fix example docstrings
+# TODO: Implement batch fetching from qdrant for memories and other heavy processes, similar how we've done it for assistants.
 
 # STEP 1
 # add your slack configuration token, you can find it here: https://api.slack.com/apps
@@ -27,7 +26,6 @@ SLACK_CONFIGURATION_ACCESS_TOKEN = "xoxe.xoxp-1-Mi0yLTY4MDA5NjI4MDg2MjQtNjc5MDgz
 assistant_config = AssistantConfig(
     name="Joe",
     instructions="Joe likes pizza, NY Knicks and can give you a 'How you doin?' when you need it most.",
-    memory=MemoryConfig(),
     inference=InferenceConfig(provider="openai", model="gpt-4"),
 )
 joe = firedust.assistant.create(assistant_config)

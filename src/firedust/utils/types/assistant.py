@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Literal, Sequence
+from typing import List, Literal, Sequence
 from uuid import UUID
 
 from pydantic import BaseModel, field_serializer, field_validator
@@ -8,7 +8,8 @@ from ._base import UNIX_TIMESTAMP, BaseConfig
 from .ability import AbilityConfig
 from .inference import InferenceConfig
 from .interface import Interfaces
-from .memory import MemoryConfig
+
+ASSISTANT_ID = UUID
 
 
 class AssistantConfig(BaseConfig, frozen=True):
@@ -19,7 +20,7 @@ class AssistantConfig(BaseConfig, frozen=True):
         name (str): The name of the assistant.
         instructions (str): The instructions of the assistant.
         inference (InferenceConfig): The inference configuration of the assistant.
-        memory (MemoryConfig): The memory configuration of the assistant.
+        shared_memories (List[ASSISTANT_ID], optional): A list of assistant IDs whose memories are accessible by the current assistant. Defaults to [].
         abilities (Sequence[Ability], optional): The abilities of the assistant. Defaults to None.
         interfaces (Sequence[Interface], optional): The deployments of the assistant. Defaults to None.
     """
@@ -27,7 +28,7 @@ class AssistantConfig(BaseConfig, frozen=True):
     name: str
     instructions: str
     inference: InferenceConfig = InferenceConfig()
-    memory: MemoryConfig = MemoryConfig()
+    shared_memories: List[ASSISTANT_ID] = []
     abilities: Sequence[AbilityConfig] = []
     interfaces: Interfaces = Interfaces()
 
@@ -46,6 +47,10 @@ class AssistantConfig(BaseConfig, frozen=True):
         if len(instructions) < 20:
             raise ValueError("Assistant instructions must be at least 20 characters")
         return instructions
+
+    @field_serializer("shared_memories", when_used="always")
+    def serialize_shared_memories(self, value: List[ASSISTANT_ID]) -> List[str]:
+        return [str(ref) for ref in value]
 
 
 class Message(BaseConfig, frozen=True):
