@@ -1,19 +1,17 @@
 import firedust
 from firedust.utils.types.interface import SlackTokens
 
-# TODO: Remove AssistantConfig from the parameters and add them separately
-# TODO: Simplify AssistantConfig - simplify memory, inference, remove id
-# TODO: Change user_id parameters to user
-# TODO: Interact with assistants (create/delete etc) just by name - it has to be unique
 # TODO: Having both config and assistant_config in SlackInterface is clunky, we need to refactor that.
+# TODO: Support async methods in firedust
 # TODO: Add a readme to the slackapp and slack interface folders
 # TODO: Instead of httpx.Response, return an APIResponse in firedust._utils.api
 # TODO: Update starship to use response.is_success and always return an APIResponse
 # TODO: Files that should not be accessed by end users should be marked with a leading underscore.
-# TODO: Add a way to get the assistant by name, not by id
 # TODO: Add wrapper to firedust and slackapp to assign a error id and encourage users to contact support@firedust.com
 # TODO: Update and fix example docstrings
 # TODO: Implement batch fetching from qdrant for memories and other heavy processes, similar how we've done it for assistants.
+# TODO: Put all types in firedust.types and import them from there
+# TODO: Update firedust url everywhere
 
 # STEP 1
 # add your slack configuration token, you can find it here: https://api.slack.com/apps
@@ -27,7 +25,7 @@ joey = firedust.assistant.create(
 
 # create a slack app for the assistant
 joey.interface.slack.create_app(
-    description="A short description of the assistant. This will be displayed in .",
+    description="A short description of the assistant. This will be displayed in the app's home tab.",
     configuration_token=SLACK_CONFIGURATION_ACCESS_TOKEN,
 )
 

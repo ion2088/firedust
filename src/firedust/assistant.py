@@ -73,7 +73,7 @@ def create(
     if not response.is_success:
         raise APIError(
             code=response.status_code,
-            message=f"Failed to create the assistant with config {config}: {response.text}",
+            message=f"Failed to create an assistant with config {config}: {response.text}",
         )
     LOG.info(
         f"Assistant {config.name} was created successfully and saved to the cloud."

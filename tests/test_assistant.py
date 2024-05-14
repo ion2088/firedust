@@ -53,6 +53,30 @@ def test_create_list_load_delete_assistant() -> None:
     os.environ.get("FIREDUST_API_KEY") is None,
     reason="The environment variable FIREDUST_API_KEY is not set.",
 )
+def test_create_existing_assistant() -> None:
+    assistant_name = f"test-assistant-{random.randint(1, 1000)}"
+    assistant1 = firedust.assistant.create(
+        name=assistant_name,
+        instructions="1. Protect the ring bearer. 2. Do not let the ring corrupt you.",
+    )
+    try:
+        firedust.assistant.create(
+            name=assistant_name,
+            instructions="1. Protect the ring bearer. 2. Do not let the ring corrupt you.",
+        )
+    except APIError as e:
+        assert e.code == 409
+        assert f"Assistant with the name {assistant_name} already exists." in e.message
+    except Exception as e:
+        assert False, f"Unexpected exception: {e}"
+
+    assistant1.delete(confirm=True)
+
+
+@pytest.mark.skipif(
+    os.environ.get("FIREDUST_API_KEY") is None,
+    reason="The environment variable FIREDUST_API_KEY is not set.",
+)
 def test_load_non_existing_assistant() -> None:
     try:
         firedust.assistant.load("non-existing-assistant")
