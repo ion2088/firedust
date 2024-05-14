@@ -5,31 +5,29 @@ from uuid import UUID
 from pydantic import BaseModel, field_serializer, field_validator
 
 from ._base import UNIX_TIMESTAMP, BaseConfig
-from .ability import AbilityConfig
-from .inference import InferenceConfig
+from .inference import INFERENCE_MODEL
 from .interface import Interfaces
 
-ASSISTANT_ID = UUID
+ASSISTANT_NAME = str
 
 
-class AssistantConfig(BaseConfig, frozen=True):
+class AssistantConfig(BaseModel, frozen=True):
     """
     Represents the configuration of an AI Assistant.
 
     Args:
         name (str): The name of the assistant.
         instructions (str): The instructions of the assistant.
-        inference (InferenceConfig): The inference configuration of the assistant.
-        shared_memories (List[ASSISTANT_ID], optional): A list of assistant IDs whose memories are accessible by the current assistant. Defaults to [].
+        model (INFERENCE_MODEL, optional): The inference model of the assistant. Defaults to "openai/gpt-4".
+        attached_memories (List[ASSISTANT_NAME], optional): Attached memories from other assistants. Defaults to [].
         abilities (Sequence[Ability], optional): The abilities of the assistant. Defaults to None.
         interfaces (Sequence[Interface], optional): The deployments of the assistant. Defaults to None.
     """
 
     name: str
     instructions: str
-    inference: InferenceConfig = InferenceConfig()
-    shared_memories: List[ASSISTANT_ID] = []
-    abilities: Sequence[AbilityConfig] = []
+    model: INFERENCE_MODEL = "openai/gpt-4"
+    attached_memories: List[ASSISTANT_NAME] = []
     interfaces: Interfaces = Interfaces()
 
     @field_validator("name")
@@ -48,32 +46,24 @@ class AssistantConfig(BaseConfig, frozen=True):
             raise ValueError("Assistant instructions must be at least 20 characters")
         return instructions
 
-    @field_serializer("shared_memories", when_used="always")
-    def serialize_shared_memories(self, value: List[ASSISTANT_ID]) -> List[str]:
-        return [str(ref) for ref in value]
-
 
 class Message(BaseConfig, frozen=True):
     """
     Represents a message between the user and the assistant.
 
     Args:
-        assistant_id (UUID): The unique identifier of the assistant.
-        user_id (str): The unique identifier of the user.
+        assistant (ASSISTANT_NAME): The name of the assistant.
+        user (str): The unique identifier of the user.
         timestamp (UNIX_TIMESTAMP): The timestamp of the message.
         message (str): The text of the message.
         author (Literal["user", "assistant"]): The author of the message.
     """
 
-    assistant_id: UUID
-    user_id: str
+    assistant: ASSISTANT_NAME
+    user: str
     timestamp: UNIX_TIMESTAMP = datetime.now().timestamp()
     message: str
     author: Literal["user", "assistant"]
-
-    @field_serializer("assistant_id", when_used="always")
-    def serialize_assistant_id(self, value: UUID) -> str:
-        return str(value)
 
 
 class UserMessage(Message):

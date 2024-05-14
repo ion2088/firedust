@@ -45,15 +45,7 @@ class Task:
         Returns:
             metadata (Dict[str, str]): The metadata of the created task.
         """
-        response = self.api_client.post(
-            f"assistant/{self.config.id}/agency/task/run",
-            data={"task": task},
-        )
-        if not response.is_success:
-            raise Exception(response.json()["message"])
-        metadata: Dict[str, str] = response.json()
-
-        return metadata
+        raise NotImplementedError("This method is not implemented yet.")
 
 
 class Schedule:
@@ -82,17 +74,7 @@ class Schedule:
         Returns:
             Dict[str, str]: Metadata of the scheduled task.
         """
-        response = self.api_client.post(
-            f"assistant/{self.config.id}/agency/task/schedule/add",
-            data={"task": task},
-        )
-
-        if not response.is_success:
-            raise Exception(response.json()["message"])
-
-        metadata: Dict[str, str] = response.json()
-
-        return metadata
+        raise NotImplementedError("This method is not implemented yet.")
 
     def list(self) -> List[ScheduledTask]:
         """
@@ -101,14 +83,4 @@ class Schedule:
         Returns:
             List[ScheduledTask]: A list of scheduled tasks.
         """
-        response = self.api_client.get(
-            f"assistant/{self.config.id}/agency/task/schedule/list",
-        )
-
-        if not response.is_success:
-            raise Exception(response.json()["message"])
-
-        scheduled_tasks: List[ScheduledTask] = [
-            ScheduledTask(**task) for task in response.json()["result"]
-        ]
-        return scheduled_tasks
+        raise NotImplementedError("This method is not implemented yet.")

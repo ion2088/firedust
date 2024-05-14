@@ -7,7 +7,7 @@ Usage example:
     import firedust
 
     # Load an existing assistant
-    assistant = firedust.assistant.load("ASSISTANT_ID")
+    assistant = firedust.assistant.load("ASSISTANT_NAME")
 
     # Create a custom ability
     ability_config = CustomAbilityConfig(
@@ -26,7 +26,6 @@ Usage example:
 """
 
 from firedust.utils.api import APIClient
-from firedust.utils.errors import CustomAbilityError
 from firedust.utils.types.ability import CustomAbilityConfig
 from firedust.utils.types.assistant import AssistantConfig
 
@@ -54,13 +53,7 @@ class CustomAbility:
         Args:
             config (CustomAbilityConfig): The custom ability configuration.
         """
-        response = self.api_client.post(
-            f"assistants/{self.config.id}/abilities/custom/create",
-            data={"ability": config.model_dump()},
-        )
-
-        if not response.is_success:
-            raise CustomAbilityError("Failed to create custom ability.")
+        raise NotImplementedError("This method is not implemented yet.")
 
     def execute(self, ability_id: str, instruction: str) -> str:
         """
@@ -69,13 +62,4 @@ class CustomAbility:
         Args:
             ability_id (str): The ID of the custom ability.
         """
-        response = self.api_client.post(
-            f"assistants/{self.config.id}/abilities/custom/execute",
-            data={"id": ability_id, "instruction": instruction},
-        )
-
-        if not response.is_success:
-            raise CustomAbilityError("Failed to execute custom ability.")
-
-        result: str = response.json()["data"]["result"]
-        return result
+        raise NotImplementedError("This method is not implemented yet.")

@@ -9,7 +9,7 @@ Usage example:
     import firedust
 
     # Load an existing assistant
-    assistant = firedust.assistant.load("ASSISTANT_ID")
+    assistant = firedust.assistant.load("ASSISTANT_NAME")
 
     # Check available abilities
     abilities = assistant.ability.list()

@@ -15,7 +15,7 @@ from firedust.memory._base import Memory
 from firedust.utils.api import APIClient
 from firedust.utils.errors import APIError, AssistantError
 from firedust.utils.types.assistant import AssistantConfig
-from firedust.utils.types.inference import InferenceConfig
+from firedust.utils.types.inference import INFERENCE_MODEL
 
 LOG = logging.getLogger("firedust")
 
@@ -104,10 +104,9 @@ class Assistant:
         Includes all attributes for easy inspection and debugging.
         """
         return (
-            f"Assistant(id={self.config.id!r}, "
-            f"name={self.config.name!r}, "
+            f"Assistant(name={self.config.name!r}, "
             f"instructions={self.config.instructions!r}, "
-            f"inference={self.config.inference!r}, "
+            f"model={self.config.model!r}, "
         )
 
     def __str__(self) -> str:
@@ -115,7 +114,7 @@ class Assistant:
         Provides a user-friendly string representation of the Assistant instance.
         Gives an overview with just the assistant's name and ID.
         """
-        return f"Assistant '{self.config.name}' (ID: {self.config.id})"
+        return f"Assistant {self.config.name}"
 
     @property
     def config(self) -> AssistantConfig:
@@ -183,28 +182,27 @@ class Assistant:
     def delete(
         self,
         api_client: APIClient | None = None,
-        confirm_delete: bool = False,
+        confirm: bool = False,
     ) -> None:
         """
         Deletes an existing assistant with the specified ID.
 
         Args:
-            assistant_id (UUID): The unique identifier of the assistant.
             api_client (APIClient, optional): The API client. Defaults to None.
         """
-        if not confirm_delete:
+        if not confirm:
             raise AssistantError(
-                "Assistant and all its memories will be permanently deleted. To confirm, set confirm_delete=True."
+                "Assistant and all its memories will be permanently deleted. To confirm, set confirm=True."
             )
 
         api_client = api_client or APIClient()
-        response = api_client.delete(f"/assistant/{self.config.id}/delete")
+        response = api_client.delete(f"/assistant/{self.config.name}/delete")
         if not response.is_success:
             raise APIError(
                 code=response.status_code,
-                message=f"An error occured while deleting the assistant with id {self.config.id}: {response.text}",
+                message=f"An error occured while deleting the assistant {self.config.name}: {response.text}",
             )
-        LOG.info(f"Successfully deleted assistant {self.config.id}.")
+        LOG.info(f"Successfully deleted assistant {self.config.name}.")
 
 
 class _Update:
@@ -243,28 +241,6 @@ class _Update:
     def api_client(self) -> APIClient:
         return self.assistant.api_client
 
-    def name(self, name: str) -> None:
-        """
-        Updates the name of the assistant.
-
-        Args:
-            name (str): The new name of the assistant.
-        """
-        response = self.api_client.put(
-            f"/assistant/{self.assistant.config.id}/update/name/{name}",
-        )
-        if not response.is_success:
-            raise APIError(
-                code=response.status_code,
-                message=f"Failed to update the name of the assistant with id {self.assistant.config.id}: {response.text}",
-            )
-        self.assistant._config = AssistantConfig(
-            id=self.assistant._config.id,
-            name=name,
-            instructions=self.assistant._config.instructions,
-            inference=self.assistant._config.inference,
-        )
-
     def instructions(self, instructions: str) -> None:
         """
         Updates the instructions of the assistant.
@@ -275,44 +251,42 @@ class _Update:
         response = self.api_client.post(
             "/assistant/update/instructions",
             data={
-                "assistant_id": str(self.assistant.config.id),
+                "assistant": str(self.assistant.config.name),
                 "instructions": instructions,
             },
         )
         if not response.is_success:
             raise APIError(
                 code=response.status_code,
-                message=f"Failed to update the instructions of the assistant with id {self.assistant.config.id}: {response.text}",
+                message=f"Failed to update the instructions of the assistant {self.assistant.config.name}: {response.text}",
             )
         self.assistant._config = AssistantConfig(
-            id=self.assistant._config.id,
             name=self.assistant._config.name,
             instructions=instructions,
-            inference=self.assistant._config.inference,
+            model=self.assistant._config.model,
         )
 
-    def inference(self, inference_config: InferenceConfig) -> None:
+    def model(self, new_model: INFERENCE_MODEL) -> None:
         """
-        Updates the inference configuration of the assistant.
+        Updates the inference model of the assistant.
 
         Args:
-            inference_config (InferenceConfig): The new inference configuration.
+            new_model (INFERENCE_MODEL): The new inference model.
         """
         response = self.api_client.post(
-            "/assistant/update/inference",
+            "/assistant/update/model",
             data={
-                "assistant_id": str(self.assistant.config.id),
-                "inference": inference_config.model_dump(),
+                "assistant": str(self.assistant.config.name),
+                "model": new_model,
             },
         )
         if not response.is_success:
             raise APIError(
                 code=response.status_code,
-                message=f"Failed to update the inference configuration of the assistant with id {self.assistant.config.id}: {response.text}",
+                message=f"Failed to update the inference configuration: {response.text}",
             )
         self.assistant._config = AssistantConfig(
-            id=self.assistant._config.id,
             name=self.assistant._config.name,
             instructions=self.assistant._config.instructions,
-            inference=inference_config,
+            model=new_model,
         )

@@ -39,16 +39,7 @@ class Workflow:
         Returns:
             metadata (Dict[str, str]): The metadata of the created workflow.
         """
-        response = self.api_client.post(
-            f"assistant/{self.config.id}/agency/workflow/run",
-            data={"workflow": workflow.model_dump()},
-        )
-        if not response.is_success:
-            raise Exception(response.json()["message"])
-
-        metadata: Dict[str, str] = response.json()
-
-        return metadata
+        raise NotImplementedError("This method is not implemented yet.")
 
     def list(self) -> List[WorkflowConfig]:
         """
@@ -57,17 +48,7 @@ class Workflow:
         Returns:
             List[WorkflowConfig]: A list of workflows.
         """
-        response = self.api_client.get(
-            f"assistant/{self.config.id}/agency/workflow/list",
-        )
-        if not response.is_success:
-            raise Exception(response.json()["message"])
-
-        workflows: List[WorkflowConfig] = [
-            WorkflowConfig(**workflow) for workflow in response.json()["result"]
-        ]
-
-        return workflows
+        raise NotImplementedError("This method is not implemented yet.")
 
     def remove(self, workflow_id: str) -> Dict[str, str]:
         """
@@ -79,12 +60,4 @@ class Workflow:
         Returns:
             metadata (Dict[str, str]): The metadata of the removed workflow.
         """
-        response = self.api_client.delete(
-            f"assistant/{self.config.id}/agency/workflow/remove/{workflow_id}",
-        )
-        if not response.is_success:
-            raise Exception(response.json()["message"])
-
-        metadata: Dict[str, str] = response.json()
-
-        return metadata
+        raise NotImplementedError("This method is not implemented yet.")

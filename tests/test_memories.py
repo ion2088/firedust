@@ -1,9 +1,9 @@
 import os
+import random
 
 import pytest
 
 import firedust
-from firedust.utils.types.assistant import AssistantConfig
 from firedust.utils.types.memory import MemoryItem
 
 
@@ -13,16 +13,19 @@ from firedust.utils.types.memory import MemoryItem
 )
 def test_memories() -> None:
     # Create a test assistant
-    assistant = firedust.assistant.create()
+    assistant = firedust.assistant.create(
+        name=f"test-assistant-{random.randint(1, 1000)}",
+        instructions="1. Protect the ring bearer. 2. Do not let the ring corrupt you.",
+    )
 
     # Create a few test memories
     memories = [
         MemoryItem(
-            assistant=assistant.config.id,
+            assistant=assistant.config.name,
             content="Due to our product introduction cycles, we are almost always in various stages of transitioning the architecture of our Data Center, Professional Visualization, and Gaming products. We will have a broader and faster Data Center product launch cadence to meet a growing and diverse set of AI opportunities.",
         ),
         MemoryItem(
-            assistant=assistant.config.id,
+            assistant=assistant.config.name,
             content="Deployment of new products to customers creates additional challenges due to the complexity of our technologies, which has impacted and may in the future impact the timing of customer purchases or otherwise impact our demand.",
         ),
     ]
@@ -47,34 +50,32 @@ def test_memories() -> None:
     assert retrieved_memories == []
 
     # Remove the test assistant
-    assistant.delete(confirm_delete=True)
+    assistant.delete(confirm=True)
 
 
 @pytest.mark.skipif(
     os.environ.get("FIREDUST_API_KEY") is None,
     reason="The environment variable FIREDUST_API_KEY is not set.",
 )
-def test_shared_memories() -> None:
+def test_attached_memories() -> None:
     # Create two test assistants
     assistant1 = firedust.assistant.create(
-        config=AssistantConfig(
-            name="Assistant 1", instructions="You are a helpful assistant."
-        )
+        name=f"test-assistant-1-{random.randint(1, 1000)}",
+        instructions="1. Protect the ring bearer. 2. Do not let the ring corrupt you.",
     )
     assistant2 = firedust.assistant.create(
-        config=AssistantConfig(
-            name="Assistant 2", instructions="You are a helpful assistant."
-        )
+        name=f"test-assistant-2-{random.randint(1, 1000)}",
+        instructions="1. Protect the ring bearer. 2. Do not let the ring corrupt you.",
     )
 
     # Create a few test memories
     memories = [
         MemoryItem(
-            assistant=assistant1.config.id,
+            assistant=assistant1.config.name,
             content="Due to our product introduction cycles, we are almost always in various stages of transitioning the architecture of our Data Center, Professional Visualization, and Gaming products. We will have a broader and faster Data Center product launch cadence to meet a growing and diverse set of AI opportunities.",
         ),
         MemoryItem(
-            assistant=assistant1.config.id,
+            assistant=assistant1.config.name,
             content="Deployment of new products to customers creates additional challenges due to the complexity of our technologies, which has impacted and may in the future impact the timing of customer purchases or otherwise impact our demand.",
         ),
     ]
@@ -84,19 +85,21 @@ def test_shared_memories() -> None:
     assistant1.memory.add(memories)
 
     # Share the memories with the second assistant
-    assistant2.memory.attach_collection(assistant1.config.id)
+    assistant2.memory.attach_memories(assistant1.config.name)
 
     # Check that the memories were shared
-    shared_memories = assistant2.memory.list()
-    assert all(_id in memory_ids for _id in shared_memories)
+    assistant2_memories = assistant2.memory.list()
+    assert all(_id in memory_ids for _id in assistant2_memories)
+    assert assistant1.config.name in assistant2.config.attached_memories
 
     # Detach the shared memories
-    assistant2.memory.detach_collection(assistant1.config.id)
+    assistant2.memory.detach_memories(assistant1.config.name)
 
     # Check that the memories were detached
-    shared_memories = assistant2.memory.list()
-    assert shared_memories == []
+    assistant2_memories = assistant2.memory.list()
+    assert assistant2_memories == []
+    assert assistant2.config.attached_memories == []
 
     # Remove test assistants
-    assistant1.delete(confirm_delete=True)
-    assistant2.delete(confirm_delete=True)
+    assistant1.delete(confirm=True)
+    assistant2.delete(confirm=True)

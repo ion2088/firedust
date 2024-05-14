@@ -5,7 +5,7 @@ Usage example:
     import firedust
 
     # Load an existing assistant
-    assistant = firedust.assistant.load("ASSISTANT_ID")
+    assistant = firedust.assistant.load("ASSISTANT_NAME")
 
     # Solve a math problem
     assistant.ability.math.solve("What is 2 + 2?")
@@ -38,10 +38,4 @@ class MathAbility:
         Args:
             problem (str): The math problem to solve.
         """
-        response = self.api_client.post(
-            f"assistant/{self.config.id}/ability/math/solve",
-            data={"problem": problem},
-        )
-        solution: str = response.json()["data"]["solution"]
-
-        return solution
+        raise NotImplementedError("This method is not implemented yet.")

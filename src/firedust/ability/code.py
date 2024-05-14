@@ -5,7 +5,7 @@ Usage example:
     import firedust
 
     # Load an existing assistant
-    assistant = firedust.assistant.load("ASSISTANT_ID")
+    assistant = firedust.assistant.load("ASSISTANT_NAME")
 
     # Train the assistant with code examples
     code_examples = []
@@ -48,7 +48,7 @@ class CodeAbility:
             instruction (str): The instruction for the assistant.
         """
         response = self.api_client.post(
-            f"assistant/{self.config.id}/ability/code/write",
+            f"assistant/{self.config.name}/ability/code/write",
             data={"instruction": instruction},
         )
         code: str = response.json()["data"]["code"]

@@ -40,7 +40,7 @@ class Learning:
         """
         response = self.api_client.post(
             "/learn/fast",
-            data={"assistant_id": str(self.assistant.id), "text": text},
+            data={"assistant": self.assistant.name, "text": text},
         )
         if not response.is_success:
             raise APIError(f"Failed to teach the assistant: {response.text}")
@@ -58,7 +58,7 @@ class Learning:
         with open(pdf, "rb") as f:
             response = self.api_client.post(
                 "/learn/pdf",
-                data={"assistant_id": str(self.assistant.id), "pdf": f},
+                data={"assistant": self.assistant.name, "pdf": f},
             )
             if not response.is_success:
                 raise APIError(f"Failed to teach the assistant: {response.text}")
@@ -72,7 +72,7 @@ class Learning:
         """
         response = self.api_client.post(
             "/learn/url",
-            data={"assistant_id": str(self.assistant.id), "url": url},
+            data={"assistant": self.assistant.name, "url": url},
         )
         if not response.is_success:
             raise APIError(f"Failed to teach the assistant: {response.text}")
@@ -87,7 +87,7 @@ class Learning:
         with open(image, "rb") as f:
             response = self.api_client.post(
                 "/learn/image",
-                data={"assistant_id": str(self.assistant.id), "image": f},
+                data={"assistant": self.assistant.name, "image": f},
             )
             if not response.is_success:
                 raise APIError(f"Failed to teach the assistant: {response.text}")
@@ -102,7 +102,7 @@ class Learning:
         with open(audio, "rb") as f:
             response = self.api_client.post(
                 "/learn/audio",
-                data={"assistant_id": str(self.assistant.id), "audio": f},
+                data={"assistant": self.assistant.name, "audio": f},
             )
             if not response.is_success:
                 raise APIError(f"Failed to teach the assistant: {response.text}")
@@ -126,7 +126,7 @@ class Learning:
         response = self.api_client.post(
             "/learn/chat_messages",
             data={
-                "assistant_id": str(self.assistant.id),
+                "assistant": self.assistant.name,
                 "messages": [msg.model_dump() for msg in messages],
             },
         )

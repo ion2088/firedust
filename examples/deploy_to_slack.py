@@ -1,12 +1,9 @@
 import firedust
-from firedust.utils.types.assistant import AssistantConfig
-from firedust.utils.types.inference import InferenceConfig
 from firedust.utils.types.interface import SlackTokens
 
 # TODO: Remove AssistantConfig from the parameters and add them separately
 # TODO: Simplify AssistantConfig - simplify memory, inference, remove id
 # TODO: Change user_id parameters to user
-# TODO: Remove memories collection concept - memories are tied to the assistant and can be shared among them
 # TODO: Interact with assistants (create/delete etc) just by name - it has to be unique
 # TODO: Having both config and assistant_config in SlackInterface is clunky, we need to refactor that.
 # TODO: Add a readme to the slackapp and slack interface folders
@@ -20,33 +17,31 @@ from firedust.utils.types.interface import SlackTokens
 
 # STEP 1
 # add your slack configuration token, you can find it here: https://api.slack.com/apps
-SLACK_CONFIGURATION_ACCESS_TOKEN = "xoxe.xoxp-1-Mi0yLTY4MDA5NjI4MDg2MjQtNjc5MDgzMjE2ODY0MS02ODMwMjc0MTcwMTE5LTcwMjU4MDgzMDM0NzktNWNkYWVhMTVmNTE3ZTNlZjk4NTRkYjhjNjg4YjYzZDM4ZmM2OGNlZmFjNTBiZTY3MDk4NzhiNTNjZTMwZWEyYg"
+SLACK_CONFIGURATION_ACCESS_TOKEN = "xoxe.xoxp-1-Mi0yLTY4MDA5NjI4MDg2MjQtNjc5MDgzMjE2ODY0MS02ODMwMjc0MTcwMTE5LTcxMzE2MDc4MTM1MDQtMzJmNThmOTMyNzFiNmFmZmMwNmJjMzQ1NzlkMGQ4NjBjNWMwMjExYjc4NTM0MjFiOTA0YTA0NzViZDk0OWMwZg"
 
-# create an assistant, let's name it Joe
-assistant_config = AssistantConfig(
-    name="Joe",
-    instructions="Joe likes pizza, NY Knicks and can give you a 'How you doin?' when you need it most.",
-    inference=InferenceConfig(provider="openai", model="gpt-4"),
+# create an assistant, let's name it Joey
+joey = firedust.assistant.create(
+    name="Joey",
+    instructions="You are a helpful assistant.",
 )
-joe = firedust.assistant.create(assistant_config)
 
 # create a slack app for the assistant
-joe.interface.slack.create_app(
+joey.interface.slack.create_app(
     description="A short description of the assistant. This will be displayed in .",
     configuration_token=SLACK_CONFIGURATION_ACCESS_TOKEN,
 )
 
 # STEP 2
 # install the app in your slack workspace and generate tokens. See here: https://api.slack.com/apps/
-SLACK_APP_TOKEN = "xapp-1-A070RQPJEDD-7040405227762-c94d1accf4b9b9fc528267b8e44836a0103c41d9e5ffc1b17144cfb8c266caa4"
-SLACK_BOT_TOKEN = "xoxb-6800962808624-7063189460304-0BXUkWie0dGn5Zyiv9SqLcWx"
+SLACK_APP_TOKEN = "xapp-1-A073VNP6GD6-7121656385473-59aee28040d00ecf0fd2db86696e3d3f9f4a3fcd56aad02050a2e59b1a53632c"
+SLACK_BOT_TOKEN = "xoxb-6800962808624-7108988266034-mTIlUnoxGQyycw4H0FtdLYfG"
 
-joe.interface.slack.set_tokens(
+joey.interface.slack.set_tokens(
     tokens=SlackTokens(app_token=SLACK_APP_TOKEN, bot_token=SLACK_BOT_TOKEN)
 )
 
 # STEP 3
 # deploy the assistant
-joe.interface.slack.deploy()
+joey.interface.slack.deploy()
 
 # Now you can interact with the assistant in your Slack workspace!

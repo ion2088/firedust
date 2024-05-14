@@ -4,7 +4,7 @@ Chat interface module for the Firedust assistant.
 Example:
     import firedust
 
-    assistant = firedust.assistant.load("ASSISTANT_ID")
+    assistant = firedust.assistant.load("ASSISTANT_NAME")
 
     # Stream a conversation with the assistant
     response = assistant.chat.stream("Tell me about the Book of the Dead")
@@ -46,7 +46,7 @@ class Chat:
         self.api_client = api_client
 
     def stream(
-        self, message: str, user_id: str = "default"
+        self, message: str, user: str = "default"
     ) -> Iterator[MessageStreamEvent]:
         """
         Streams an assistant response to a message.
@@ -54,14 +54,14 @@ class Chat:
 
         Args:
             message (str): The message to send.
-            user_id (str, optional): The unique identifier of the user. Defaults to "default".
+            user (str, optional): The unique identifier of the user. Defaults to "default".
 
         Yields:
             Iterator[MessageStreamEvent]: The response from the assistant.
         """
         user_message = UserMessage(
-            assistant_id=self.config.id,
-            user_id=user_id,
+            assistant=self.config.name,
+            user=user,
             message=message,
             timestamp=datetime.now().timestamp(),
         )
@@ -107,21 +107,21 @@ class Chat:
         except Exception as e:
             raise APIError(f"Failed to stream the conversation: {e}")
 
-    def message(self, message: str, user_id: str = "default") -> str:
+    def message(self, message: str, user: str = "default") -> str:
         """
         Returns a response from the assistant to a message.
         Add a user id to keep chat histories separate for different users.
 
         Args:
             message (str): The message to send.
-            user_id (str, optional): The unique identifier of the user. Defaults to "default".
+            user (str, optional): The unique identifier of the user. Defaults to "default".
 
         Returns:
             str: The response from the assistant.
         """
         user_message = UserMessage(
-            assistant_id=self.config.id,
-            user_id=user_id,
+            assistant=self.config.name,
+            user=user,
             message=message,
             timestamp=datetime.now().timestamp(),
         )

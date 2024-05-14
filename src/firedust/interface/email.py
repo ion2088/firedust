@@ -4,7 +4,7 @@ Email interface module for the Firedust assistant.
 Example:
     import firedust
 
-    assistant = firedust.assistant.load("ASSISTANT_ID")
+    assistant = firedust.assistant.load("ASSISTANT_NAME")
 
     # Deploy the assistant to email
     assistant.interface.email.deploy(email_config)
@@ -17,7 +17,6 @@ Example:
 """
 
 from firedust.utils.api import APIClient
-from firedust.utils.errors import EmailError
 from firedust.utils.types.assistant import AssistantConfig
 from firedust.utils.types.interface import Email, EmailConfig
 
@@ -46,15 +45,7 @@ class EmailInterface:
         Args:
             instruction (str): The instruction for the assistant.
         """
-        response = self.api_client.post(
-            f"assistant/{self.assistant_config.id}/interface/email/compose",
-            data={"instruction": instruction},
-        )
-
-        if not response.is_success:
-            raise EmailError("Failed to compose email.")
-
-        return Email(**response.json()["data"])
+        raise NotImplementedError("This method is not implemented yet.")
 
     def send(self, to: str, email: Email) -> None:
         """
@@ -64,13 +55,7 @@ class EmailInterface:
             to (str): The email address of the assistant.
             email (Email): The email to send.
         """
-        response = self.api_client.post(
-            f"assistant/{self.assistant_config.id}/interface/email/send",
-            data={"to": to, "email": email.model_dump()},
-        )
-
-        if not response.is_success:
-            raise EmailError("Failed to send email.")
+        raise NotImplementedError("This method is not implemented yet.")
 
     def deploy(self, config: EmailConfig) -> None:
         """
@@ -79,13 +64,4 @@ class EmailInterface:
         Args:
             config (EmailConfig): The email configuration.
         """
-
-        response = self.api_client.post(
-            f"assistant/{self.assistant_config.id}/interface/email/deploy",
-            data={"email": config.model_dump()},
-        )
-        if not response.is_success:
-            raise EmailError("Failed to deploy assistant to email.")
-
-        self.email_config = config
-        self.assistant_config.interfaces.email = self.email_config
+        raise NotImplementedError("This method is not implemented yet.")

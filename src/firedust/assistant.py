@@ -39,25 +39,21 @@ Quickstart:
 
 import logging
 from typing import List
-from uuid import UUID
 
 from firedust._private._assistant import Assistant
 from firedust.utils.api import APIClient
 from firedust.utils.errors import APIError
 from firedust.utils.types.api import APIContent
 from firedust.utils.types.assistant import AssistantConfig
-from firedust.utils.types.inference import InferenceConfig
+from firedust.utils.types.inference import INFERENCE_MODEL
 
-DEFAULT_CONFIG = AssistantConfig(
-    name="Sam",
-    instructions="You are a helpful assistant.",
-    inference=InferenceConfig(),
-)
 LOG = logging.getLogger("firedust")
 
 
 def create(
-    config: AssistantConfig = DEFAULT_CONFIG,
+    name: str,
+    instructions: str,
+    model: INFERENCE_MODEL = "mistral/mistral-medium",
     api_client: APIClient | None = None,
 ) -> Assistant:
     """
@@ -70,6 +66,8 @@ def create(
     Returns:
         Assistant: A new instance of the Assistant class.
     """
+    config = AssistantConfig(name=name, instructions=instructions, model=model)
+
     api_client = api_client or APIClient()
     response = api_client.post("/assistant/create", data=config.model_dump())
     if not response.is_success:
@@ -78,28 +76,28 @@ def create(
             message=f"Failed to create the assistant with config {config}: {response.text}",
         )
     LOG.info(
-        f"Assistant {config.name} (ID: {config.id}) was created successfully and saved to the cloud."
+        f"Assistant {config.name} was created successfully and saved to the cloud."
     )
     return Assistant._create_instance(config, api_client)
 
 
-def load(assistant_id: UUID, api_client: APIClient | None = None) -> "Assistant":
+def load(name: str, api_client: APIClient | None = None) -> "Assistant":
     """
-    Loads an existing assistant with the specified ID.
+    Loads an existing assistant with the specified name.
 
     Args:
-        assistant_id (UUID): The unique identifier of the assistant.
+        name (str): The name of the assistant to load.
         api_client (APIClient, optional): The API client. Defaults to None.
 
     Returns:
         Assistant: A new instance of the Assistant class.
     """
     api_client = api_client or APIClient()
-    response = api_client.get(f"/assistant/{assistant_id}/load")
+    response = api_client.get(f"/assistant/{name}/load")
     if not response.is_success:
         raise APIError(
             code=response.status_code,
-            message=f"Failed to load the assistant with id {assistant_id}: {response.text}",
+            message=f"Failed to load the assistant with id {name}: {response.text}",
         )
     content = APIContent(**response.json())
     config = AssistantConfig(**content.data["assistant"])

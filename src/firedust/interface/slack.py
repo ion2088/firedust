@@ -14,7 +14,7 @@ class SlackInterface:
         import firedust
         from firedust.interface import SlackTokens
 
-        assistant = firedust.assistant.load("ASSISTANT_ID")
+        assistant = firedust.assistant.load("ASSISTANT_NAME")
 
         # Get your App Configuration Token from https://api.slack.com/apps
         configuration_token="SLACK_CONFIGURATION_TOKEN"
@@ -63,7 +63,7 @@ class SlackInterface:
         response = self.api_client.post(
             "/interface/slack/create",
             data={
-                "assistant_id": str(self.assistant_config.id),
+                "assistant": self.assistant_config.name,
                 "description": description,
                 "configuration_token": configuration_token,
             },
@@ -93,7 +93,7 @@ class SlackInterface:
         response = self.api_client.post(
             "/interface/slack/set_tokens",
             data={
-                "assistant_id": str(self.assistant_config.id),
+                "assistant": self.assistant_config.name,
                 "app_token": tokens.app_token,
                 "bot_token": tokens.bot_token,
             },
@@ -114,7 +114,7 @@ class SlackInterface:
         response = self.api_client.post(
             "/interface/slack/deploy",
             data={
-                "assistant_id": str(self.assistant_config.id),
+                "assistant": self.assistant_config.name,
                 "api_key": self.api_client.api_key,
             },
         )
@@ -133,7 +133,7 @@ class SlackInterface:
         response = self.api_client.post(
             "/interface/slack/delete",
             data={
-                "assistant_id": str(self.assistant_config.id),
+                "assistant": self.assistant_config.name,
                 "configuration_token": configuration_token,
             },
         )

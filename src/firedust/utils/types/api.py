@@ -4,6 +4,7 @@ from uuid import UUID
 from pydantic import BaseModel, field_serializer
 
 from ._base import UNIX_TIMESTAMP
+from .assistant import ASSISTANT_NAME
 
 
 class APIContent(BaseModel):
@@ -22,17 +23,13 @@ class MessageStreamEvent(BaseModel, frozen=True):
     Represents a message stream event model.
     """
 
-    assistant_id: UUID
-    user_id: str
+    assistant: ASSISTANT_NAME
+    user: str
     timestamp: UNIX_TIMESTAMP
     message: str
     stream_ended: bool
     memory_refs: List[UUID] = []
     conversation_refs: List[UUID] = []
-
-    @field_serializer("assistant_id", when_used="always")
-    def serialize_assistant_id(self, value: UUID) -> str:
-        return str(value)
 
     @field_serializer("memory_refs", when_used="always")
     def serialize_memory_refs(self, value: List[UUID]) -> List[str]:

@@ -4,7 +4,7 @@ Memory module for the Firedust assistant.
 Example:
     import firedust
 
-    assistant = firedust.assistant.load("ASSISTANT_ID")
+    assistant = firedust.assistant.load("ASSISTANT_NAME")
 
     # Recall existing memories based on a query
     query = "Information about late deliveries over the past month."
@@ -33,7 +33,7 @@ from uuid import UUID
 from firedust.utils.api import APIClient
 from firedust.utils.errors import APIError
 from firedust.utils.types.api import APIContent
-from firedust.utils.types.assistant import AssistantConfig
+from firedust.utils.types.assistant import ASSISTANT_NAME, AssistantConfig
 from firedust.utils.types.memory import MemoryItem
 
 
@@ -79,7 +79,7 @@ class Memory:
         response = self.api_client.post(
             "/memory/recall",
             data={
-                "assistant_id": str(self.config.id),
+                "assistant": self.config.name,
                 "query": query,
                 "limit": limit,
             },
@@ -108,7 +108,7 @@ class Memory:
         response = self.api_client.post(
             "/memory/get",
             data={
-                "assistant_id": str(self.config.id),
+                "assistant": self.config.name,
                 "memory_ids": [str(memory_id) for memory_id in memory_ids],
             },
         )
@@ -128,7 +128,7 @@ class Memory:
         response = self.api_client.put(
             "/memory/add",
             data={
-                "assistant_id": str(self.config.id),
+                "assistant": self.config.name,
                 "memories": [memory.model_dump() for memory in memories],
             },
         )
@@ -145,7 +145,7 @@ class Memory:
         response = self.api_client.post(
             "/memory/delete",
             data={
-                "assistant_id": str(self.config.id),
+                "assistant": self.config.name,
                 "memory_ids": [str(memory_id) for memory_id in memory_ids],
             },
         )
@@ -160,7 +160,7 @@ class Memory:
             List[UUID]: A list of memory IDs.
         """
         response = self.api_client.get(
-            f"/memory/list/{self.config.id}",
+            f"/memory/list/{self.config.name}",
         )
 
         if not response.is_success:
@@ -169,55 +169,55 @@ class Memory:
         content = APIContent(**response.json())
         return [UUID(memory_id) for memory_id in content.data["memory_ids"]]
 
-    def attach_collection(self, assistant_id: UUID) -> None:
+    def attach_memories(self, assistant: ASSISTANT_NAME) -> None:
         """
         Attach a collection of memories from another assistant.
 
         Args:
-            assistant_id (UUID): The ID of the assistant whose memories to attach.
+            assistant (str): The name of the assistant whose memories to attach.
         """
-        if assistant_id == self.config.id:
+        if assistant == self.config.name:
             raise ValueError("Cannot attach memories from the same assistant.")
 
         response = self.api_client.put(
-            f"/memory/collections/attach/{str(self.config.id)}/{str(assistant_id)}",
+            f"/memory/attach/{self.config.name}/{assistant}",
         )
         if not response.is_success:
             raise APIError(f"Failed to attach collection: {response.text}")
 
-        self.config.shared_memories.append(assistant_id)
+        self.config.attached_memories.append(assistant)
 
-    def detach_collection(self, assistant_id: UUID) -> None:
+    def detach_memories(self, assistant: ASSISTANT_NAME) -> None:
         """
         Detach a collection of memories that belongs to another assistant.
 
         Args:
-            assistant_id (UUID): The ID of the assistant whose memories to detach.
+            assistant (str): The name of the assistant whose memories to detach.
         """
-        shared_memories = self.config.shared_memories
-        if assistant_id not in shared_memories:
+        attached_memories = self.config.attached_memories
+        if assistant not in attached_memories:
             raise ValueError("Collection not attached to the assistant.")
 
         response = self.api_client.delete(
-            f"/memory/collections/detach/{str(self.config.id)}/{str(assistant_id)}",
+            f"/memory/detach/{self.config.name}/{assistant}",
         )
         if not response.is_success:
             raise APIError(f"Failed to detach collection: {response.text}")
 
-        shared_memories.remove(assistant_id)
+        attached_memories.remove(assistant)
 
-    def erase_chat_history(self, user_id: str) -> str:
+    def erase_chat_history(self, user: str) -> str:
         """
         Erase the chat history of a user from the assistant's memory.
 
         Args:
-            user_id (str): The unique identifier of the user.
+            user (str): The unique identifier of the user.
 
         Returns:
             str: The response from the API.
         """
         response = self.api_client.delete(
-            f"/memory/chat_history/forget/{str(self.config.id)}/{user_id}",
+            f"/memory/chat_history/forget/{self.config.name}/{user}",
         )
         if not response.is_success:
             raise APIError(f"Failed to erase chat history: {response.text}")

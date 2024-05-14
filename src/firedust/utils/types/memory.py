@@ -14,10 +14,10 @@ MEX_MEMORY_CONTENT: int = 4000  # max characters for the context of a memory ite
 class MemoryItem(BaseConfig):
     """
     A memory used by the AI assistant. Memories are data items that are storred in the assistant's database
-    and used as context to answer questions and perform tasks.
+    and, when relevant, used as context to answer questions and perform tasks.
 
     Args:
-        assistant (UUID): The assistant that contains the memory.
+        assistant (str): Assistant name.ß
         content (str): The content of the memory.
         embedding (Sequence[float]): The embedding of the memory.
         timestamp (UNIX_TIMESTAMP): The time when the memory was created.
@@ -26,7 +26,7 @@ class MemoryItem(BaseConfig):
         relevance (float, optional): Relevance score, provided by the vector search.
     """
 
-    assistant: UUID
+    assistant: str
     content: str
     timestamp: UNIX_TIMESTAMP = datetime.now().timestamp()
     type: Literal["text", "image", "audio", "video"] = "text"

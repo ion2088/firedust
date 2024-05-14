@@ -9,7 +9,7 @@ Usage example:
     import firedust
 
     # Load an existing assistant
-    assistant = firedust.assistant.load("ASSISTANT_ID")
+    assistant = firedust.assistant.load("ASSISTANT_NAME")
 
     # Run a task
     result = assistant.agency.task.run("Perform research of the latest feedback emails and send me a summary at john.doe@aviato.com")

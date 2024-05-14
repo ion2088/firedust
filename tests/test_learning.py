@@ -1,4 +1,5 @@
 import os
+import random
 
 import pytest
 
@@ -36,7 +37,10 @@ def test_learn_fast() -> None:
     """
 
     # test learning
-    assistant = firedust.assistant.create()
+    assistant = firedust.assistant.create(
+        name=f"test-assistant-{random.randint(1, 1000)}",
+        instructions="1. Protect the ring bearer. 2. Do not let the ring corrupt you.",
+    )
     assistant.learn.fast(text)
 
     # test memories recall
@@ -47,7 +51,7 @@ def test_learn_fast() -> None:
     )
 
     # remove test assistant
-    assistant.delete(confirm_delete=True)
+    assistant.delete(confirm=True)
 
 
 def test_learn_pdf() -> None:
