@@ -7,8 +7,8 @@ This module contains custom errors used in the Firedust SDK.
 class MissingFiredustKeyError(Exception):
     def __init__(self) -> None:
         message = """
-        The FIREDUST_API_KEY environment variable is not found. 
-        Please, run firedust.connect(api_key) to set the API key.
+        FIREDUST_API_KEY environment variable is not found. 
+        Get your API key at https://firedust.com.
         """
         super().__init__(message)
 

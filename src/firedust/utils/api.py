@@ -5,13 +5,14 @@ import httpx
 
 from firedust.utils.errors import MissingFiredustKeyError
 
-BASE_URL = "https://api.firedustx.com"
 # BASE_URL = "http://127.0.0.1:8000"
+BASE_URL = "https://api.firedustx.com"
+TIMEOUT = 300
 
 
 class APIClient:
     """
-    A client for interacting withp the Firedust API.
+    A client for interacting with the Firedust API.
 
     Attributes:
         base_url (str): The base URL of the Firedust API.
@@ -58,7 +59,9 @@ class APIClient:
         self, url: str, params: Dict[str, Any] | None = None
     ) -> Iterator[bytes]:
         url = self.base_url + url
-        with httpx.stream("get", url, params=params, headers=self.headers) as response:
+        with httpx.stream(
+            "get", url, params=params, headers=self.headers, timeout=TIMEOUT
+        ) as response:
             for chunk in response.iter_bytes():
                 yield chunk
 
@@ -67,7 +70,7 @@ class APIClient:
     ) -> Iterator[bytes]:
         url = self.base_url + url
         with httpx.stream(
-            "post", url, json=data, headers=self.headers, timeout=300
+            "post", url, json=data, headers=self.headers, timeout=TIMEOUT
         ) as response:
             for chunk in response.iter_bytes():
                 yield chunk
@@ -97,7 +100,7 @@ class APIClient:
         url = self.base_url + url
         async with httpx.AsyncClient() as client:
             async with client.stream(
-                "get", url, params=params, headers=self.headers
+                "get", url, params=params, headers=self.headers, timeout=TIMEOUT
             ) as response:
                 async for chunk in response.aiter_bytes():
                     yield chunk
@@ -108,7 +111,7 @@ class APIClient:
         url = self.base_url + url
         async with httpx.AsyncClient() as client:
             async with client.stream(
-                "post", url, json=data, headers=self.headers
+                "post", url, json=data, headers=self.headers, timeout=TIMEOUT
             ) as response:
                 async for chunk in response.aiter_bytes():
                     yield chunk
@@ -123,7 +126,7 @@ class APIClient:
     ) -> httpx.Response:
         url = self.base_url + url
         response = httpx.request(
-            method, url, params=params, json=data, headers=self.headers, timeout=30
+            method, url, params=params, json=data, headers=self.headers, timeout=TIMEOUT
         )
         return response
 
@@ -137,6 +140,11 @@ class APIClient:
         url = self.base_url + url
         async with httpx.AsyncClient() as client:
             response = await client.request(
-                method, url, params=params, json=data, headers=self.headers, timeout=30
+                method,
+                url,
+                params=params,
+                json=data,
+                headers=self.headers,
+                timeout=TIMEOUT,
             )
             return response

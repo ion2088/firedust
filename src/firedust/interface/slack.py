@@ -46,9 +46,8 @@ class SlackInterface:
             config (AssistantConfig): The assistant configuration.
             api_client (APIClient): The API client.
         """
-        self.assistant_config: AssistantConfig = config
+        self.config: AssistantConfig = config
         self.api_client: APIClient = api_client
-        self.config: SlackConfig | None = config.interfaces.slack
 
     def create_app(self, description: str, configuration_token: str) -> httpx.Response:
         """
@@ -63,7 +62,7 @@ class SlackInterface:
         response = self.api_client.post(
             "/interface/slack/create",
             data={
-                "assistant": self.assistant_config.name,
+                "assistant": self.config.name,
                 "description": description,
                 "configuration_token": configuration_token,
             },
@@ -71,7 +70,7 @@ class SlackInterface:
         if not response.is_success:
             raise SlackError(f"Failed to create Slack app: {response.text}")
 
-        self.config = SlackConfig(**response.json()["data"])
+        self.config.interfaces.slack = SlackConfig(**response.json()["data"])
 
         return response
 
@@ -85,7 +84,7 @@ class SlackInterface:
         Returns:
             httpx.Response: The response from the API.
         """
-        if self.config is None:
+        if self.config.interfaces.slack is None:
             raise SlackError(
                 "Slack configuration not found. Please, create an app first. Hint: assistant.interfece.slack.create_app()"
             )
@@ -93,7 +92,7 @@ class SlackInterface:
         response = self.api_client.post(
             "/interface/slack/set_tokens",
             data={
-                "assistant": self.assistant_config.name,
+                "assistant": self.config.name,
                 "app_token": tokens.app_token,
                 "bot_token": tokens.bot_token,
             },
@@ -101,7 +100,7 @@ class SlackInterface:
         if not response.is_success:
             raise SlackError(f"Failed to set Slack tokens: {response.text}")
 
-        self.config.tokens = tokens
+        self.config.interfaces.slack.tokens = tokens
         return response
 
     def deploy(self) -> httpx.Response:
@@ -114,8 +113,7 @@ class SlackInterface:
         response = self.api_client.post(
             "/interface/slack/deploy",
             data={
-                "assistant": self.assistant_config.name,
-                "api_key": self.api_client.api_key,
+                "assistant": self.config.name,
             },
         )
         if not response.is_success:
@@ -123,7 +121,25 @@ class SlackInterface:
 
         return response
 
-    def delete(self, configuration_token: str) -> httpx.Response:
+    def remove_deployment(self) -> httpx.Response:
+        """
+        Removes the assistant from Slack.
+
+        Returns:
+            httpx.Response: The response from the API.
+        """
+        response = self.api_client.post(
+            "/interface/slack/remove_deployment",
+            data={
+                "assistant": self.config.name,
+            },
+        )
+        if not response.is_success:
+            raise SlackError(f"Failed to remove deployment from Slack: {response.text}")
+
+        return response
+
+    def delete_app(self, configuration_token: str) -> httpx.Response:
         """
         Deletes the Slack interface.
 
@@ -131,9 +147,9 @@ class SlackInterface:
             httpx.Response: The response from the API.
         """
         response = self.api_client.post(
-            "/interface/slack/delete",
+            "/interface/slack/delete_app",
             data={
-                "assistant": self.assistant_config.name,
+                "assistant": self.config.name,
                 "configuration_token": configuration_token,
             },
         )

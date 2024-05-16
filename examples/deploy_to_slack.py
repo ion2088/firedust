@@ -1,7 +1,6 @@
 import firedust
 from firedust.utils.types.interface import SlackTokens
 
-# TODO: Having both config and assistant_config in SlackInterface is clunky, we need to refactor that.
 # TODO: Support async methods in firedust
 # TODO: Add a readme to the slackapp and slack interface folders
 # TODO: Instead of httpx.Response, return an APIResponse in firedust._utils.api
@@ -12,6 +11,13 @@ from firedust.utils.types.interface import SlackTokens
 # TODO: Implement batch fetching from qdrant for memories and other heavy processes, similar how we've done it for assistants.
 # TODO: Put all types in firedust.types and import them from there
 # TODO: Update firedust url everywhere
+# TODO: Add slack interface update (to update to a specific version, based on github tags)
+# TODO: Add slack greeting message to the configuration
+# TODO: Add data encryption before storing in the database and decrypt it before sending it to the user
+# TODO: Move chat file from the interface folder, it should probably be separate
+# TODO: Add capability to learn from pdf, audio and urls
+# TODO: Slackapp - add capability to /learn stuff
+# TODO: Skackapp - add capability to read and process files
 
 # STEP 1
 # add your slack configuration token, you can find it here: https://api.slack.com/apps
