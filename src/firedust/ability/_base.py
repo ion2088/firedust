@@ -33,7 +33,7 @@ Usage example:
 from firedust.ability.code import CodeAbility
 from firedust.ability.custom import CustomAbility
 from firedust.ability.math import MathAbility
-from firedust.utils.api import APIClient
+from firedust.utils.api import AsyncAPIClient, SyncAPIClient
 from firedust.utils.types.assistant import AssistantConfig
 
 
@@ -42,16 +42,16 @@ class Abilities:
     A collection of methods to configure and engage with assistant's abilities.
     """
 
-    def __init__(self, config: AssistantConfig, api_client: APIClient) -> None:
+    def __init__(self, config: AssistantConfig, api_client: SyncAPIClient) -> None:
         """
         Initializes a new instance of the Abilities class.
 
         Args:
             config (AssistantConfig): The assistant configuration.
-            api_client (APIClient): The API client.
+            api_client (SyncAPIClient): The API client.
         """
         self.config: AssistantConfig = config
-        self.api_client: APIClient = api_client
+        self.api_client: SyncAPIClient = api_client
 
         # built-in abilities
         self.math = MathAbility(self.config, self.api_client)
@@ -67,6 +67,39 @@ class Abilities:
         raise NotImplementedError("The update method is not implemented.")
 
     def add_instruction(self, ability_id: str, instruction: str) -> None:
+        """
+        Adds an instruction to the ability.
+
+        Args:
+            ability_id (str): The ID of the ability.
+            instruction (str): The instruction to add.
+        """
+        raise NotImplementedError("The add_instruction method is not implemented.")
+
+
+class AsyncAbilities:
+    """
+    A collection of methods to configure and engage with assistant's abilities asynchronously.
+    """
+
+    def __init__(self, config: AssistantConfig, api_client: AsyncAPIClient) -> None:
+        """
+        Initializes a new instance of the AsyncAbilities class.
+
+        Args:
+            config (AssistantConfig): The assistant configuration.
+            api_client (AsyncAPIClient): The API client.
+        """
+        self.config: AssistantConfig = config
+        self.api_client: AsyncAPIClient = api_client
+
+    async def update(self, ability: str) -> None:
+        """
+        Updates the abilities.
+        """
+        raise NotImplementedError("The update method is not implemented.")
+
+    async def add_instruction(self, ability_id: str, instruction: str) -> None:
         """
         Adds an instruction to the ability.
 

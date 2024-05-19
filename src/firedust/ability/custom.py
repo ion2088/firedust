@@ -25,7 +25,7 @@ Usage example:
     assistant.ability.custom.execute(ability_config.id, instruction)
 """
 
-from firedust.utils.api import APIClient
+from firedust.utils.api import SyncAPIClient
 from firedust.utils.types.ability import CustomAbilityConfig
 from firedust.utils.types.assistant import AssistantConfig
 
@@ -35,16 +35,16 @@ class CustomAbility:
     A collection of methods to add and execute custom abilities.
     """
 
-    def __init__(self, config: AssistantConfig, api_client: APIClient) -> None:
+    def __init__(self, config: AssistantConfig, api_client: SyncAPIClient) -> None:
         """
         Initializes a new instance of the CustomAbility class.
 
         Args:
             config (AssistantConfig): The assistant configuration.
-            api_client (APIClient): The API client.
+            api_client (SyncAPIClient): The API client.
         """
         self.config: AssistantConfig = config
-        self.api_client: APIClient = api_client
+        self.api_client: SyncAPIClient = api_client
 
     def create(self, config: CustomAbilityConfig) -> None:
         """

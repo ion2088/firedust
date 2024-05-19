@@ -5,13 +5,7 @@ import pytest
 
 import firedust
 
-
-@pytest.mark.skipif(
-    os.environ.get("FIREDUST_API_KEY") is None,
-    reason="The environment variable FIREDUST_API_KEY is not set.",
-)
-def test_learn_fast() -> None:
-    text = """
+_wisdom = """
     Demand for our data center systems and products has surged over the last three quarters and our demand visibility extends into next year. To
     meet this expected demand, we have increased our purchase obligations with existing suppliers, added new suppliers, and entered into prepaid
     supply and capacity agreements. These increased purchase volumes, the number of suppliers, and the integration of new suppliers into our
@@ -36,39 +30,51 @@ def test_learn_fast() -> None:
     may impair our ability to predict demand and impact our supply mix, and we may incur additional costs.
     """
 
-    # test learning
+
+@pytest.mark.skipif(
+    os.environ.get("FIREDUST_API_KEY") is None,
+    reason="The environment variable FIREDUST_API_KEY is not set.",
+)
+def test_learn_fast() -> None:
     assistant = firedust.assistant.create(
         name=f"test-assistant-{random.randint(1, 1000)}",
         instructions="1. Protect the ring bearer. 2. Do not let the ring corrupt you.",
     )
-    assistant.learn.fast(text)
 
-    # test memories recall
-    memories = assistant.memory.recall("Info about purchase obligations.", limit=10)
-    expected_recall = "we have increased our purchase obligations with existing suppliers, added new suppliers, and entered into prepaid supply and capacity agreements."
-    assert any(
-        expected_recall in memory.content.replace("\n   ", "") for memory in memories
+    try:
+        assistant.learn.fast(_wisdom)
+
+        # test memories recall
+        memories = assistant.memory.recall("Info about purchase obligations.", limit=10)
+        expected_recall = "we have increased our purchase obligations with existing suppliers, added new suppliers, and entered into prepaid supply and capacity agreements."
+        assert any(
+            expected_recall in memory.content.replace("\n   ", "")
+            for memory in memories
+        )
+    finally:
+        assistant.delete(confirm=True)
+
+
+@pytest.mark.skipif(
+    os.environ.get("FIREDUST_API_KEY") is None,
+    reason="The environment variable FIREDUST_API_KEY is not set.",
+)
+@pytest.mark.asyncio
+async def test_async_learn_fast() -> None:
+    assistant = await firedust.assistant.async_create(
+        name=f"test-assistant-{random.randint(1, 1000)}",
+        instructions="1. Protect the ring bearer. 2. Do not let the ring corrupt you.",
     )
 
-    # remove test assistant
-    assistant.delete(confirm=True)
-
-
-def test_learn_pdf() -> None:
-    pass
-
-
-def test_learn_url() -> None:
-    pass
-
-
-def test_learn_image() -> None:
-    pass
-
-
-def test_learn_audio() -> None:
-    pass
-
-
-def test_learn_video() -> None:
-    pass
+    try:
+        await assistant.learn.fast(_wisdom)
+        memories = await assistant.memory.recall(
+            "Info about purchase obligations.", limit=10
+        )
+        expected_recall = "we have increased our purchase obligations with existing suppliers, added new suppliers, and entered into prepaid supply and capacity agreements."
+        assert any(
+            expected_recall in memory.content.replace("\n   ", "")
+            for memory in memories
+        )
+    finally:
+        await assistant.delete(confirm=True)

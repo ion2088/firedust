@@ -53,7 +53,7 @@ Usage example:
 
 from firedust.agency.task import Task
 from firedust.agency.workflow import Workflow
-from firedust.utils.api import APIClient
+from firedust.utils.api import SyncAPIClient
 from firedust.utils.types.assistant import AssistantConfig
 
 
@@ -62,16 +62,16 @@ class Agency:
     Freedom to think, choose, combine and exercise abilities to perform tasks and workflows.
     """
 
-    def __init__(self, config: AssistantConfig, api_client: APIClient) -> None:
+    def __init__(self, config: AssistantConfig, api_client: SyncAPIClient) -> None:
         """
         Initializes a new instance of the Agency class.
 
         Args:
             config (AssistantConfig): The assistant configuration.
-            api_client (APIClient): The API client.
+            api_client (SyncAPIClient): The API client.
         """
         self.config: AssistantConfig = config
-        self.api_client: APIClient = api_client
+        self.api_client: SyncAPIClient = api_client
 
         self.task: Task = Task(config, api_client)
         self.workflow: Workflow = Workflow(config, api_client)

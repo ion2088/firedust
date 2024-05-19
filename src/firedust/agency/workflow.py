@@ -8,7 +8,7 @@ firedust.agency.task
 
 from typing import Dict, List
 
-from firedust.utils.api import APIClient
+from firedust.utils.api import SyncAPIClient
 from firedust.utils.types.agency import WorkflowConfig
 from firedust.utils.types.assistant import AssistantConfig
 
@@ -18,16 +18,16 @@ class Workflow:
     Create workflows (sequences of tasks) and schedule them to run at specific times.
     """
 
-    def __init__(self, config: AssistantConfig, api_client: APIClient) -> None:
+    def __init__(self, config: AssistantConfig, api_client: SyncAPIClient) -> None:
         """
         Initializes a new instance of the Workflow class.
 
         Args:
             config (AssistantConfig): The assistant configuration.
-            api_client (APIClient): The API client.
+            api_client (SyncAPIClient): The API client.
         """
         self.config: AssistantConfig = config
-        self.api_client: APIClient = api_client
+        self.api_client: SyncAPIClient = api_client
 
     def run(self, workflow: WorkflowConfig) -> Dict[str, str]:
         """

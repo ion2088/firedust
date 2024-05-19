@@ -5,7 +5,7 @@ For more details, see firedust.agency._base
 
 from typing import Dict, List
 
-from firedust.utils.api import APIClient
+from firedust.utils.api import SyncAPIClient
 from firedust.utils.types.agency import ScheduledTask
 from firedust.utils.types.assistant import AssistantConfig
 
@@ -16,21 +16,21 @@ class Task:
 
     Attributes:
         config (AssistantConfig): The assistant configuration.
-        api_client (APIClient): The API client.
+        api_client (SyncAPIClient): The API client.
         schedule (Schedule): Tasks scheduler.
     """
 
-    def __init__(self, config: AssistantConfig, api_client: APIClient) -> None:
+    def __init__(self, config: AssistantConfig, api_client: SyncAPIClient) -> None:
         """
         Initializes a new instance of the Task class.
 
         Args:
             config (AssistantConfig): The assistant configuration.
-            api_client (APIClient): The API client.
+            api_client (SyncAPIClient): The API client.
         """
         # configuration
         self.config: AssistantConfig = config
-        self.api_client: APIClient = api_client
+        self.api_client: SyncAPIClient = api_client
 
         # schedule
         self.schedule: Schedule = Schedule(config, api_client)
@@ -53,16 +53,16 @@ class Schedule:
     Schedule and manage tasks to run at specific times.
     """
 
-    def __init__(self, config: AssistantConfig, api_client: APIClient) -> None:
+    def __init__(self, config: AssistantConfig, api_client: SyncAPIClient) -> None:
         """
         Initializes a new instance of the Schedule class.
 
         Args:
             config (AssistantConfig): The assistant configuration.
-            api_client (APIClient): The API client.
+            api_client (SyncAPIClient): The API client.
         """
         self.config: AssistantConfig = config
-        self.api_client: APIClient = api_client
+        self.api_client: SyncAPIClient = api_client
 
     def add(self, task: ScheduledTask) -> Dict[str, str]:
         """

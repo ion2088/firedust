@@ -40,8 +40,8 @@ Quickstart:
 import logging
 from typing import List
 
-from firedust._private._assistant import Assistant
-from firedust.utils.api import APIClient
+from firedust._private._assistant import Assistant, AsyncAssistant
+from firedust.utils.api import AsyncAPIClient, SyncAPIClient
 from firedust.utils.errors import APIError
 from firedust.utils.types.api import APIContent
 from firedust.utils.types.assistant import AssistantConfig
@@ -54,21 +54,21 @@ def create(
     name: str,
     instructions: str,
     model: INFERENCE_MODEL = "mistral/mistral-medium",
-    api_client: APIClient | None = None,
 ) -> Assistant:
     """
     Creates a new assistant with the specified configuration.
 
     Args:
-        config (AssistantConfig): The assistant configuration. Defaults to DEFAULT_CONFIG.
-        api_client (APIClient, optional): The API client. Defaults to None.
+        name (str): The name of the assistant.
+        instructions (str): The instructions for the assistant.
+        model (INFERENCE_MODEL, optional): The inference model to use. Defaults to "mistral/mistral-medium".
 
     Returns:
-        Assistant: A new instance of the Assistant class.
+        Assistant: A new instance of the assistant class.
     """
     config = AssistantConfig(name=name, instructions=instructions, model=model)
+    api_client = SyncAPIClient()
 
-    api_client = api_client or APIClient()
     response = api_client.post("/assistant/create", data=config.model_dump())
     if not response.is_success:
         raise APIError(
@@ -78,21 +78,53 @@ def create(
     LOG.info(
         f"Assistant {config.name} was created successfully and saved to the cloud."
     )
+
     return Assistant._create_instance(config, api_client)
 
 
-def load(name: str, api_client: APIClient | None = None) -> "Assistant":
+async def async_create(
+    name: str,
+    instructions: str,
+    model: INFERENCE_MODEL = "mistral/mistral-medium",
+) -> AsyncAssistant:
+    """
+    Asynchronously creates a new assistant with the specified configuration.
+
+    Args:
+        name (str): The name of the assistant.
+        instructions (str): The instructions for the assistant.
+        model (INFERENCE_MODEL, optional): The inference model to use. Defaults to "mistral/mistral-medium".
+
+    Returns:
+        AsyncAssistant: A new instance of the AsyncAssistant class.
+    """
+    config = AssistantConfig(name=name, instructions=instructions, model=model)
+    api_client = AsyncAPIClient()
+
+    response = await api_client.post("/assistant/create", data=config.model_dump())
+    if not response.is_success:
+        raise APIError(
+            code=response.status_code,
+            message=f"Failed to create an assistant with config {config}: {response.text}",
+        )
+    LOG.info(
+        f"Assistant {config.name} was created successfully and saved to the cloud."
+    )
+
+    return await AsyncAssistant._create_instance(config, api_client)
+
+
+def load(name: str) -> Assistant:
     """
     Loads an existing assistant with the specified name.
 
     Args:
         name (str): The name of the assistant to load.
-        api_client (APIClient, optional): The API client. Defaults to None.
 
     Returns:
         Assistant: A new instance of the Assistant class.
     """
-    api_client = api_client or APIClient()
+    api_client = SyncAPIClient()
     response = api_client.get(f"/assistant/{name}/load")
     if not response.is_success:
         raise APIError(
@@ -104,15 +136,55 @@ def load(name: str, api_client: APIClient | None = None) -> "Assistant":
     return Assistant._create_instance(config, api_client)
 
 
-def list(api_client: APIClient | None = None) -> List[AssistantConfig]:
+async def async_load(name: str) -> AsyncAssistant:
+    """
+    Asynchronously loads an existing assistant with the specified name.
+
+    Args:
+        name (str): The name of the assistant to load.
+
+    Returns:
+        AsyncAssistant: A new instance of the AsyncAssistant class.
+    """
+    api_client = AsyncAPIClient()
+    response = await api_client.get(f"/assistant/{name}/load")
+    if not response.is_success:
+        raise APIError(
+            code=response.status_code,
+            message=f"Failed to load the assistant with id {name}: {response.text}",
+        )
+    content = APIContent(**response.json())
+    config = AssistantConfig(**content.data["assistant"])
+    return await AsyncAssistant._create_instance(config, api_client)
+
+
+def list() -> List[AssistantConfig]:
     """
     Lists all existing assistants.
 
-    Args:
-        api_client (APIClient, optional): The API client. Defaults to None.
+    Returns:
+        List[AssistantConfig]: A list of AssistantConfig objects.
     """
-    api_client = api_client or APIClient()
+    api_client = SyncAPIClient()
     response = api_client.get("/assistant/list")
+    if not response.is_success:
+        raise APIError(
+            code=response.status_code,
+            message=f"Failed to list the assistants: {response.text}",
+        )
+    content = APIContent(**response.json())
+    return [AssistantConfig(**assistant) for assistant in content.data["assistants"]]
+
+
+async def async_list() -> List[AssistantConfig]:
+    """
+    Asynchronously lists all existing assistants.
+
+    Returns:
+        List[AssistantConfig]: A list of AssistantConfig objects.
+    """
+    api_client = AsyncAPIClient()
+    response = await api_client.get("/assistant/list")
     if not response.is_success:
         raise APIError(
             code=response.status_code,
