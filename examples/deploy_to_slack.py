@@ -1,9 +1,6 @@
 import firedust
 from firedust.utils.types.interface import SlackTokens
 
-# TODO: Support async methods in firedust
-# TODO: Add a readme to the slackapp and slack interface folders
-# TODO: Instead of httpx.Response, return an APIResponse in firedust._utils.api
 # TODO: Update starship to use response.is_success and always return an APIResponse
 # TODO: Files that should not be accessed by end users should be marked with a leading underscore.
 # TODO: Add wrapper to firedust and slackapp to assign a error id and encourage users to contact support@firedust.com
@@ -15,7 +12,8 @@ from firedust.utils.types.interface import SlackTokens
 # TODO: Add slack greeting message to the configuration
 # TODO: Add data encryption before storing in the database and decrypt it before sending it to the user
 # TODO: Move chat file from the interface folder, it should probably be separate
-# TODO: Add capability to learn from pdf, audio and urls
+# TODO: Measure the credist of users
+# TODO: Learn from pdf, audio and urls
 # TODO: Slackapp - add capability to /learn stuff
 # TODO: Skackapp - add capability to read and process files
 

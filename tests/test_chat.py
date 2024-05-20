@@ -4,7 +4,7 @@ import random
 import pytest
 
 import firedust
-from firedust.utils.types.api import MessageStreamEvent
+from firedust.utils.types.api import MessagePayload, MessageStreamEvent
 
 
 @pytest.mark.skipif(
@@ -64,7 +64,8 @@ def test_chat_complete() -> None:
 
     try:
         response = assistant.chat.message("Hi, how are you?")
-        assert isinstance(response, str)
+        assert isinstance(response, MessagePayload)
+        assert isinstance(response.message, str)
     finally:
         # Remove the test assistant
         assistant.delete(confirm=True)
@@ -111,7 +112,6 @@ async def test_async_chat_streaming() -> None:
         assert memory_ids[0] in _e.memory_refs
         assert memory_ids[1] in _e.memory_refs
     finally:
-        # Remove the test assistant
         await assistant.delete(confirm=True)
 
 
@@ -121,15 +121,13 @@ async def test_async_chat_streaming() -> None:
 )
 @pytest.mark.asyncio
 async def test_async_chat_complete() -> None:
-    # Create a test assistant
     assistant = await firedust.assistant.async_create(
         name=f"test-assistant-{random.randint(1, 1000)}",
         instructions="1. Protect the ring bearer. 2. Do not let the ring corrupt you.",
     )
-
     try:
         response = await assistant.chat.message("Hi, how are you?")
-        assert isinstance(response, str)
+        assert isinstance(response, MessagePayload)
+        assert isinstance(response.message, str)
     finally:
-        # Remove the test assistant
         await assistant.delete(confirm=True)

@@ -27,7 +27,7 @@ def test_create_list_load_delete_assistant() -> None:
     try:
         # List all assistants
         assistants_list = firedust.assistant.list()
-        existing_assistants = [assistant.name for assistant in assistants_list]
+        existing_assistants = [assistant.config.name for assistant in assistants_list]
         assert assistant.config.name in existing_assistants
 
         # Update
@@ -114,7 +114,7 @@ async def test_async_create_list_load_delete_assistant() -> None:
     try:
         # List all assistants
         assistants_list = await firedust.assistant.async_list()
-        existing_assistants = [assistant.name for assistant in assistants_list]
+        existing_assistants = [assistant.config.name for assistant in assistants_list]
         assert assistant.config.name in existing_assistants
 
         # Update

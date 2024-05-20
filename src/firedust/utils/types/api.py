@@ -18,16 +18,11 @@ class APIContent(BaseModel):
     message: str | None
 
 
-class MessageStreamEvent(BaseModel, frozen=True):
-    """
-    Represents a message stream event model.
-    """
-
+class MessagePayload(BaseModel, frozen=True):
     assistant: ASSISTANT_NAME
     user: str
     timestamp: UNIX_TIMESTAMP
     message: str
-    stream_ended: bool
     memory_refs: List[UUID] = []
     conversation_refs: List[UUID] = []
 
@@ -38,3 +33,11 @@ class MessageStreamEvent(BaseModel, frozen=True):
     @field_serializer("conversation_refs", when_used="always")
     def serialize_conversation_refs(self, value: List[UUID]) -> List[str]:
         return [str(x) for x in value]
+
+
+class MessageStreamEvent(MessagePayload, frozen=True):
+    """
+    Represents a message stream event model.
+    """
+
+    stream_ended: bool

@@ -158,12 +158,12 @@ async def async_load(name: str) -> AsyncAssistant:
     return await AsyncAssistant._create_instance(config, api_client)
 
 
-def list() -> List[AssistantConfig]:
+def list() -> List[Assistant]:
     """
     Lists all existing assistants.
 
     Returns:
-        List[AssistantConfig]: A list of AssistantConfig objects.
+        List[Assistant]: A list of Assistant objects.
     """
     api_client = SyncAPIClient()
     response = api_client.get("/assistant/list")
@@ -173,15 +173,16 @@ def list() -> List[AssistantConfig]:
             message=f"Failed to list the assistants: {response.text}",
         )
     content = APIContent(**response.json())
-    return [AssistantConfig(**assistant) for assistant in content.data["assistants"]]
+    configs = [AssistantConfig(**assistant) for assistant in content.data["assistants"]]
+    return [Assistant._create_instance(config, api_client) for config in configs]
 
 
-async def async_list() -> List[AssistantConfig]:
+async def async_list() -> List[AsyncAssistant]:
     """
     Asynchronously lists all existing assistants.
 
     Returns:
-        List[AssistantConfig]: A list of AssistantConfig objects.
+        List[AsyncAssistant]: A list of AsyncAssistant objects.
     """
     api_client = AsyncAPIClient()
     response = await api_client.get("/assistant/list")
@@ -191,4 +192,7 @@ async def async_list() -> List[AssistantConfig]:
             message=f"Failed to list the assistants: {response.text}",
         )
     content = APIContent(**response.json())
-    return [AssistantConfig(**assistant) for assistant in content.data["assistants"]]
+    configs = [AssistantConfig(**assistant) for assistant in content.data["assistants"]]
+    return [
+        await AsyncAssistant._create_instance(config, api_client) for config in configs
+    ]
