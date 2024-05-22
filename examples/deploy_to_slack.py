@@ -1,8 +1,8 @@
 import firedust
-from firedust.utils.types.interface import SlackTokens
+from firedust.types.interface import SlackTokens
 
-# TODO: Update starship to use response.is_success and always return an APIResponse
-# TODO: Files that should not be accessed by end users should be marked with a leading underscore.
+# TODO: Reorganize the files - put assistant separately, import firedust.types,
+# TODO: Message/AssistantMessage/UserMessage/MessagePayload - there is a lot of redundancy.
 # TODO: Add wrapper to firedust and slackapp to assign a error id and encourage users to contact support@firedust.com
 # TODO: Update and fix example docstrings
 # TODO: Implement batch fetching from qdrant for memories and other heavy processes, similar how we've done it for assistants.

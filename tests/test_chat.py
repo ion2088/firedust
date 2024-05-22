@@ -4,7 +4,7 @@ import random
 import pytest
 
 import firedust
-from firedust.utils.types.api import MessagePayload, MessageStreamEvent
+from firedust.types.api import MessagePayload, MessageStreamEvent
 
 
 @pytest.mark.skipif(

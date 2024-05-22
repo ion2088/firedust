@@ -40,12 +40,12 @@ Quickstart:
 import logging
 from typing import List
 
-from firedust._private._assistant import Assistant, AsyncAssistant
+from firedust.types import Assistant, AsyncAssistant
+from firedust.types.api import APIContent
+from firedust.types.assistant import AssistantConfig
+from firedust.types.base import INFERENCE_MODEL
 from firedust.utils.api import AsyncAPIClient, SyncAPIClient
 from firedust.utils.errors import APIError
-from firedust.utils.types.api import APIContent
-from firedust.utils.types.assistant import AssistantConfig
-from firedust.utils.types.inference import INFERENCE_MODEL
 
 LOG = logging.getLogger("firedust")
 

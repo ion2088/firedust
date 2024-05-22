@@ -4,11 +4,10 @@ from uuid import UUID
 
 from pydantic import BaseModel, field_serializer, field_validator
 
-from ._base import UNIX_TIMESTAMP, BaseConfig
-from .inference import INFERENCE_MODEL
+from .base import INFERENCE_MODEL, UNIX_TIMESTAMP, BaseConfig
 from .interface import Interfaces
 
-ASSISTANT_NAME = str
+_assistant_name = str
 
 
 class AssistantConfig(BaseModel, frozen=True):
@@ -19,7 +18,7 @@ class AssistantConfig(BaseModel, frozen=True):
         name (str): The name of the assistant.
         instructions (str): The instructions of the assistant.
         model (INFERENCE_MODEL, optional): The inference model of the assistant. Defaults to "openai/gpt-4".
-        attached_memories (List[ASSISTANT_NAME], optional): Attached memories from other assistants. Defaults to [].
+        attached_memories (List[_assistant_name], optional): Attached memories from other assistants. Defaults to [].
         abilities (Sequence[Ability], optional): The abilities of the assistant. Defaults to None.
         interfaces (Sequence[Interface], optional): The deployments of the assistant. Defaults to None.
     """
@@ -27,7 +26,7 @@ class AssistantConfig(BaseModel, frozen=True):
     name: str
     instructions: str
     model: INFERENCE_MODEL = "openai/gpt-4"
-    attached_memories: List[ASSISTANT_NAME] = []
+    attached_memories: List[_assistant_name] = []
     interfaces: Interfaces = Interfaces()
 
     @field_validator("name")
@@ -52,14 +51,14 @@ class Message(BaseConfig, frozen=True):
     Represents a message between the user and the assistant.
 
     Args:
-        assistant (ASSISTANT_NAME): The name of the assistant.
+        assistant (str): The name of the assistant.
         user (str): The unique identifier of the user.
         timestamp (UNIX_TIMESTAMP): The timestamp of the message.
         message (str): The text of the message.
         author (Literal["user", "assistant"]): The author of the message.
     """
 
-    assistant: ASSISTANT_NAME
+    assistant: str
     user: str
     timestamp: UNIX_TIMESTAMP = datetime.now().timestamp()
     message: str

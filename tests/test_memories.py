@@ -4,7 +4,7 @@ import random
 import pytest
 
 import firedust
-from firedust.utils.types.memory import MemoryItem
+from firedust.types.memory import MemoryItem
 
 
 @pytest.mark.skipif(

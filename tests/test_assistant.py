@@ -4,9 +4,9 @@ import random
 import pytest
 
 import firedust
-from firedust._private._assistant import Assistant, AsyncAssistant
+from firedust.types import Assistant, AsyncAssistant
+from firedust.types.base import INFERENCE_MODEL
 from firedust.utils.errors import APIError
-from firedust.utils.types.inference import INFERENCE_MODEL
 
 
 @pytest.mark.skipif(

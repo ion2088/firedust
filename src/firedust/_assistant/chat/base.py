@@ -23,10 +23,10 @@ import re
 from datetime import datetime
 from typing import AsyncIterable, AsyncIterator, Iterable, Iterator
 
+from firedust.types.api import MessagePayload, MessageStreamEvent
+from firedust.types.assistant import AssistantConfig, UserMessage
 from firedust.utils.api import AsyncAPIClient, SyncAPIClient
 from firedust.utils.errors import APIError
-from firedust.utils.types.api import MessagePayload, MessageStreamEvent
-from firedust.utils.types.assistant import AssistantConfig, UserMessage
 
 
 class Chat:

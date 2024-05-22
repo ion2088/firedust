@@ -30,11 +30,9 @@ Example:
 from typing import List
 from uuid import UUID
 
+from firedust.types import APIContent, AssistantConfig, MemoryItem
 from firedust.utils.api import AsyncAPIClient, SyncAPIClient
 from firedust.utils.errors import APIError
-from firedust.utils.types.api import APIContent
-from firedust.utils.types.assistant import ASSISTANT_NAME, AssistantConfig
-from firedust.utils.types.memory import MemoryItem
 
 
 class Memory:
@@ -169,7 +167,7 @@ class Memory:
         content = APIContent(**response.json())
         return [UUID(memory_id) for memory_id in content.data["memory_ids"]]
 
-    def attach_memories(self, assistant: ASSISTANT_NAME) -> None:
+    def attach_memories(self, assistant: str) -> None:
         """
         Attach a collection of memories from another assistant.
 
@@ -187,7 +185,7 @@ class Memory:
 
         self.config.attached_memories.append(assistant)
 
-    def detach_memories(self, assistant: ASSISTANT_NAME) -> None:
+    def detach_memories(self, assistant: str) -> None:
         """
         Detach a collection of memories that belongs to another assistant.
 
@@ -356,7 +354,7 @@ class AsyncMemory:
         content = APIContent(**response.json())
         return [UUID(memory_id) for memory_id in content.data["memory_ids"]]
 
-    async def attach_memories(self, assistant: ASSISTANT_NAME) -> None:
+    async def attach_memories(self, assistant: str) -> None:
         """
         Attach a collection of memories from another assistant.
 
@@ -374,7 +372,7 @@ class AsyncMemory:
 
         self.config.attached_memories.append(assistant)
 
-    async def detach_memories(self, assistant: ASSISTANT_NAME) -> None:
+    async def detach_memories(self, assistant: str) -> None:
         """
         Detach a collection of memories that belongs to another assistant.
 

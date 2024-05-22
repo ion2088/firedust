@@ -3,8 +3,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, field_serializer
 
-from ._base import UNIX_TIMESTAMP
-from .assistant import ASSISTANT_NAME
+from .base import UNIX_TIMESTAMP
 
 
 class APIContent(BaseModel):
@@ -19,7 +18,7 @@ class APIContent(BaseModel):
 
 
 class MessagePayload(BaseModel, frozen=True):
-    assistant: ASSISTANT_NAME
+    assistant: str
     user: str
     timestamp: UNIX_TIMESTAMP
     message: str

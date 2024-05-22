@@ -24,12 +24,9 @@ Example:
     assistant.config.interfaces
 """
 
-from firedust.interface.discord import AsyncDiscordInterface, DiscordInterface
-from firedust.interface.email import AsyncEmailInterface, EmailInterface
-from firedust.interface.github import AsyncGithubInterface, GithubInterface
-from firedust.interface.slack import AsyncSlackInterface, SlackInterface
+from firedust._assistant.interface.slack import AsyncSlackInterface, SlackInterface
+from firedust.types.assistant import AssistantConfig
 from firedust.utils.api import AsyncAPIClient, SyncAPIClient
-from firedust.utils.types.assistant import AssistantConfig
 
 
 class Interface:
@@ -52,10 +49,7 @@ class Interface:
         self.api_client = api_client
 
         # interfaces
-        self.email = EmailInterface(self.config, self.api_client)
         self.slack = SlackInterface(self.config, self.api_client)
-        self.github = GithubInterface(self.config, self.api_client)
-        self.discord = DiscordInterface(self.config, self.api_client)
 
 
 class AsyncInterface:
@@ -78,7 +72,4 @@ class AsyncInterface:
         self.api_client = api_client
 
         # interfaces
-        self.email = AsyncEmailInterface(self.config, self.api_client)
         self.slack = AsyncSlackInterface(self.config, self.api_client)
-        self.github = AsyncGithubInterface(self.config, self.api_client)
-        self.discord = AsyncDiscordInterface(self.config, self.api_client)

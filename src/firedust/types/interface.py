@@ -42,57 +42,10 @@ class SlackConfig(InterfaceConfig):
     tokens: SlackTokens | None = None  # This is filled-in by the API
 
 
-class DiscordConfig(InterfaceConfig):
-    """
-    Configuration for Discord InterfaceConfig.
-    """
-
-    interface: Literal["discord"] = "discord"
-    token: str
-    channel: str
-
-
-class GithubConfig(InterfaceConfig):
-    """
-    Configuration for Github InterfaceConfig.
-    """
-
-    interface: Literal["github"] = "github"
-    token: str
-    channel: str
-
-
-# EMAIL
-class EmailConfig(InterfaceConfig):
-    """
-    Configuration for Email InterfaceConfig.
-    """
-
-    interface: Literal["email"] = "email"
-    email: str
-    password: str
-    host: str
-    port: int
-    tls: bool = True
-    ssl: bool = True
-    channel: str
-
-
-class Email(BaseModel):
-    """
-    Represents an email.
-    """
-
-    subject: str
-    body: str
-
-
 class Interfaces(BaseModel):
     """
     Represents the interfaces of the assistant.
     """
 
     slack: SlackConfig | None = None
-    github: GithubConfig | None = None
-    discord: DiscordConfig | None = None
-    email: EmailConfig | None = None
+    # add more interfaces as they come along

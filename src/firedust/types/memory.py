@@ -6,7 +6,7 @@ from pydantic import field_serializer, field_validator
 
 from firedust.utils import checks
 
-from ._base import UNIX_TIMESTAMP, BaseConfig
+from .base import UNIX_TIMESTAMP, BaseConfig
 
 MEX_MEMORY_CONTENT: int = 4000  # max characters for the context of a memory item
 

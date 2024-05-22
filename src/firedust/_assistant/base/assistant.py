@@ -1,21 +1,17 @@
 """
-Private file: Do not use directly.
-
-To interact with the Assistant class, use the modules in firedust.assistant.*.
-It is a functional, user-friendly interface, that saves the assistant configuration to the cloud for future retrieval
+To interact with Assistant and AsyncAssistant classes, use the modules in firedust.assistant.*.
 """
 
 import logging
 
-from firedust.ability._base import Abilities, AsyncAbilities
-from firedust.interface._base import AsyncInterface, Interface
-from firedust.interface.chat import AsyncChat, Chat
-from firedust.learning._base import AsyncLearning, Learning
-from firedust.memory._base import AsyncMemory, Memory
+from firedust._assistant.chat.base import AsyncChat, Chat
+from firedust._assistant.interface.base import AsyncInterface, Interface
+from firedust._assistant.learning.base import AsyncLearning, Learning
+from firedust._assistant.memory.base import AsyncMemory, Memory
+from firedust.types.assistant import AssistantConfig
+from firedust.types.base import INFERENCE_MODEL
 from firedust.utils.api import AsyncAPIClient, SyncAPIClient
 from firedust.utils.errors import APIError, AssistantError
-from firedust.utils.types.assistant import AssistantConfig
-from firedust.utils.types.inference import INFERENCE_MODEL
 
 LOG = logging.getLogger("firedust")
 
@@ -47,7 +43,6 @@ class Assistant:
     _learn: Learning
     _chat: Chat
     _memory: Memory
-    _ability: Abilities
 
     # assistant should be instantiated using the create and load classmethods
     _allow_instantiation: bool = False
@@ -87,7 +82,6 @@ class Assistant:
         self._learn = Learning(self._config, self._api_client)
         self._chat = Chat(self._config, self._api_client)
         self._memory = Memory(self._config, self._api_client)
-        self._ability = Abilities(self._config, self._api_client)
 
     def __setattr__(self, key: str, value: str) -> None:
         """
@@ -145,10 +139,6 @@ class Assistant:
     @property
     def memory(self) -> Memory:
         return self._memory
-
-    @property
-    def ability(self) -> Abilities:
-        return self._ability
 
     @classmethod
     def _create_instance(
@@ -307,7 +297,6 @@ class AsyncAssistant:
         learn (Learning): Methods to train the assistant on your data.
         chat (Chat): Methods to chat with the assistant.
         memory (Memory): Methods to interact with the assistant's memory.
-        ability (Ability): Methods to manage and interact with the assistant's abilities.
 
     Private Attributes:
         _allow_instantiation (bool): A private attribute to discourage direct instantiation of the AsyncAssistant class.
@@ -321,7 +310,6 @@ class AsyncAssistant:
     _learn: AsyncLearning
     _chat: AsyncChat
     _memory: AsyncMemory
-    _ability: AsyncAbilities
 
     # assistant should be instantiated using the create and load classmethods
     _allow_instantiation: bool = False
@@ -361,7 +349,6 @@ class AsyncAssistant:
         self._learn = AsyncLearning(self._config, self._api_client)
         self._chat = AsyncChat(self._config, self._api_client)
         self._memory = AsyncMemory(self._config, self._api_client)
-        self._ability = AsyncAbilities(self._config, self._api_client)
 
     def __setattr__(self, key: str, value: str) -> None:
         """
@@ -419,10 +406,6 @@ class AsyncAssistant:
     @property
     def memory(self) -> AsyncMemory:
         return self._memory
-
-    @property
-    def ability(self) -> AsyncAbilities:
-        return self._ability
 
     @classmethod
     async def _create_instance(
