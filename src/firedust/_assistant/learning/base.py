@@ -2,7 +2,7 @@ from pathlib import Path
 from typing import Iterable, List, Union
 from uuid import UUID
 
-from firedust.types.assistant import AssistantConfig, Message
+from firedust.types import AssistantConfig, Message
 from firedust.utils.api import AsyncAPIClient, SyncAPIClient
 from firedust.utils.errors import APIError
 

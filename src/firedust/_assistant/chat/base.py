@@ -23,8 +23,12 @@ import re
 from datetime import datetime
 from typing import AsyncIterable, AsyncIterator, Iterable, Iterator
 
-from firedust.types.api import MessagePayload, MessageStreamEvent
-from firedust.types.assistant import AssistantConfig, UserMessage
+from firedust.types import (
+    AssistantConfig,
+    Message,
+    MessageStreamEvent,
+    ReferencedMessage,
+)
 from firedust.utils.api import AsyncAPIClient, SyncAPIClient
 from firedust.utils.errors import APIError
 
@@ -36,7 +40,7 @@ class Chat:
 
     def __init__(self, config: AssistantConfig, api_client: SyncAPIClient) -> None:
         """
-        Initializes a new instance of the Chat class.
+            Initializes a new instance of the Chat class.
 
         Args:
             config (AssistantConfig): The assistant configuration.
@@ -74,7 +78,7 @@ class Chat:
         finally:
             self._previous_stream_chunk = ""
 
-    def message(self, message: str, user: str = "default") -> MessagePayload:
+    def message(self, message: str, user: str = "default") -> ReferencedMessage:
         """
         Returns a response from the assistant to a message.
 
@@ -83,13 +87,13 @@ class Chat:
             user (str, optional): The unique identifier of the user. Defaults to "default".
 
         Returns:
-            MessagePayload: The response from the assistant.
+            ReferencedMessage: The response from the assistant.
         """
         user_message = _create_user_message(self.config.name, message, user)
         response = self.api_client.post("/chat/message", data=user_message.model_dump())
         if not response.is_success:
             raise APIError(response.json())
-        return MessagePayload(**response.json()["data"])
+        return ReferencedMessage(**response.json()["data"])
 
 
 class AsyncChat:
@@ -137,7 +141,7 @@ class AsyncChat:
         finally:
             self._previous_stream_chunk = ""
 
-    async def message(self, message: str, user: str = "default") -> MessagePayload:
+    async def message(self, message: str, user: str = "default") -> ReferencedMessage:
         """
         Returns a response from the assistant to a message.
 
@@ -154,7 +158,7 @@ class AsyncChat:
         )
         if not response.is_success:
             raise APIError(response.json())
-        return MessagePayload(**response.json()["data"])
+        return ReferencedMessage(**response.json()["data"])
 
 
 def _process_stream_chunk(
@@ -211,7 +215,7 @@ async def _async_process_stream_chunk(
             previous_chunk = data
 
 
-def _create_user_message(config_name: str, message: str, user: str) -> UserMessage:
+def _create_user_message(config_name: str, message: str, user: str) -> Message:
     """
     Create a UserMessage object.
 
@@ -223,9 +227,10 @@ def _create_user_message(config_name: str, message: str, user: str) -> UserMessa
     Returns:
         UserMessage: The created user message.
     """
-    return UserMessage(
+    return Message(
         assistant=config_name,
         user=user,
         message=message,
         timestamp=datetime.now().timestamp(),
+        author="user",
     )

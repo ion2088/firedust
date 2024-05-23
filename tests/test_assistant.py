@@ -64,18 +64,15 @@ def test_create_existing_assistant() -> None:
 
     # Use try-finally to ensure the assistant is deleted even if the test fails
     try:
-        try:
-            firedust.assistant.create(
-                name=assistant_name,
-                instructions="1. Protect the ring bearer. 2. Do not let the ring corrupt you.",
-            )
-        except APIError as e:
-            assert e.code == 409
-            assert (
-                f"Assistant with the name {assistant_name} already exists." in e.message
-            )
-        except Exception as e:
-            assert False, f"Unexpected exception: {e}"
+        firedust.assistant.create(
+            name=assistant_name,
+            instructions="1. Protect the ring bearer. 2. Do not let the ring corrupt you.",
+        )
+    except APIError as e:
+        assert e.code == 409
+        assert f"Assistant with the name {assistant_name} already exists." in e.message
+    except Exception as e:
+        assert False, f"Unexpected exception: {e}"
     finally:
         assistant1.delete(confirm=True)
 
@@ -152,18 +149,15 @@ async def test_async_create_existing_assistant() -> None:
 
     # Use try-finally to ensure the assistant is deleted even if the test fails
     try:
-        try:
-            await firedust.assistant.async_create(
-                name=assistant_name,
-                instructions="1. Protect the ring bearer. 2. Do not let the ring corrupt you.",
-            )
-        except APIError as e:
-            assert e.code == 409
-            assert (
-                f"Assistant with the name {assistant_name} already exists." in e.message
-            )
-        except Exception as e:
-            assert False, f"Unexpected exception: {e}"
+        await firedust.assistant.async_create(
+            name=assistant_name,
+            instructions="1. Protect the ring bearer. 2. Do not let the ring corrupt you.",
+        )
+    except APIError as e:
+        assert e.code == 409
+        assert f"Assistant with the name {assistant_name} already exists." in e.message
+    except Exception as e:
+        assert False, f"Unexpected exception: {e}"
     finally:
         await assistant1.delete(confirm=True)
 

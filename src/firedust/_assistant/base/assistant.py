@@ -8,7 +8,7 @@ from firedust._assistant.chat.base import AsyncChat, Chat
 from firedust._assistant.interface.base import AsyncInterface, Interface
 from firedust._assistant.learning.base import AsyncLearning, Learning
 from firedust._assistant.memory.base import AsyncMemory, Memory
-from firedust.types.assistant import AssistantConfig
+from firedust.types import AssistantConfig
 from firedust.types.base import INFERENCE_MODEL
 from firedust.utils.api import AsyncAPIClient, SyncAPIClient
 from firedust.utils.errors import APIError, AssistantError

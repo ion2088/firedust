@@ -4,7 +4,7 @@ import random
 import pytest
 
 import firedust
-from firedust.types.api import MessagePayload, MessageStreamEvent
+from firedust.types import MessageStreamEvent, ReferencedMessage
 
 
 @pytest.mark.skipif(
@@ -44,8 +44,9 @@ def test_chat_streaming() -> None:
         assert "product introduction cycles" in answer.lower()
 
         # Check that the new stuff is referenced in the last event
-        assert memory_ids[0] in _e.memory_refs
-        assert memory_ids[1] in _e.memory_refs
+        assert _e.references is not None
+        assert memory_ids[0] in _e.references.memories
+        assert memory_ids[1] in _e.references.memories
     finally:
         # Remove the test assistant
         assistant.delete(confirm=True)
@@ -64,7 +65,7 @@ def test_chat_complete() -> None:
 
     try:
         response = assistant.chat.message("Hi, how are you?")
-        assert isinstance(response, MessagePayload)
+        assert isinstance(response, ReferencedMessage)
         assert isinstance(response.message, str)
     finally:
         # Remove the test assistant
@@ -109,8 +110,9 @@ async def test_async_chat_streaming() -> None:
         assert "product introduction cycles" in answer.lower()
 
         # Check that the new stuff is referenced in the last event
-        assert memory_ids[0] in _e.memory_refs
-        assert memory_ids[1] in _e.memory_refs
+        assert _e.references is not None
+        assert memory_ids[0] in _e.references.memories
+        assert memory_ids[1] in _e.references.memories
     finally:
         await assistant.delete(confirm=True)
 
@@ -127,7 +129,7 @@ async def test_async_chat_complete() -> None:
     )
     try:
         response = await assistant.chat.message("Hi, how are you?")
-        assert isinstance(response, MessagePayload)
+        assert isinstance(response, ReferencedMessage)
         assert isinstance(response.message, str)
     finally:
         await assistant.delete(confirm=True)

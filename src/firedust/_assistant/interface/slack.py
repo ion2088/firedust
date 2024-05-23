@@ -1,6 +1,6 @@
 import httpx
 
-from firedust.types.assistant import AssistantConfig
+from firedust.types import AssistantConfig
 from firedust.types.interface import SlackConfig, SlackTokens
 from firedust.utils.api import AsyncAPIClient, SyncAPIClient
 from firedust.utils.errors import SlackError

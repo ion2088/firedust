@@ -40,9 +40,7 @@ Quickstart:
 import logging
 from typing import List
 
-from firedust.types import Assistant, AsyncAssistant
-from firedust.types.api import APIContent
-from firedust.types.assistant import AssistantConfig
+from firedust.types import APIContent, Assistant, AssistantConfig, AsyncAssistant
 from firedust.types.base import INFERENCE_MODEL
 from firedust.utils.api import AsyncAPIClient, SyncAPIClient
 from firedust.utils.errors import APIError

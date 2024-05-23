@@ -25,7 +25,7 @@ Example:
 """
 
 from firedust._assistant.interface.slack import AsyncSlackInterface, SlackInterface
-from firedust.types.assistant import AssistantConfig
+from firedust.types import AssistantConfig
 from firedust.utils.api import AsyncAPIClient, SyncAPIClient
 
 

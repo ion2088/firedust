@@ -1,17 +1,14 @@
 import firedust
 from firedust.types.interface import SlackTokens
 
-# TODO: Reorganize the files - put assistant separately, import firedust.types,
-# TODO: Message/AssistantMessage/UserMessage/MessagePayload - there is a lot of redundancy.
+# TODO: Add /assistant prefix to all assistant related endpoints
 # TODO: Add wrapper to firedust and slackapp to assign a error id and encourage users to contact support@firedust.com
 # TODO: Update and fix example docstrings
-# TODO: Implement batch fetching from qdrant for memories and other heavy processes, similar how we've done it for assistants.
-# TODO: Put all types in firedust.types and import them from there
+# TODO: Add index and offset to the endpoint of big queries
 # TODO: Update firedust url everywhere
 # TODO: Add slack interface update (to update to a specific version, based on github tags)
 # TODO: Add slack greeting message to the configuration
 # TODO: Add data encryption before storing in the database and decrypt it before sending it to the user
-# TODO: Move chat file from the interface folder, it should probably be separate
 # TODO: Measure the credist of users
 # TODO: Learn from pdf, audio and urls
 # TODO: Slackapp - add capability to /learn stuff
