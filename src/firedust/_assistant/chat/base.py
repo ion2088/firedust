@@ -32,6 +32,8 @@ from firedust.types import (
 from firedust.utils.api import AsyncAPIClient, SyncAPIClient
 from firedust.utils.errors import APIError
 
+_api_prefix = "/assistant/chat"
+
 
 class Chat:
     """
@@ -66,7 +68,7 @@ class Chat:
         user_message = _create_user_message(self.config.name, message, user)
         try:
             for msg in self.api_client.post_stream(
-                "/chat/stream", data=user_message.model_dump()
+                f"{_api_prefix}/stream", data=user_message.model_dump()
             ):
                 msg_decoded = msg.decode("utf-8")
                 for event in _process_stream_chunk(
@@ -90,7 +92,9 @@ class Chat:
             ReferencedMessage: The response from the assistant.
         """
         user_message = _create_user_message(self.config.name, message, user)
-        response = self.api_client.post("/chat/message", data=user_message.model_dump())
+        response = self.api_client.post(
+            f"{_api_prefix}/message", data=user_message.model_dump()
+        )
         if not response.is_success:
             raise APIError(response.json())
         return ReferencedMessage(**response.json()["data"])
@@ -129,7 +133,7 @@ class AsyncChat:
         user_message = _create_user_message(self.config.name, message, user)
         try:
             async for msg in self.api_client.post_stream(
-                "/chat/stream", data=user_message.model_dump()
+                f"{_api_prefix}/stream", data=user_message.model_dump()
             ):
                 msg_decoded = msg.decode("utf-8")
                 async for event in _async_process_stream_chunk(
@@ -154,7 +158,7 @@ class AsyncChat:
         """
         user_message = _create_user_message(self.config.name, message, user)
         response = await self.api_client.post(
-            "/chat/message", data=user_message.model_dump()
+            f"{_api_prefix}/message", data=user_message.model_dump()
         )
         if not response.is_success:
             raise APIError(response.json())

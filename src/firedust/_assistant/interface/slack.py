@@ -60,7 +60,7 @@ class SlackInterface:
             httpx.Response: The response from the API.
         """
         response = self.api_client.post(
-            "/interface/slack/create",
+            "/assistant/interface/slack/create_app",
             data={
                 "assistant": self.config.name,
                 "description": description,
@@ -90,7 +90,7 @@ class SlackInterface:
             )
 
         response = self.api_client.post(
-            "/interface/slack/set_tokens",
+            "/assistant/interface/slack/set_tokens",
             data={
                 "assistant": self.config.name,
                 "app_token": tokens.app_token,
@@ -111,7 +111,7 @@ class SlackInterface:
             httpx.Response: The response from the API.
         """
         response = self.api_client.post(
-            "/interface/slack/deploy",
+            "/assistant/interface/slack/deploy",
             data={
                 "assistant": self.config.name,
             },
@@ -129,7 +129,7 @@ class SlackInterface:
             httpx.Response: The response from the API.
         """
         response = self.api_client.post(
-            "/interface/slack/remove_deployment",
+            "/assistant/interface/slack/remove_deployment",
             data={
                 "assistant": self.config.name,
             },
@@ -147,7 +147,7 @@ class SlackInterface:
             httpx.Response: The response from the API.
         """
         response = self.api_client.post(
-            "/interface/slack/delete_app",
+            "/assistant/interface/slack/delete_app",
             data={
                 "assistant": self.config.name,
                 "configuration_token": configuration_token,
@@ -215,7 +215,7 @@ class AsyncSlackInterface:
             httpx.Response: The response from the API.
         """
         response = await self.api_client.post(
-            "/interface/slack/create",
+            "/assistant/interface/slack/create_app",
             data={
                 "assistant": self.config.name,
                 "description": description,
@@ -245,7 +245,7 @@ class AsyncSlackInterface:
             )
 
         response = await self.api_client.post(
-            "/interface/slack/set_tokens",
+            "/assistant/interface/slack/set_tokens",
             data={
                 "assistant": self.config.name,
                 "app_token": tokens.app_token,
@@ -266,7 +266,7 @@ class AsyncSlackInterface:
             httpx.Response: The response from the API.
         """
         response = await self.api_client.post(
-            "/interface/slack/deploy",
+            "/assistant/interface/slack/deploy",
             data={
                 "assistant": self.config.name,
             },
@@ -284,7 +284,7 @@ class AsyncSlackInterface:
             httpx.Response: The response from the API.
         """
         response = await self.api_client.post(
-            "/interface/slack/remove_deployment",
+            "/assistant/interface/slack/remove_deployment",
             data={
                 "assistant": self.config.name,
             },
@@ -302,7 +302,7 @@ class AsyncSlackInterface:
             httpx.Response: The response from the API.
         """
         response = await self.api_client.post(
-            "/interface/slack/delete_app",
+            "/assistant/interface/slack/delete_app",
             data={
                 "assistant": self.config.name,
                 "configuration_token": configuration_token,

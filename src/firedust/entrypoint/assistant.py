@@ -123,7 +123,7 @@ def load(name: str) -> Assistant:
         Assistant: A new instance of the Assistant class.
     """
     api_client = SyncAPIClient()
-    response = api_client.get(f"/assistant/{name}/load")
+    response = api_client.get(f"/assistant/load/{name}")
     if not response.is_success:
         raise APIError(
             code=response.status_code,
@@ -145,7 +145,7 @@ async def async_load(name: str) -> AsyncAssistant:
         AsyncAssistant: A new instance of the AsyncAssistant class.
     """
     api_client = AsyncAPIClient()
-    response = await api_client.get(f"/assistant/{name}/load")
+    response = await api_client.get(f"/assistant/load/{name}")
     if not response.is_success:
         raise APIError(
             code=response.status_code,

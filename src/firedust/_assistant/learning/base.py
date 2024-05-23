@@ -39,7 +39,7 @@ class Learning:
             memory_ids (List[UUID]): A list of memory ids.
         """
         response = self.api_client.post(
-            "/learn/fast",
+            "/assistant/learn/fast",
             data={"assistant": self.assistant.name, "text": text},
         )
         if not response.is_success:
@@ -57,7 +57,7 @@ class Learning:
         """
         with open(pdf, "rb") as f:
             response = self.api_client.post(
-                "/learn/pdf",
+                "/assistant/learn/pdf",
                 data={"assistant": self.assistant.name, "pdf": f},
             )
             if not response.is_success:
@@ -71,7 +71,7 @@ class Learning:
             url (str): The URL to the resource.
         """
         response = self.api_client.post(
-            "/learn/url",
+            "/assistant/learn/url",
             data={"assistant": self.assistant.name, "url": url},
         )
         if not response.is_success:
@@ -86,7 +86,7 @@ class Learning:
         """
         with open(image, "rb") as f:
             response = self.api_client.post(
-                "/learn/image",
+                "/assistant/learn/image",
                 data={"assistant": self.assistant.name, "image": f},
             )
             if not response.is_success:
@@ -101,7 +101,7 @@ class Learning:
         """
         with open(audio, "rb") as f:
             response = self.api_client.post(
-                "/learn/audio",
+                "/assistant/learn/audio",
                 data={"assistant": self.assistant.name, "audio": f},
             )
             if not response.is_success:
@@ -126,7 +126,7 @@ class Learning:
             messages (Iterable[Message]): The chat messages.
         """
         response = self.api_client.post(
-            "/learn/chat_messages",
+            "/assistant/learn/chat_messages",
             data={
                 "assistant": self.assistant.name,
                 "messages": [msg.model_dump() for msg in messages],
@@ -168,7 +168,7 @@ class AsyncLearning:
             memory_ids (List[UUID]): A list of memory ids.
         """
         response = await self.api_client.post(
-            "/learn/fast",
+            "/assistant/learn/fast",
             data={"assistant": self.assistant.name, "text": text},
         )
         if not response.is_success:
@@ -186,7 +186,7 @@ class AsyncLearning:
         """
         with open(pdf, "rb") as f:
             response = await self.api_client.post(
-                "/learn/pdf",
+                "/assistant/learn/pdf",
                 data={"assistant": self.assistant.name, "pdf": f},
             )
             if not response.is_success:
@@ -200,7 +200,7 @@ class AsyncLearning:
             url (str): The URL to the resource.
         """
         response = await self.api_client.post(
-            "/learn/url",
+            "/assistant/learn/url",
             data={"assistant": self.assistant.name, "url": url},
         )
         if not response.is_success:
@@ -215,7 +215,7 @@ class AsyncLearning:
         """
         with open(image, "rb") as f:
             response = await self.api_client.post(
-                "/learn/image",
+                "/assistant/learn/image",
                 data={"assistant": self.assistant.name, "image": f},
             )
             if not response.is_success:
@@ -230,7 +230,7 @@ class AsyncLearning:
         """
         with open(audio, "rb") as f:
             response = await self.api_client.post(
-                "/learn/audio",
+                "/assistant/learn/audio",
                 data={"assistant": self.assistant.name, "audio": f},
             )
             if not response.is_success:
@@ -253,7 +253,7 @@ class AsyncLearning:
             messages (Iterable[Message]): The chat messages.
         """
         response = await self.api_client.post(
-            "/learn/chat_messages",
+            "/assistant/learn/chat_messages",
             data={
                 "assistant": self.assistant.name,
                 "messages": [msg.model_dump() for msg in messages],

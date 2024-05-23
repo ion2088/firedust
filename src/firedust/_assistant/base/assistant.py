@@ -188,7 +188,7 @@ class Assistant:
             )
 
         api_client = api_client or SyncAPIClient()
-        response = api_client.delete(f"/assistant/{self.config.name}/delete")
+        response = api_client.delete(f"/assistant/delete/{self.config.name}")
         if not response.is_success:
             raise APIError(
                 code=response.status_code,
@@ -455,7 +455,7 @@ class AsyncAssistant:
             )
 
         api_client = api_client or self._api_client
-        response = await api_client.delete(f"/assistant/{self.config.name}/delete")
+        response = await api_client.delete(f"/assistant/delete/{self.config.name}")
         if not response.is_success:
             raise APIError(
                 code=response.status_code,

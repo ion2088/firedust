@@ -5,8 +5,8 @@ import httpx
 
 from firedust.utils.errors import MissingFiredustKeyError
 
-BASE_URL = "http://127.0.0.1:8000"
-# BASE_URL = "https://api.firedustx.com"
+BASE_URL = "http://127.0.0.1:8000/v1"
+# BASE_URL = "https://api.firedustx.com/v1"
 TIMEOUT = 300
 
 

@@ -75,7 +75,7 @@ class Memory:
 
         # Fetch memories
         response = self.api_client.post(
-            "/memory/recall",
+            "/assistant/memory/recall",
             data={
                 "assistant": self.config.name,
                 "query": query,
@@ -104,7 +104,7 @@ class Memory:
             APIError: If the API request fails.
         """
         response = self.api_client.post(
-            "/memory/get",
+            "/assistant/memory/get",
             data={
                 "assistant": self.config.name,
                 "memory_ids": [str(memory_id) for memory_id in memory_ids],
@@ -123,8 +123,8 @@ class Memory:
         Args:
             memories (List[MemoryItem]): The list of memory items to add.
         """
-        response = self.api_client.put(
-            "/memory/add",
+        response = self.api_client.post(
+            "/assistant/memory/add",
             data={
                 "assistant": self.config.name,
                 "memories": [memory.model_dump() for memory in memories],
@@ -141,7 +141,7 @@ class Memory:
             memory_ids (List[UUID]): The list of memory IDs to remove.
         """
         response = self.api_client.post(
-            "/memory/delete",
+            "/assistant/memory/delete",
             data={
                 "assistant": self.config.name,
                 "memory_ids": [str(memory_id) for memory_id in memory_ids],
@@ -158,7 +158,7 @@ class Memory:
             List[UUID]: A list of memory IDs.
         """
         response = self.api_client.get(
-            f"/memory/list/{self.config.name}",
+            f"/assistant/memory/list/{self.config.name}",
         )
 
         if not response.is_success:
@@ -178,7 +178,7 @@ class Memory:
             raise ValueError("Cannot attach memories from the same assistant.")
 
         response = self.api_client.put(
-            f"/memory/attach/{self.config.name}/{assistant}",
+            f"/assistant/memory/attach/{self.config.name}/{assistant}",
         )
         if not response.is_success:
             raise APIError(f"Failed to attach collection: {response.text}")
@@ -197,7 +197,7 @@ class Memory:
             raise ValueError("Collection not attached to the assistant.")
 
         response = self.api_client.delete(
-            f"/memory/detach/{self.config.name}/{assistant}",
+            f"/assistant/memory/detach/{self.config.name}/{assistant}",
         )
         if not response.is_success:
             raise APIError(f"Failed to detach collection: {response.text}")
@@ -215,7 +215,7 @@ class Memory:
             str: The response from the API.
         """
         response = self.api_client.delete(
-            f"/memory/chat_history/forget/{self.config.name}/{user}",
+            f"/assistant/memory/chat_history/forget/{self.config.name}/{user}",
         )
         if not response.is_success:
             raise APIError(f"Failed to erase chat history: {response.text}")
@@ -262,7 +262,7 @@ class AsyncMemory:
 
         # Fetch memories
         response = await self.api_client.post(
-            "/memory/recall",
+            "/assistant/memory/recall",
             data={
                 "assistant": self.config.name,
                 "query": query,
@@ -291,7 +291,7 @@ class AsyncMemory:
             APIError: If the API request fails.
         """
         response = await self.api_client.post(
-            "/memory/get",
+            "/assistant/memory/get",
             data={
                 "assistant": self.config.name,
                 "memory_ids": [str(memory_id) for memory_id in memory_ids],
@@ -310,8 +310,8 @@ class AsyncMemory:
         Args:
             memories (List[MemoryItem]): The list of memory items to add.
         """
-        response = await self.api_client.put(
-            "/memory/add",
+        response = await self.api_client.post(
+            "/assistant/memory/add",
             data={
                 "assistant": self.config.name,
                 "memories": [memory.model_dump() for memory in memories],
@@ -328,7 +328,7 @@ class AsyncMemory:
             memory_ids (List[UUID]): The list of memory IDs to remove.
         """
         response = await self.api_client.post(
-            "/memory/delete",
+            "/assistant/memory/delete",
             data={
                 "assistant": self.config.name,
                 "memory_ids": [str(memory_id) for memory_id in memory_ids],
@@ -345,7 +345,7 @@ class AsyncMemory:
             List[UUID]: A list of memory IDs.
         """
         response = await self.api_client.get(
-            f"/memory/list/{self.config.name}",
+            f"/assistant/memory/list/{self.config.name}",
         )
 
         if not response.is_success:
@@ -365,7 +365,7 @@ class AsyncMemory:
             raise ValueError("Cannot attach memories from the same assistant.")
 
         response = await self.api_client.put(
-            f"/memory/attach/{self.config.name}/{assistant}",
+            f"/assistant/memory/attach/{self.config.name}/{assistant}",
         )
         if not response.is_success:
             raise APIError(f"Failed to attach collection: {response.text}")
@@ -384,7 +384,7 @@ class AsyncMemory:
             raise ValueError("Collection not attached to the assistant.")
 
         response = await self.api_client.delete(
-            f"/memory/detach/{self.config.name}/{assistant}",
+            f"/assistant/memory/detach/{self.config.name}/{assistant}",
         )
         if not response.is_success:
             raise APIError(f"Failed to detach collection: {response.text}")
@@ -402,7 +402,7 @@ class AsyncMemory:
             str: The response from the API.
         """
         response = await self.api_client.delete(
-            f"/memory/chat_history/forget/{self.config.name}/{user}",
+            f"/assistant/memory/chat_history/forget/{self.config.name}/{user}",
         )
         if not response.is_success:
             raise APIError(f"Failed to erase chat history: {response.text}")
