@@ -74,12 +74,13 @@ class SlackInterface:
 
         return response
 
-    def set_tokens(self, tokens: SlackTokens) -> httpx.Response:
+    def set_tokens(self, app_token: str, bot_token: str) -> httpx.Response:
         """
         Sets the Slack tokens.
 
         Args:
-            tokens (SlackTokens): App and bot tokens.
+            app_token (str): The Slack app token.
+            bot_token (str): The Slack bot token.
 
         Returns:
             httpx.Response: The response from the API.
@@ -93,14 +94,16 @@ class SlackInterface:
             "/assistant/interface/slack/set_tokens",
             data={
                 "assistant": self.config.name,
-                "app_token": tokens.app_token,
-                "bot_token": tokens.bot_token,
+                "app_token": app_token,
+                "bot_token": bot_token,
             },
         )
         if not response.is_success:
             raise SlackError(f"Failed to set Slack tokens: {response.text}")
 
-        self.config.interfaces.slack.tokens = tokens
+        self.config.interfaces.slack.tokens = SlackTokens(
+            app_token=app_token, bot_token=bot_token
+        )
         return response
 
     def deploy(self) -> httpx.Response:
@@ -229,7 +232,7 @@ class AsyncSlackInterface:
 
         return response
 
-    async def set_tokens(self, tokens: SlackTokens) -> httpx.Response:
+    async def set_tokens(self, app_token: str, bot_token: str) -> httpx.Response:
         """
         Sets the Slack tokens.
 
@@ -248,14 +251,16 @@ class AsyncSlackInterface:
             "/assistant/interface/slack/set_tokens",
             data={
                 "assistant": self.config.name,
-                "app_token": tokens.app_token,
-                "bot_token": tokens.bot_token,
+                "app_token": app_token,
+                "bot_token": bot_token,
             },
         )
         if not response.is_success:
             raise SlackError(f"Failed to set Slack tokens: {response.text}")
 
-        self.config.interfaces.slack.tokens = tokens
+        self.config.interfaces.slack.tokens = SlackTokens(
+            app_token=app_token, bot_token=bot_token
+        )
         return response
 
     async def deploy(self) -> httpx.Response:

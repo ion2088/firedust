@@ -1,9 +1,9 @@
 import firedust
-from firedust.types.interface import SlackTokens
 
-# TODO: Add /assistant prefix to all assistant related endpoints
 # TODO: Add wrapper to firedust and slackapp to assign a error id and encourage users to contact support@firedust.com
 # TODO: Update and fix example docstrings
+# TODO: Add api documentation in redocly
+# TODO: Add user and credit management
 # TODO: Add index and offset to the endpoint of big queries
 # TODO: Update firedust url everywhere
 # TODO: Add slack interface update (to update to a specific version, based on github tags)
@@ -32,12 +32,10 @@ joey.interface.slack.create_app(
 
 # STEP 2
 # install the app in your slack workspace and generate tokens. See here: https://api.slack.com/apps/
-SLACK_APP_TOKEN = "xapp-1-A073VNP6GD6-7121656385473-59aee28040d00ecf0fd2db86696e3d3f9f4a3fcd56aad02050a2e59b1a53632c"
-SLACK_BOT_TOKEN = "xoxb-6800962808624-7108988266034-mTIlUnoxGQyycw4H0FtdLYfG"
+slack_app_token = "xapp-1-A073VNP6GD6-7121656385473-59aee28040d00ecf0fd2db86696e3d3f9f4a3fcd56aad02050a2e59b1a53632c"
+slack_bot_token = "xoxb-6800962808624-7108988266034-mTIlUnoxGQyycw4H0FtdLYfG"
 
-joey.interface.slack.set_tokens(
-    tokens=SlackTokens(app_token=SLACK_APP_TOKEN, bot_token=SLACK_BOT_TOKEN)
-)
+joey.interface.slack.set_tokens(app_token=slack_app_token, bot_token=slack_bot_token)
 
 # STEP 3
 # deploy the assistant
