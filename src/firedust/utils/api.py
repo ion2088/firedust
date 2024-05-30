@@ -51,8 +51,8 @@ class SyncAPIClient:
     def put(self, url: str, data: Dict[str, Any] | None = None) -> httpx.Response:
         return self._request("put", url, data=data)
 
-    def delete(self, url: str) -> httpx.Response:
-        return self._request("delete", url)
+    def delete(self, url: str, params: Dict[str, Any] | None = None) -> httpx.Response:
+        return self._request("delete", url, params=params)
 
     def get_stream(
         self, url: str, params: Dict[str, Any] | None = None
@@ -133,8 +133,10 @@ class AsyncAPIClient:
     async def put(self, url: str, data: Dict[str, Any] | None = None) -> httpx.Response:
         return await self._request("put", url, data=data)
 
-    async def delete(self, url: str) -> httpx.Response:
-        return await self._request("delete", url)
+    async def delete(
+        self, url: str, params: Dict[str, Any] | None = None
+    ) -> httpx.Response:
+        return await self._request("delete", url, params=params)
 
     async def get_stream(
         self, url: str, params: Dict[str, Any] | None = None

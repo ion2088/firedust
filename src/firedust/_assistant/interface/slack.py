@@ -60,7 +60,7 @@ class SlackInterface:
             httpx.Response: The response from the API.
         """
         response = self.api_client.post(
-            "/assistant/interface/slack/create_app",
+            "/assistant/interface/slack",
             data={
                 "assistant": self.config.name,
                 "description": description,
@@ -90,8 +90,8 @@ class SlackInterface:
                 "Slack configuration not found. Please, create an app first. Hint: assistant.interfece.slack.create_app()"
             )
 
-        response = self.api_client.post(
-            "/assistant/interface/slack/set_tokens",
+        response = self.api_client.put(
+            "/assistant/interface/slack/tokens",
             data={
                 "assistant": self.config.name,
                 "app_token": app_token,
@@ -131,11 +131,8 @@ class SlackInterface:
         Returns:
             httpx.Response: The response from the API.
         """
-        response = self.api_client.post(
-            "/assistant/interface/slack/remove_deployment",
-            data={
-                "assistant": self.config.name,
-            },
+        response = self.api_client.put(
+            f"/assistant/interface/slack/deploy?assistant={self.config.name}"
         )
         if not response.is_success:
             raise SlackError(f"Failed to remove deployment from Slack: {response.text}")
@@ -149,9 +146,9 @@ class SlackInterface:
         Returns:
             httpx.Response: The response from the API.
         """
-        response = self.api_client.post(
-            "/assistant/interface/slack/delete_app",
-            data={
+        response = self.api_client.delete(
+            "/assistant/interface/slack",
+            params={
                 "assistant": self.config.name,
                 "configuration_token": configuration_token,
             },
@@ -218,7 +215,7 @@ class AsyncSlackInterface:
             httpx.Response: The response from the API.
         """
         response = await self.api_client.post(
-            "/assistant/interface/slack/create_app",
+            "/assistant/interface/slack",
             data={
                 "assistant": self.config.name,
                 "description": description,
@@ -247,8 +244,8 @@ class AsyncSlackInterface:
                 "Slack configuration not found. Please, create an app first. Hint: assistant.interface.slack.create_app()"
             )
 
-        response = await self.api_client.post(
-            "/assistant/interface/slack/set_tokens",
+        response = await self.api_client.put(
+            "/assistant/interface/slack/tokens",
             data={
                 "assistant": self.config.name,
                 "app_token": app_token,
@@ -270,11 +267,8 @@ class AsyncSlackInterface:
         Returns:
             httpx.Response: The response from the API.
         """
-        response = await self.api_client.post(
-            "/assistant/interface/slack/deploy",
-            data={
-                "assistant": self.config.name,
-            },
+        response = await self.api_client.put(
+            f"/assistant/interface/slack/deploy?assistant={self.config.name}"
         )
         if not response.is_success:
             raise SlackError(f"Failed to deploy Slack app: {response.text}")
@@ -288,11 +282,9 @@ class AsyncSlackInterface:
         Returns:
             httpx.Response: The response from the API.
         """
-        response = await self.api_client.post(
-            "/assistant/interface/slack/remove_deployment",
-            data={
-                "assistant": self.config.name,
-            },
+        response = await self.api_client.delete(
+            "/assistant/interface/slack/deploy",
+            params={"assistant": self.config.name},
         )
         if not response.is_success:
             raise SlackError(f"Failed to remove deployment from Slack: {response.text}")
@@ -306,9 +298,9 @@ class AsyncSlackInterface:
         Returns:
             httpx.Response: The response from the API.
         """
-        response = await self.api_client.post(
-            "/assistant/interface/slack/delete_app",
-            data={
+        response = await self.api_client.delete(
+            "/assistant/interface/slack",
+            params={
                 "assistant": self.config.name,
                 "configuration_token": configuration_token,
             },

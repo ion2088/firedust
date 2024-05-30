@@ -27,10 +27,10 @@ Example:
     assistant.memory.collections.detach("COLLECTION_ID")
 """
 
-from typing import List
+from typing import Iterable, List
 from uuid import UUID
 
-from firedust.types import APIContent, AssistantConfig, MemoryItem
+from firedust.types import APIContent, AssistantConfig, MemoryItem, Message
 from firedust.utils.api import AsyncAPIClient, SyncAPIClient
 from firedust.utils.errors import APIError
 
@@ -74,9 +74,9 @@ class Memory:
             raise AttributeError("Query exceeds maximum length of 1900 characters.")
 
         # Fetch memories
-        response = self.api_client.post(
+        response = self.api_client.get(
             "/assistant/memory/recall",
-            data={
+            params={
                 "assistant": self.config.name,
                 "query": query,
                 "limit": limit,
@@ -103,9 +103,9 @@ class Memory:
         Raises:
             APIError: If the API request fails.
         """
-        response = self.api_client.post(
-            "/assistant/memory/get",
-            data={
+        response = self.api_client.get(
+            "/assistant/memory",
+            params={
                 "assistant": self.config.name,
                 "memory_ids": [str(memory_id) for memory_id in memory_ids],
             },
@@ -124,7 +124,7 @@ class Memory:
             memories (List[MemoryItem]): The list of memory items to add.
         """
         response = self.api_client.post(
-            "/assistant/memory/add",
+            "/assistant/memory",
             data={
                 "assistant": self.config.name,
                 "memories": [memory.model_dump() for memory in memories],
@@ -140,9 +140,9 @@ class Memory:
         Args:
             memory_ids (List[UUID]): The list of memory IDs to remove.
         """
-        response = self.api_client.post(
-            "/assistant/memory/delete",
-            data={
+        response = self.api_client.delete(
+            "/assistant/memory",
+            params={
                 "assistant": self.config.name,
                 "memory_ids": [str(memory_id) for memory_id in memory_ids],
             },
@@ -178,7 +178,11 @@ class Memory:
             raise ValueError("Cannot attach memories from the same assistant.")
 
         response = self.api_client.put(
-            f"/assistant/memory/attach/{self.config.name}/{assistant}",
+            "/assistant/memory/shared",
+            data={
+                "assistant": self.config.name,
+                "collection": assistant,
+            },
         )
         if not response.is_success:
             raise APIError(f"Failed to attach collection: {response.text}")
@@ -197,12 +201,35 @@ class Memory:
             raise ValueError("Collection not attached to the assistant.")
 
         response = self.api_client.delete(
-            f"/assistant/memory/detach/{self.config.name}/{assistant}",
+            "/assistant/memory/shared",
+            params={
+                "assistant": self.config.name,
+                "collection": assistant,
+            },
         )
         if not response.is_success:
             raise APIError(f"Failed to detach collection: {response.text}")
 
         attached_memories.remove(assistant)
+
+    def add_chat_history(self, messages: Iterable[Message]) -> None:
+        """
+        Adds a chat message history to the assistant's memory. To ensure privacy
+        between users, the Messages will be available as context only if prompted
+        by the same user id. MemoryItems on the other hand are available to all users.
+
+        Args:
+            messages (Iterable[Message]): The chat messages.
+        """
+        response = self.api_client.put(
+            "/assistant/memory/chat_history",
+            data={
+                "assistant": self.config.name,
+                "messages": [msg.model_dump() for msg in messages],
+            },
+        )
+        if not response.is_success:
+            raise APIError(f"Failed to teach the assistant: {response.text}")
 
     def erase_chat_history(self, user: str) -> str:
         """
@@ -215,7 +242,11 @@ class Memory:
             str: The response from the API.
         """
         response = self.api_client.delete(
-            f"/assistant/memory/chat_history/forget/{self.config.name}/{user}",
+            "/assistant/memory/chat_history",
+            params={
+                "assistant": self.config.name,
+                "user": user,
+            },
         )
         if not response.is_success:
             raise APIError(f"Failed to erase chat history: {response.text}")
@@ -261,9 +292,9 @@ class AsyncMemory:
             raise AttributeError("Query exceeds maximum length of 1900 characters.")
 
         # Fetch memories
-        response = await self.api_client.post(
+        response = await self.api_client.get(
             "/assistant/memory/recall",
-            data={
+            params={
                 "assistant": self.config.name,
                 "query": query,
                 "limit": limit,
@@ -290,9 +321,9 @@ class AsyncMemory:
         Raises:
             APIError: If the API request fails.
         """
-        response = await self.api_client.post(
-            "/assistant/memory/get",
-            data={
+        response = await self.api_client.get(
+            "/assistant/memory",
+            params={
                 "assistant": self.config.name,
                 "memory_ids": [str(memory_id) for memory_id in memory_ids],
             },
@@ -311,7 +342,7 @@ class AsyncMemory:
             memories (List[MemoryItem]): The list of memory items to add.
         """
         response = await self.api_client.post(
-            "/assistant/memory/add",
+            "/assistant/memory",
             data={
                 "assistant": self.config.name,
                 "memories": [memory.model_dump() for memory in memories],
@@ -327,9 +358,9 @@ class AsyncMemory:
         Args:
             memory_ids (List[UUID]): The list of memory IDs to remove.
         """
-        response = await self.api_client.post(
-            "/assistant/memory/delete",
-            data={
+        response = await self.api_client.delete(
+            "/assistant/memory",
+            params={
                 "assistant": self.config.name,
                 "memory_ids": [str(memory_id) for memory_id in memory_ids],
             },
@@ -365,7 +396,11 @@ class AsyncMemory:
             raise ValueError("Cannot attach memories from the same assistant.")
 
         response = await self.api_client.put(
-            f"/assistant/memory/attach/{self.config.name}/{assistant}",
+            "/assistant/memory/shared",
+            data={
+                "assistant": self.config.name,
+                "collection": assistant,
+            },
         )
         if not response.is_success:
             raise APIError(f"Failed to attach collection: {response.text}")
@@ -384,12 +419,35 @@ class AsyncMemory:
             raise ValueError("Collection not attached to the assistant.")
 
         response = await self.api_client.delete(
-            f"/assistant/memory/detach/{self.config.name}/{assistant}",
+            "/assistant/memory/shared",
+            params={
+                "assistant": self.config.name,
+                "collection": assistant,
+            },
         )
         if not response.is_success:
             raise APIError(f"Failed to detach collection: {response.text}")
 
         attached_memories.remove(assistant)
+
+    async def add_chat_history(self, messages: Iterable[Message]) -> None:
+        """
+        Adds a chat message history to the assistant's memory. To ensure privacy
+        between users, the Messages will be available as context only if prompted
+        by the same user id. MemoryItems on the other hand are available to all users.
+
+        Args:
+            messages (Iterable[Message]): The chat messages.
+        """
+        response = await self.api_client.put(
+            "/assistant/memory/chat_history",
+            data={
+                "assistant": self.config.name,
+                "messages": [msg.model_dump() for msg in messages],
+            },
+        )
+        if not response.is_success:
+            raise APIError(f"Failed to teach the assistant: {response.text}")
 
     async def erase_chat_history(self, user: str) -> str:
         """
@@ -402,7 +460,11 @@ class AsyncMemory:
             str: The response from the API.
         """
         response = await self.api_client.delete(
-            f"/assistant/memory/chat_history/forget/{self.config.name}/{user}",
+            "/assistant/memory/chat_history",
+            params={
+                "assistant": self.config.name,
+                "user": user,
+            },
         )
         if not response.is_success:
             raise APIError(f"Failed to erase chat history: {response.text}")

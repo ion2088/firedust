@@ -14,15 +14,15 @@ class Learning:
     is accesed when completing a relevant task or answering a question.
     """
 
-    def __init__(self, assistant: AssistantConfig, api_client: SyncAPIClient) -> None:
+    def __init__(self, config: AssistantConfig, api_client: SyncAPIClient) -> None:
         """
         Initializes a new instance of the Learning class.
 
         Args:
-            assistant (AssistantConfig): The assistant configuration.
+            config (AssistantConfig): The assistant configuration.
             api_client (SyncAPIClient): The API client.
         """
-        self.assistant = assistant
+        self.assistant = config
         self.api_client = api_client
 
     def fast(self, text: str) -> List[UUID]:
@@ -115,25 +115,6 @@ class Learning:
             video (Union[str, Path]): The path to the video file.
         """
         raise NotImplementedError()
-
-    def chat_messages(self, messages: Iterable[Message]) -> None:
-        """
-        Adds a chat message history to the assistant's memory. To ensure privacy
-        between users, the Messages will be available as context only if prompted
-        by the same user id. MemoryItems on the other hand are available to all users.
-
-        Args:
-            messages (Iterable[Message]): The chat messages.
-        """
-        response = self.api_client.post(
-            "/assistant/learn/chat_messages",
-            data={
-                "assistant": self.assistant.name,
-                "messages": [msg.model_dump() for msg in messages],
-            },
-        )
-        if not response.is_success:
-            raise APIError(f"Failed to teach the assistant: {response.text}")
 
 
 class AsyncLearning:

@@ -2,8 +2,6 @@
 To interact with Assistant and AsyncAssistant classes, use the modules in firedust.assistant.*.
 """
 
-import logging
-
 from firedust._assistant.chat.base import AsyncChat, Chat
 from firedust._assistant.interface.base import AsyncInterface, Interface
 from firedust._assistant.learning.base import AsyncLearning, Learning
@@ -12,8 +10,7 @@ from firedust.types import AssistantConfig
 from firedust.types.base import INFERENCE_MODEL
 from firedust.utils.api import AsyncAPIClient, SyncAPIClient
 from firedust.utils.errors import APIError, AssistantError
-
-LOG = logging.getLogger("firedust")
+from firedust.utils.logging import LOG
 
 
 class Assistant:
@@ -75,7 +72,7 @@ class Assistant:
         self._api_client = api_client or SyncAPIClient()
 
         # management
-        self._update = _Update(self)
+        self._update = _Update(self._config, self._api_client)
         self._interface = Interface(self._config, self._api_client)
 
         # essence
@@ -188,7 +185,7 @@ class Assistant:
             )
 
         api_client = api_client or SyncAPIClient()
-        response = api_client.delete(f"/assistant/delete/{self.config.name}")
+        response = api_client.delete("/assistant", params={"name": self.config.name})
         if not response.is_success:
             raise APIError(
                 code=response.status_code,
@@ -207,31 +204,16 @@ class _Update:
         assistant.update.inference_config(new_config)
     """
 
-    def __init__(self, assistant: Assistant) -> None:
+    def __init__(self, config: AssistantConfig, api_client: SyncAPIClient) -> None:
         """
         Initializes a new instance of the Update class.
 
         Args:
-            assistant (Assistant): The assistant.
+            config (AssistantConfig): The assistant configuration.
+            api_client (SyncAPIClient): The API client.
         """
-        self._assistant = assistant
-
-    def __setattr__(self, __name: str, __value: str) -> None:
-        """
-        Raise a custom error when trying to set an attribute directly.
-        To change the assistant, use assistant.update.* methods or create a new one.
-        """
-        if not __name.startswith("_"):
-            self.assistant._raise_setter_error(__name)
-        return super().__setattr__(__name, __value)
-
-    @property
-    def assistant(self) -> Assistant:
-        return self._assistant
-
-    @property
-    def api_client(self) -> SyncAPIClient:
-        return self.assistant.api_client
+        self.assistant = config
+        self.api_client = api_client
 
     def instructions(self, instructions: str) -> None:
         """
@@ -240,22 +222,22 @@ class _Update:
         Args:
             instructions (List[str]): The new instructions of the assistant.
         """
-        response = self.api_client.post(
-            "/assistant/update/instructions",
+        response = self.api_client.put(
+            "/assistant/instructions",
             data={
-                "assistant": str(self.assistant.config.name),
+                "assistant": str(self.assistant.name),
                 "instructions": instructions,
             },
         )
         if not response.is_success:
             raise APIError(
                 code=response.status_code,
-                message=f"Failed to update the instructions of the assistant {self.assistant.config.name}: {response.text}",
+                message=f"Failed to update the instructions of the assistant {self.assistant.name}: {response.text}",
             )
-        self.assistant._config = AssistantConfig(
-            name=self.assistant._config.name,
+        self.assistant = AssistantConfig(
+            name=self.assistant.name,
             instructions=instructions,
-            model=self.assistant._config.model,
+            model=self.assistant.model,
         )
 
     def model(self, new_model: INFERENCE_MODEL) -> None:
@@ -265,10 +247,10 @@ class _Update:
         Args:
             new_model (INFERENCE_MODEL): The new inference model.
         """
-        response = self.api_client.post(
-            "/assistant/update/model",
+        response = self.api_client.put(
+            "/assistant/model",
             data={
-                "assistant": str(self.assistant.config.name),
+                "assistant": str(self.assistant.name),
                 "model": new_model,
             },
         )
@@ -277,9 +259,9 @@ class _Update:
                 code=response.status_code,
                 message=f"Failed to update the inference configuration: {response.text}",
             )
-        self.assistant._config = AssistantConfig(
-            name=self.assistant._config.name,
-            instructions=self.assistant._config.instructions,
+        self.assistant = AssistantConfig(
+            name=self.assistant.name,
+            instructions=self.assistant.instructions,
             model=new_model,
         )
 
@@ -342,7 +324,7 @@ class AsyncAssistant:
         self._api_client = api_client or AsyncAPIClient()
 
         # management
-        self._update = _AsyncUpdate(self)
+        self._update = _AsyncUpdate(self._config, self._api_client)
         self._interface = AsyncInterface(self._config, self._api_client)
 
         # essence
@@ -455,7 +437,9 @@ class AsyncAssistant:
             )
 
         api_client = api_client or self._api_client
-        response = await api_client.delete(f"/assistant/delete/{self.config.name}")
+        response = await api_client.delete(
+            "/assistant", params={"name": self.config.name}
+        )
         if not response.is_success:
             raise APIError(
                 code=response.status_code,
@@ -474,31 +458,16 @@ class _AsyncUpdate:
         assistant.update.inference_config(new_config)
     """
 
-    def __init__(self, assistant: AsyncAssistant) -> None:
+    def __init__(self, config: AssistantConfig, api_client: AsyncAPIClient) -> None:
         """
         Initializes a new instance of the Update class.
 
         Args:
-            assistant (AsyncAssistant): The assistant.
+            config (AssistantConfig): The assistant configuration.
+            api_client (AsyncAPIClient): The API client.
         """
-        self._assistant = assistant
-
-    def __setattr__(self, __name: str, __value: str) -> None:
-        """
-        Raise a custom error when trying to set an attribute directly.
-        To change the assistant, use assistant.update.* methods or create a new one.
-        """
-        if not __name.startswith("_"):
-            self.assistant._raise_setter_error(__name)
-        return super().__setattr__(__name, __value)
-
-    @property
-    def assistant(self) -> AsyncAssistant:
-        return self._assistant
-
-    @property
-    def api_client(self) -> AsyncAPIClient:
-        return self.assistant.api_client
+        self.assistant = config
+        self.api_client = api_client
 
     async def instructions(self, instructions: str) -> None:
         """
@@ -507,22 +476,22 @@ class _AsyncUpdate:
         Args:
             instructions (List[str]): The new instructions of the assistant.
         """
-        response = await self.api_client.post(
-            "/assistant/update/instructions",
+        response = await self.api_client.put(
+            "/assistant/instructions",
             data={
-                "assistant": str(self.assistant.config.name),
+                "assistant": str(self.assistant.name),
                 "instructions": instructions,
             },
         )
         if not response.is_success:
             raise APIError(
                 code=response.status_code,
-                message=f"Failed to update the instructions of the assistant {self.assistant.config.name}: {response.text}",
+                message=f"Failed to update the instructions of the assistant {self.assistant.name}: {response.text}",
             )
-        self.assistant._config = AssistantConfig(
-            name=self.assistant._config.name,
+        self.assistant = AssistantConfig(
+            name=self.assistant.name,
             instructions=instructions,
-            model=self.assistant._config.model,
+            model=self.assistant.model,
         )
 
     async def model(self, new_model: INFERENCE_MODEL) -> None:
@@ -532,10 +501,10 @@ class _AsyncUpdate:
         Args:
             new_model (INFERENCE_MODEL): The new inference model.
         """
-        response = await self.api_client.post(
-            "/assistant/update/model",
+        response = await self.api_client.put(
+            "/assistant/model",
             data={
-                "assistant": str(self.assistant.config.name),
+                "assistant": str(self.assistant.name),
                 "model": new_model,
             },
         )
@@ -544,8 +513,8 @@ class _AsyncUpdate:
                 code=response.status_code,
                 message=f"Failed to update the inference configuration: {response.text}",
             )
-        self.assistant._config = AssistantConfig(
-            name=self.assistant._config.name,
-            instructions=self.assistant._config.instructions,
+        self.assistant = AssistantConfig(
+            name=self.assistant.name,
+            instructions=self.assistant.instructions,
             model=new_model,
         )

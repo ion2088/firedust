@@ -8,7 +8,7 @@ class InterfaceConfig(BaseModel):
     Represents an interface of the assistant.
     """
 
-    interface: Literal["slack", "github", "discord", "email", "whatsapp"]
+    interface: Literal["slack"]  # space for more interfaces
 
 
 class SlackTokens(BaseModel):

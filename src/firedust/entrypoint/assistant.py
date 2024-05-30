@@ -37,15 +37,13 @@ Quickstart:
     ```
 """
 
-import logging
 from typing import List
 
 from firedust.types import APIContent, Assistant, AssistantConfig, AsyncAssistant
 from firedust.types.base import INFERENCE_MODEL
 from firedust.utils.api import AsyncAPIClient, SyncAPIClient
 from firedust.utils.errors import APIError
-
-LOG = logging.getLogger("firedust")
+from firedust.utils.logging import LOG
 
 
 def create(
@@ -67,7 +65,7 @@ def create(
     config = AssistantConfig(name=name, instructions=instructions, model=model)
     api_client = SyncAPIClient()
 
-    response = api_client.post("/assistant/create", data=config.model_dump())
+    response = api_client.post("/assistant", data=config.model_dump())
     if not response.is_success:
         raise APIError(
             code=response.status_code,
@@ -99,7 +97,7 @@ async def async_create(
     config = AssistantConfig(name=name, instructions=instructions, model=model)
     api_client = AsyncAPIClient()
 
-    response = await api_client.post("/assistant/create", data=config.model_dump())
+    response = await api_client.post("/assistant", data=config.model_dump())
     if not response.is_success:
         raise APIError(
             code=response.status_code,
@@ -123,11 +121,11 @@ def load(name: str) -> Assistant:
         Assistant: A new instance of the Assistant class.
     """
     api_client = SyncAPIClient()
-    response = api_client.get(f"/assistant/load/{name}")
+    response = api_client.get("/assistant", params={"name": name})
     if not response.is_success:
         raise APIError(
             code=response.status_code,
-            message=f"Failed to load the assistant with id {name}: {response.text}",
+            message=f"Failed to load assistant {name}: {response.text}",
         )
     content = APIContent(**response.json())
     config = AssistantConfig(**content.data["assistant"])
@@ -145,7 +143,7 @@ async def async_load(name: str) -> AsyncAssistant:
         AsyncAssistant: A new instance of the AsyncAssistant class.
     """
     api_client = AsyncAPIClient()
-    response = await api_client.get(f"/assistant/load/{name}")
+    response = await api_client.get("/assistant", params={"name": name})
     if not response.is_success:
         raise APIError(
             code=response.status_code,

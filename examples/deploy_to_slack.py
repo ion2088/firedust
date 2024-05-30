@@ -1,6 +1,7 @@
 import firedust
 
 # TODO: Add wrapper to firedust and slackapp to assign a error id and encourage users to contact support@firedust.com
+# TODO: Simplify error types in firedust - two error types: user error and system error
 # TODO: Update and fix example docstrings
 # TODO: Add api documentation in redocly
 # TODO: Add user and credit management
