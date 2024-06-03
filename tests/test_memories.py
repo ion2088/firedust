@@ -109,14 +109,6 @@ def test_attached_memories() -> None:
         assistant2.delete(confirm=True)
 
 
-# def test_chat_history_operations() -> None:
-#     # Create a test assistant
-#     assistant = firedust.assistant.create(
-#         name=f"test-assistant-{random.randint(1, 1000)}",
-#         instructions="1. Protect the ring bearer. 2. Do not let the ring corrupt you.",
-#     )
-
-
 @pytest.mark.skipif(
     os.environ.get("FIREDUST_API_KEY") is None,
     reason="The environment variable FIREDUST_API_KEY is not set.",

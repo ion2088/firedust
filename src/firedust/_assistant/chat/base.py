@@ -180,8 +180,8 @@ def _process_stream_chunk(
     """
     chunk_split = re.split(r"\n\ndata: ", chunk)
     for data in chunk_split:
-        if not data:
-            continue
+        # if not data:
+        #     continue
         if previous_chunk:
             data = previous_chunk + data
             previous_chunk = ""
@@ -207,8 +207,8 @@ async def _async_process_stream_chunk(
     """
     chunk_split = re.split(r"\n\ndata: ", chunk)
     for data in chunk_split:
-        if not data:
-            continue
+        # if not data:
+        #     continue
         if previous_chunk:
             data = previous_chunk + data
             previous_chunk = ""

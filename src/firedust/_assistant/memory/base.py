@@ -51,7 +51,7 @@ class Memory:
         self.config = config
         self.api_client = api_client
 
-    def recall(self, query: str, limit: int = 50) -> List[MemoryItem]:
+    def recall(self, query: str, limit: int = 50, offset: int = 0) -> List[MemoryItem]:
         """
         Recall memories based on a query.
 
@@ -74,12 +74,13 @@ class Memory:
             raise AttributeError("Query exceeds maximum length of 1900 characters.")
 
         # Fetch memories
-        response = self.api_client.get(
+        response = self.api_client.post(
             "/assistant/memory/recall",
-            params={
+            data={
                 "assistant": self.config.name,
                 "query": query,
                 "limit": limit,
+                "offset": offset,
             },
         )
         if not response.is_success:
@@ -103,9 +104,9 @@ class Memory:
         Raises:
             APIError: If the API request fails.
         """
-        response = self.api_client.get(
-            "/assistant/memory",
-            params={
+        response = self.api_client.post(
+            "/assistant/memory/list",
+            data={
                 "assistant": self.config.name,
                 "memory_ids": [str(memory_id) for memory_id in memory_ids],
             },
@@ -123,8 +124,8 @@ class Memory:
         Args:
             memories (List[MemoryItem]): The list of memory items to add.
         """
-        response = self.api_client.post(
-            "/assistant/memory",
+        response = self.api_client.put(
+            "/assistant/memory/list",
             data={
                 "assistant": self.config.name,
                 "memories": [memory.model_dump() for memory in memories],
@@ -140,9 +141,9 @@ class Memory:
         Args:
             memory_ids (List[UUID]): The list of memory IDs to remove.
         """
-        response = self.api_client.delete(
-            "/assistant/memory",
-            params={
+        response = self.api_client.post(
+            "/assistant/memory/delete",
+            data={
                 "assistant": self.config.name,
                 "memory_ids": [str(memory_id) for memory_id in memory_ids],
             },
@@ -150,7 +151,7 @@ class Memory:
         if not response.is_success:
             raise APIError(f"Failed to remove memory: {response.text}")
 
-    def list(self) -> List[UUID]:
+    def list(self, limit: int = 100, offset: int = 0) -> List[UUID]:
         """
         List all memory items available to the assistant.
 
@@ -158,7 +159,8 @@ class Memory:
             List[UUID]: A list of memory IDs.
         """
         response = self.api_client.get(
-            f"/assistant/memory/list/{self.config.name}",
+            "/assistant/memory/list",
+            params={"assistant": self.config.name, "limit": limit, "offset": offset},
         )
 
         if not response.is_success:
@@ -270,7 +272,9 @@ class AsyncMemory:
         self.config = config
         self.api_client = api_client
 
-    async def recall(self, query: str, limit: int = 50) -> List[MemoryItem]:
+    async def recall(
+        self, query: str, limit: int = 50, offset: int = 0
+    ) -> List[MemoryItem]:
         """
         Recall memories based on a query.
 
@@ -292,12 +296,13 @@ class AsyncMemory:
             raise AttributeError("Query exceeds maximum length of 1900 characters.")
 
         # Fetch memories
-        response = await self.api_client.get(
+        response = await self.api_client.post(
             "/assistant/memory/recall",
-            params={
+            data={
                 "assistant": self.config.name,
                 "query": query,
                 "limit": limit,
+                "offset": offset,
             },
         )
         if not response.is_success:
@@ -321,9 +326,9 @@ class AsyncMemory:
         Raises:
             APIError: If the API request fails.
         """
-        response = await self.api_client.get(
-            "/assistant/memory",
-            params={
+        response = await self.api_client.post(
+            "/assistant/memory/list",
+            data={
                 "assistant": self.config.name,
                 "memory_ids": [str(memory_id) for memory_id in memory_ids],
             },
@@ -341,8 +346,8 @@ class AsyncMemory:
         Args:
             memories (List[MemoryItem]): The list of memory items to add.
         """
-        response = await self.api_client.post(
-            "/assistant/memory",
+        response = await self.api_client.put(
+            "/assistant/memory/list",
             data={
                 "assistant": self.config.name,
                 "memories": [memory.model_dump() for memory in memories],
@@ -358,9 +363,9 @@ class AsyncMemory:
         Args:
             memory_ids (List[UUID]): The list of memory IDs to remove.
         """
-        response = await self.api_client.delete(
-            "/assistant/memory",
-            params={
+        response = await self.api_client.post(
+            "/assistant/memory/delete",
+            data={
                 "assistant": self.config.name,
                 "memory_ids": [str(memory_id) for memory_id in memory_ids],
             },
@@ -368,7 +373,7 @@ class AsyncMemory:
         if not response.is_success:
             raise APIError(f"Failed to remove memory: {response.text}")
 
-    async def list(self) -> List[UUID]:
+    async def list(self, limit: int = 100, offset: int = 0) -> List[UUID]:
         """
         List all memory items available to the assistant.
 
@@ -376,7 +381,8 @@ class AsyncMemory:
             List[UUID]: A list of memory IDs.
         """
         response = await self.api_client.get(
-            f"/assistant/memory/list/{self.config.name}",
+            "/assistant/memory/list",
+            params={"assistant": self.config.name, "limit": limit, "offset": offset},
         )
 
         if not response.is_success:

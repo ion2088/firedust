@@ -1,6 +1,6 @@
 import firedust
 
-# TODO: Add wrapper to firedust and slackapp to assign a error id and encourage users to contact support@firedust.com
+# TODO: Update qdrant user storage to have the api_key as the primary key that connects to a user, the user should have a role field something like master > guest, also multiple api keys can be tied to the same user
 # TODO: Simplify error types in firedust - two error types: user error and system error
 # TODO: Update and fix example docstrings
 # TODO: Add api documentation in redocly
