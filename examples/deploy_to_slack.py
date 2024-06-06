@@ -1,16 +1,14 @@
 import firedust
 
-# TODO: Update qdrant user storage to have the api_key as the primary key that connects to a user, the user should have a role field something like master > guest, also multiple api keys can be tied to the same user
 # TODO: Simplify error types in firedust - two error types: user error and system error
 # TODO: Update and fix example docstrings
 # TODO: Add api documentation in redocly
-# TODO: Add user and credit management
-# TODO: Add index and offset to the endpoint of big queries
+# TODO: Create examples for all the methods in the assistant
+# TODO: Create a nice github readme with quickstart and examples
 # TODO: Update firedust url everywhere
 # TODO: Add slack interface update (to update to a specific version, based on github tags)
 # TODO: Add slack greeting message to the configuration
 # TODO: Add data encryption before storing in the database and decrypt it before sending it to the user
-# TODO: Measure the credist of users
 # TODO: Learn from pdf, audio and urls
 # TODO: Slackapp - add capability to /learn stuff
 # TODO: Skackapp - add capability to read and process files

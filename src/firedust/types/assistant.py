@@ -10,7 +10,7 @@ ASSISTANT_NAME = str
 
 class AssistantConfig(BaseModel, frozen=True):
     """
-    Represents the configuration of an AI Assistant.
+    The configuration of an AI Assistant.
 
     Args:
         name (str): The name of the assistant.
@@ -35,10 +35,3 @@ class AssistantConfig(BaseModel, frozen=True):
         if len(name) < 1:
             raise ValueError("Assistant name must be at least 1 character")
         return name
-
-    @field_validator("instructions")
-    @classmethod
-    def validate_instructions(cls, instructions: str) -> str | Exception:
-        if len(instructions) < 20:
-            raise ValueError("Assistant instructions must be at least 20 characters")
-        return instructions

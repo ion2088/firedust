@@ -15,7 +15,7 @@ class MissingFiredustKeyError(Exception):
 
 # API ERRORS
 class APIError(Exception):
-    def __init__(self, message: str, code: int = 500) -> None:
+    def __init__(self, message: str, code: int) -> None:
         self.code = code
         self.message = message
         super().__init__(message)
@@ -45,74 +45,9 @@ class MemoryError(Exception):
 
 
 # INTERFACE ERRORS
-class InterfaceError(Exception):
-    """
-    Default error for the Interface class.
-    """
-
-    def __init__(self, message: str) -> None:
-        super().__init__(message)
-
-
-class EmailError(InterfaceError):
-    """
-    Default error for the Email and EmailInterface class.
-    """
-
-    def __init__(self, message: str) -> None:
-        super().__init__(message)
-
-
-class SlackError(InterfaceError):
+class SlackError(Exception):
     """
     Default error for the Slack and SlackInterface class.
-    """
-
-    def __init__(self, message: str) -> None:
-        super().__init__(message)
-
-
-class GithubError(InterfaceError):
-    """
-    Default error for the Github and GithubInterface class.
-    """
-
-    def __init__(self, message: str) -> None:
-        super().__init__(message)
-
-
-class DiscordError(InterfaceError):
-    """
-    Default error for the Discord and DiscordInterface class.
-    """
-
-    def __init__(self, message: str) -> None:
-        super().__init__(message)
-
-
-# ABILITY ERRORS
-class AbilityError(Exception):
-    """
-    Default error for the Ability class.
-    """
-
-    def __init__(self, message: str) -> None:
-        super().__init__(message)
-
-
-class CustomAbilityError(AbilityError):
-    """
-    Default error for the CustomAbility class.
-    """
-
-    def __init__(self, message: str) -> None:
-        super().__init__(message)
-
-
-# TEST ERROR
-class TestError(Exception):
-    """
-    Default error for the Test class.
     """
 
     def __init__(self, message: str) -> None:

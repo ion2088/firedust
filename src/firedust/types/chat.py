@@ -39,8 +39,8 @@ class MessageReferences(BaseModel):
     References to the memories and messages used by the assistant as context to generate a response.
 
     Args:
-        memory_refs (Sequence[UUID]): The references to the relevant memories.
-        conversation_refs (Sequence[UUID]): The references to the relevant conversations.
+        memories (Sequence[UUID]): The references to the relevant memories.
+        conversations (Sequence[UUID]): The references to the relevant conversations.
     """
 
     memories: Sequence[UUID]

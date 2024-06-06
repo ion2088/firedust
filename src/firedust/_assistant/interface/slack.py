@@ -8,53 +8,27 @@ from firedust.utils.errors import SlackError
 
 class SlackInterface:
     """
-    Slack interface module for the Firedust assistant.
+    Slack interface module for the Firedust assistant. Deploy the assistant to Slack
+    to interact with it in your workspace.
 
     Example:
-        import firedust
-        from firedust.interface import SlackTokens
-
-        assistant = firedust.assistant.load("ASSISTANT_NAME")
-
-        # Get your App Configuration Token from https://api.slack.com/apps
-        configuration_token="SLACK_CONFIGURATION_TOKEN"
-
-        # Create a Slack app for the assistant
-        description="A short description of the assistant."
-        assistant.interface.slack.create_app(slack_config)
-
-        # Install the app and set the Slack App and Bot tokens, you can find them here:
-        # https://api.slack.com/apps/<app_id>
-        # https://api.slack.com/apps/<app_id>/oauth
-        tokens = SlackTokens(
-            app_token="SLACK_APP_TOKEN",
-            bot_token="SLACK_BOT_TOKEN",
-        )
-        assistant.interface.slack.set_tokens(tokens)
-
-        # Deploy the assistant to Slack
-        assistant.interface.slack.deploy()
-
-        # Now you can interact with the assistant in your Slack workspace!
+    https://github.com/ion2088/firedust/blob/master/examples/deploy_to_slack.py
     """
 
     def __init__(self, config: AssistantConfig, api_client: SyncAPIClient) -> None:
-        """
-        Initializes a new instance of the Slack class.
-
-        Args:
-            config (AssistantConfig): The assistant configuration.
-            api_client (SyncAPIClient): The API client.
-        """
         self.config: AssistantConfig = config
         self.api_client: SyncAPIClient = api_client
 
     def create_app(self, description: str, configuration_token: str) -> httpx.Response:
         """
-        Deploys the assistant to Slack.
+        Creates a Slack app for the assistant.
+
+        Example:
+        https://github.com/ion2088/firedust/blob/master/examples/deploy_to_slack.py
 
         Args:
-            config (SlackConfig): The Slack configuration.
+            description (str): A short description of the assistant.
+            configuration_token (str): The Slack configuration token.
 
         Returns:
             httpx.Response: The response from the API.
@@ -77,6 +51,9 @@ class SlackInterface:
     def set_tokens(self, app_token: str, bot_token: str) -> httpx.Response:
         """
         Sets the Slack tokens.
+
+        Example:
+        https://github.com/ion2088/firedust/blob/master/examples/deploy_to_slack.py
 
         Args:
             app_token (str): The Slack app token.
@@ -110,8 +87,8 @@ class SlackInterface:
         """
         Deploys the assistant to Slack.
 
-        Returns:
-            httpx.Response: The response from the API.
+        Example:
+        https://github.com/ion2088/firedust/blob/master/examples/deploy_to_slack.py
         """
         response = self.api_client.post(
             "/assistant/interface/slack/deploy",
@@ -126,10 +103,15 @@ class SlackInterface:
 
     def remove_deployment(self) -> httpx.Response:
         """
-        Removes the assistant from Slack.
+        Removes the assistant deployment from Slack.
 
-        Returns:
-            httpx.Response: The response from the API.
+        Example:
+        ```python
+        import firedust
+
+        assistant = firedust.assistant.load("ASSISTANT_NAME")
+        assistant.interface.slack.remove_deployment()
+        ```
         """
         response = self.api_client.put(
             f"/assistant/interface/slack/deploy?assistant={self.config.name}"
@@ -141,10 +123,18 @@ class SlackInterface:
 
     def delete_app(self, configuration_token: str) -> httpx.Response:
         """
-        Deletes the Slack interface.
+        Deletes the Slack app. Requires a configuration token from your Slack workspace.
 
-        Returns:
-            httpx.Response: The response from the API.
+        Example:
+        ```python
+        import firedust
+
+        assistant = firedust.assistant.load("ASSISTANT_NAME")
+        assistant.interface.slack.delete_app("SLACK_CONFIGURATION_TOKEN")
+        ```
+
+        Args:
+            configuration_token (str): The Slack configuration token.
         """
         response = self.api_client.delete(
             "/assistant/interface/slack",
@@ -164,41 +154,10 @@ class AsyncSlackInterface:
     Async Slack interface module for the Firedust assistant.
 
     Example:
-        import firedust
-        from firedust.interface import SlackTokens
-
-        assistant = firedust.assistant.load("ASSISTANT_NAME")
-
-        # Get your App Configuration Token from https://api.slack.com/apps
-        configuration_token="SLACK_CONFIGURATION_TOKEN"
-
-        # Create a Slack app for the assistant
-        description="A short description of the assistant."
-        assistant.interface.slack.create_app(slack_config)
-
-        # Install the app and set the Slack App and Bot tokens, you can find them here:
-        # https://api.slack.com/apps/<app_id>
-        # https://api.slack.com/apps/<app_id>/oauth
-        tokens = SlackTokens(
-            app_token="SLACK_APP_TOKEN",
-            bot_token="SLACK_BOT_TOKEN",
-        )
-        assistant.interface.slack.set_tokens(tokens)
-
-        # Deploy the assistant to Slack
-        assistant.interface.slack.deploy()
-
-        # Now you can interact with the assistant in your Slack workspace!
+    https://github.com/ion2088/firedust/blob/master/examples/deploy_to_slack_async.py
     """
 
     def __init__(self, config: AssistantConfig, api_client: AsyncAPIClient) -> None:
-        """
-        Initializes a new instance of the AsyncSlackInterface class.
-
-        Args:
-            config (AssistantConfig): The assistant configuration.
-            api_client (AsyncAPIClient): The API client.
-        """
         self.config: AssistantConfig = config
         self.api_client: AsyncAPIClient = api_client
 
@@ -206,13 +165,14 @@ class AsyncSlackInterface:
         self, description: str, configuration_token: str
     ) -> httpx.Response:
         """
-        Deploys the assistant to Slack.
+        Creates a Slack app for the assistant asynchronously.
+
+        Example:
+        https://github.com/ion2088/firedust/blob/master/examples/deploy_to_slack_async.py
 
         Args:
-            config (SlackConfig): The Slack configuration.
-
-        Returns:
-            httpx.Response: The response from the API.
+            description (str): A short description of the assistant.
+            configuration_token (str): The Slack configuration token.
         """
         response = await self.api_client.post(
             "/assistant/interface/slack",
@@ -233,11 +193,12 @@ class AsyncSlackInterface:
         """
         Sets the Slack tokens.
 
-        Args:
-            tokens (SlackTokens): App and bot tokens.
+        Example:
+        https://github.com/ion2088/firedust/blob/master/examples/deploy_to_slack_async.py
 
-        Returns:
-            httpx.Response: The response from the API.
+        Args:
+            app_token (str): The Slack app token.
+            bot_token (str): The Slack bot token.
         """
         if self.config.interfaces.slack is None:
             raise SlackError(
@@ -264,8 +225,8 @@ class AsyncSlackInterface:
         """
         Deploys the assistant to Slack.
 
-        Returns:
-            httpx.Response: The response from the API.
+        Example:
+        https://github.com/ion2088/firedust/blob/master/examples/deploy_to_slack_async.py
         """
         response = await self.api_client.put(
             f"/assistant/interface/slack/deploy?assistant={self.config.name}"
@@ -277,10 +238,18 @@ class AsyncSlackInterface:
 
     async def remove_deployment(self) -> httpx.Response:
         """
-        Removes the assistant from Slack.
+        Removes the assistant deployment from Slack.
 
-        Returns:
-            httpx.Response: The response from the API.
+        Example:
+        ```python
+        import firedust
+        import asyncio
+
+        async def main():
+            assistant = await firedust.assistant.load("ASSISTANT_NAME")
+            await assistant.interface.slack.remove_deployment()
+
+        asyncio.run(main())
         """
         response = await self.api_client.delete(
             "/assistant/interface/slack/deploy",
@@ -293,10 +262,18 @@ class AsyncSlackInterface:
 
     async def delete_app(self, configuration_token: str) -> httpx.Response:
         """
-        Deletes the Slack interface.
+        Deletes the Slack app. Requires a configuration token from your Slack workspace.
 
-        Returns:
-            httpx.Response: The response from the API.
+        Example:
+        ```python
+        import firedust
+        import asyncio
+
+        async def main():
+            assistant = await firedust.assistant.load("ASSISTANT_NAME")
+            await assistant.interface.slack.delete_app("SLACK_CONFIGURATION_TOKEN")
+
+        asyncio.run(main())
         """
         response = await self.api_client.delete(
             "/assistant/interface/slack",

@@ -1,32 +1,3 @@
-"""
-Memory module for the Firedust assistant. 
-
-Example:
-    import firedust
-
-    assistant = firedust.assistant.load("ASSISTANT_NAME")
-
-    # Recall existing memories based on a query
-    query = "Information about late deliveries over the past month."
-    memories = assistant.memory.recall(query)
-
-    # Add a new memory explicitly
-    new_memory = MemoryItem(title="Example of responding to late delivery queries", context="Dear customer,...")
-    assistant.memory.add(new_memory)
-
-    # For most use cases, use assistant.learn.fast to train the assistant and add memories.
-
-    # Remove an existing memory
-    assistant.memory.remove(memory_id)
-
-    # Attach a collection of memories to the assistant
-    # This makes it possible to share knowledge bases between assistants without the need to retrain them.
-    assistant.memory.collections.attach("COLLECTION_ID")
-
-    # Detach a collection of memories from the assistant
-    assistant.memory.collections.detach("COLLECTION_ID")
-"""
-
 from typing import Iterable, List
 from uuid import UUID
 
@@ -41,13 +12,6 @@ class Memory:
     """
 
     def __init__(self, config: AssistantConfig, api_client: SyncAPIClient) -> None:
-        """
-        Initializes a new instance of the Memory class.
-
-        Args:
-            config (AssistantConfig): The assistant configuration.
-            api_client (SyncAPIClient): The API client.
-        """
         self.config = config
         self.api_client = api_client
 
@@ -55,25 +19,22 @@ class Memory:
         """
         Recall memories based on a query.
 
+        Example:
+        ```python
+        import firedust
+
+        assistant = firedust.assistant.load("ASSISTANT_NAME")
+        memories = assistant.memory.recall("Information about late deliveries.")
+        ```
+
         Args:
             query (str): The query to search memories for.
             limit (int): The maximum number of memories to return.
+            offset (int): The offset to start from.
 
         Returns:
-            List[MemoryItem]: The list of memories that match the query.
-
-        Raises:
-            AttributeError: If the query or limit are invalid.
-            APIError: If the API request fails.
+            List[MemoryItem]: The list of memories that are related to the query.
         """
-
-        # Check if the query and limit are within the allowed limits
-        if limit > 500:
-            raise AttributeError("Recall limit cannot exceed 500.")
-        if len(query) > 1900:
-            raise AttributeError("Query exceeds maximum length of 1900 characters.")
-
-        # Fetch memories
         response = self.api_client.post(
             "/assistant/memory/recall",
             data={
@@ -88,6 +49,7 @@ class Memory:
                 code=response.status_code,
                 message=f"Failed to recall memories: {response.text}",
             )
+
         content = APIContent(**response.json())
         return [MemoryItem(**memory) for memory in content.data["memories"]]
 
@@ -95,14 +57,23 @@ class Memory:
         """
         Retrieve a list of memory items by their IDs.
 
+        Example:
+        ```python
+        import firedust
+
+        assistant = firedust.assistant.load("ASSISTANT_NAME")
+        response = assistant.chat.message("What are the latest sales figures?")
+
+        # Retrieve memories that the assistant used to answer the question
+        memory_ids = response.references.memories
+        memories = assistant.memory.get(memory_ids)
+        ```
+
         Args:
             memory_ids (List[UUID]): A list of memory IDs.
 
         Returns:
             List[MemoryItem]: A list of memory items.
-
-        Raises:
-            APIError: If the API request fails.
         """
         response = self.api_client.post(
             "/assistant/memory/list",
@@ -112,14 +83,29 @@ class Memory:
             },
         )
         if not response.is_success:
-            raise APIError(f"Failed to get memories: {response.text}")
+            raise APIError(
+                code=response.status_code,
+                message=f"Failed to get memories: {response.text}",
+            )
 
         content = APIContent(**response.json())
         return [MemoryItem(**memory) for memory in content.data["memories"]]
 
     def add(self, memories: List[MemoryItem]) -> None:
         """
-        Adds a new memory item to the assistant's default memory collection.
+        Add new memory items to the assistant's memory collection. It is useful for memory management,
+        for example, when selectively migrating some memories from one assistant to another.
+
+        Example:
+        ```python
+        import firedust
+
+        assistant1 = firedust.assistant.load("ASSISTANT_NAME1")
+        assistant2 = firedust.assistant.load("ASSISTANT_NAME2")
+
+        memories = assistant1.memory.recall("User feedback")
+        assistant2.memory.add(memories)
+        ```
 
         Args:
             memories (List[MemoryItem]): The list of memory items to add.
@@ -132,11 +118,24 @@ class Memory:
             },
         )
         if not response.is_success:
-            raise APIError(f"Failed to add memory: {response.text}")
+            raise APIError(
+                code=response.status_code,
+                message=f"Failed to add memories: {response.text}",
+            )
 
     def delete(self, memory_ids: List[UUID]) -> None:
         """
-        Removes memories from the assistant's default memory collection.
+        Removes memories from the assistant's memory. It is useful for memory management,
+        for example, when selectively removing memories from an assistant.
+
+        Example:
+        ```python
+        import firedust
+
+        assistant = firedust.assistant.load("ASSISTANT_NAME")
+        memory_ids = assistant.memory.recall("User feedback")
+        assistant.memory.delete(memory_ids)
+        ```
 
         Args:
             memory_ids (List[UUID]): The list of memory IDs to remove.
@@ -149,7 +148,10 @@ class Memory:
             },
         )
         if not response.is_success:
-            raise APIError(f"Failed to remove memory: {response.text}")
+            raise APIError(
+                code=response.status_code,
+                message=f"Failed to remove memory: {response.text}",
+            )
 
     def list(self, limit: int = 100, offset: int = 0) -> List[UUID]:
         """
@@ -162,16 +164,28 @@ class Memory:
             "/assistant/memory/list",
             params={"assistant": self.config.name, "limit": limit, "offset": offset},
         )
-
         if not response.is_success:
-            raise APIError(f"Failed to list memories: {response.text}")
+            raise APIError(
+                code=response.status_code,
+                message=f"Failed to list memories: {response.text}",
+            )
 
         content = APIContent(**response.json())
         return [UUID(memory_id) for memory_id in content.data["memory_ids"]]
 
     def attach_memories(self, assistant: str) -> None:
         """
-        Attach a collection of memories from another assistant.
+        Attach a collection of memories from another assistant. It shares the memories of an
+        assistant, making them available to be used as context for the current assistant.
+
+        Example:
+        ```python
+        import firedust
+
+        assistant_donor = "ASSISTANT_NAME1"
+        assistant_receiver = firedust.assistant.load("ASSISTANT_NAME2")
+        assistant_receiver.memory.attach_memories(assistant_donor)
+        ```
 
         Args:
             assistant (str): The name of the assistant whose memories to attach.
@@ -187,13 +201,24 @@ class Memory:
             },
         )
         if not response.is_success:
-            raise APIError(f"Failed to attach collection: {response.text}")
-
+            raise APIError(
+                code=response.status_code,
+                message=f"Failed to attach collection: {response.text}",
+            )
         self.config.attached_memories.append(assistant)
 
     def detach_memories(self, assistant: str) -> None:
         """
         Detach a collection of memories that belongs to another assistant.
+
+        Example:
+        ```python
+        import firedust
+
+        assistant_donor = "ASSISTANT_NAME1"
+        assistant_receiver = firedust.assistant.load("ASSISTANT_NAME2")
+        assistant_receiver.memory.detach_memories(assistant_donor)
+        ```
 
         Args:
             assistant (str): The name of the assistant whose memories to detach.
@@ -210,15 +235,46 @@ class Memory:
             },
         )
         if not response.is_success:
-            raise APIError(f"Failed to detach collection: {response.text}")
+            raise APIError(
+                code=response.status_code,
+                message=f"Failed to detach collection: {response.text}",
+            )
 
         attached_memories.remove(assistant)
 
     def add_chat_history(self, messages: Iterable[Message]) -> None:
         """
-        Adds a chat message history to the assistant's memory. To ensure privacy
-        between users, the Messages will be available as context only if prompted
-        by the same user id. MemoryItems on the other hand are available to all users.
+        Adds a chat message history to the assistant's memory. It helps the assistant
+        learn from past conversations to improve the quality of responses.
+
+        Example:
+        ```python
+        import firedust
+        from firedust.types import Message
+
+        assistant = firedust.assistant.load("ASSISTANT_NAME")
+
+        message1 = Message(
+            assistant="ASSISTANT_NAME",
+            user="product_team",
+            message="John: Based on the last discussion, we've made the following changes to the product...",
+            author="user",
+        )
+        message2 = Message(
+            assistant="ASSISTANT_NAME",
+            user="product_team",
+            message="Helen: John, could you please share the updated product roadmap?",
+            author="user",
+        )
+        message3 = Message(
+            assistant="ASSISTANT_NAME",
+            user="product_team",
+            message="John: Sure, the new roadmap is the following...",
+            author="user",
+        )
+
+        assistant.memory.add_chat_history([message1, message2, message3])
+        ```
 
         Args:
             messages (Iterable[Message]): The chat messages.
@@ -231,18 +287,30 @@ class Memory:
             },
         )
         if not response.is_success:
-            raise APIError(f"Failed to teach the assistant: {response.text}")
+            raise APIError(
+                code=response.status_code,
+                message=f"Failed to add chat history: {response.text}",
+            )
 
-    def erase_chat_history(self, user: str) -> str:
+    def erase_chat_history(self, user: str, confirm: bool = False) -> None:
         """
-        Erase the chat history of a user from the assistant's memory.
+        Irreversebly delete the chat history of a user from the assistant's memory.
+
+        Example:
+        ```python
+        import firedust
+
+        assistant = firedust.assistant.load("ASSISTANT_NAME")
+        assistant.memory.erase_chat_history(user="product_team", confirm=True)
+        ```
 
         Args:
             user (str): The unique identifier of the user.
-
-        Returns:
-            str: The response from the API.
+            confirm (bool): Confirm the deletion. Defaults to False.
         """
+        if confirm is False:
+            raise ValueError("Please confirm the deletion by setting confirm=True")
+
         response = self.api_client.delete(
             "/assistant/memory/chat_history",
             params={
@@ -251,24 +319,18 @@ class Memory:
             },
         )
         if not response.is_success:
-            raise APIError(f"Failed to erase chat history: {response.text}")
-
-        return response.text
+            raise APIError(
+                code=response.status_code,
+                message=f"Failed to erase chat history: {response.text}",
+            )
 
 
 class AsyncMemory:
     """
-    A collection of methods to interact with the assistant's memory asynchronously.
+    A collection of asynchronous methods to interact with the assistant's memory asynchronously.
     """
 
     def __init__(self, config: AssistantConfig, api_client: AsyncAPIClient) -> None:
-        """
-        Initializes a new instance of the AsyncMemory class.
-
-        Args:
-            config (AssistantConfig): The assistant configuration.
-            api_client (ASyncAPIClient): The API client.
-        """
         self.config = config
         self.api_client = api_client
 
@@ -276,26 +338,28 @@ class AsyncMemory:
         self, query: str, limit: int = 50, offset: int = 0
     ) -> List[MemoryItem]:
         """
-        Recall memories based on a query.
+        Recall memories based on a query, asynchronously.
+
+        Example:
+        ```python
+        import firedust
+        import asyncio
+
+        async def main():
+            assistant = await firedust.async_load("ASSISTANT_NAME")
+            memories = await assistant.memory.recall("Information about late deliveries.")
+
+        asyncio.run(main())
+        ```
 
         Args:
             query (str): The query to search memories for.
             limit (int): The maximum number of memories to return.
+            offset (int): The offset to start from.
 
         Returns:
-            List[MemoryItem]: The list of memories that match the query.
-
-        Raises:
-            AttributeError: If the query or limit are invalid.
-            APIError: If the API request fails.
+            List[MemoryItem]: The list of memories that are related to the query.
         """
-        # Check if the query and limit are within the allowed limits
-        if limit > 500:
-            raise AttributeError("Recall limit cannot exceed 500.")
-        if len(query) > 1900:
-            raise AttributeError("Query exceeds maximum length of 1900 characters.")
-
-        # Fetch memories
         response = await self.api_client.post(
             "/assistant/memory/recall",
             data={
@@ -310,21 +374,35 @@ class AsyncMemory:
                 code=response.status_code,
                 message=f"Failed to recall memories: {response.text}",
             )
+
         content = APIContent(**response.json())
         return [MemoryItem(**memory) for memory in content.data["memories"]]
 
     async def get(self, memory_ids: List[UUID]) -> List[MemoryItem]:
         """
-        Retrieve a list of memory items by their IDs.
+        Retrieve a list of memory items by their IDs, asynchronously. It is used for memory management.
+
+        Example:
+        ```python
+        import firedust
+        import asyncio
+
+        async def main():
+            assistant = await firedust.async_load("ASSISTANT_NAME")
+            response = await assistant.chat.message("What are the latest sales figures?")
+
+            # Retrieve memories that the assistant used to answer the question
+            memory_ids = response.references.memories
+            memories = await assistant.memory.get(memory_ids)
+
+        asyncio.run(main())
+        ```
 
         Args:
             memory_ids (List[UUID]): A list of memory IDs.
 
         Returns:
             List[MemoryItem]: A list of memory items.
-
-        Raises:
-            APIError: If the API request fails.
         """
         response = await self.api_client.post(
             "/assistant/memory/list",
@@ -334,14 +412,33 @@ class AsyncMemory:
             },
         )
         if not response.is_success:
-            raise APIError(f"Failed to get memories: {response.text}")
+            raise APIError(
+                code=response.status_code,
+                message=f"Failed to get memories: {response.text}",
+            )
 
         content = APIContent(**response.json())
         return [MemoryItem(**memory) for memory in content.data["memories"]]
 
     async def add(self, memories: List[MemoryItem]) -> None:
         """
-        Adds a new memory item to the assistant's default memory collection.
+        Adds new memory items to the assistant's memory collection, asynchronously. It is useful for memory management.
+        For example, when selectively migrating some memories from one assistant to another.
+
+        Example:
+        ```python
+        import firedust
+        import asyncio
+
+        async def main():
+            assistant1 = await firedust.async_load("ASSISTANT_NAME1")
+            assistant2 = await firedust.async_load("ASSISTANT_NAME2")
+
+            memories = await assistant1.memory.recall("User feedback")
+            await assistant2.memory.add(memories)
+
+        asyncio.run(main())
+        ```
 
         Args:
             memories (List[MemoryItem]): The list of memory items to add.
@@ -354,11 +451,28 @@ class AsyncMemory:
             },
         )
         if not response.is_success:
-            raise APIError(f"Failed to add memory: {response.text}")
+            raise APIError(
+                code=response.status_code,
+                message=f"Failed to add memories: {response.text}",
+            )
 
     async def delete(self, memory_ids: List[UUID]) -> None:
         """
-        Removes memories from the assistant's default memory collection.
+        Removes memories from the assistant's default memory collection, async. It is useful for memory management,
+        for example, when selectively removing memories from an assistant.
+
+        Example:
+        ```python
+        import firedust
+        import asyncio
+
+        async def main():
+            assistant = await firedust.async_load("ASSISTANT_NAME")
+            memory_ids = await assistant.memory.list(limit=10)
+            await assistant.memory.delete(memory_ids)
+
+        asyncio.run(main())
+        ```
 
         Args:
             memory_ids (List[UUID]): The list of memory IDs to remove.
@@ -371,7 +485,10 @@ class AsyncMemory:
             },
         )
         if not response.is_success:
-            raise APIError(f"Failed to remove memory: {response.text}")
+            raise APIError(
+                code=response.status_code,
+                message=f"Failed to delete memories: {response.text}",
+            )
 
     async def list(self, limit: int = 100, offset: int = 0) -> List[UUID]:
         """
@@ -386,14 +503,30 @@ class AsyncMemory:
         )
 
         if not response.is_success:
-            raise APIError(f"Failed to list memories: {response.text}")
+            raise APIError(
+                code=response.status_code,
+                message=f"Failed to list memories: {response.text}",
+            )
 
         content = APIContent(**response.json())
         return [UUID(memory_id) for memory_id in content.data["memory_ids"]]
 
     async def attach_memories(self, assistant: str) -> None:
         """
-        Attach a collection of memories from another assistant.
+        Attach a collection of memories from another assistant, asynchronously. It makes the memories
+
+        Example:
+        ```python
+        import firedust
+        import asyncio
+
+        async def main():
+            assistant_donor = "ASSISTANT_NAME1"
+            assistant_receiver = await firedust.async_load("ASSISTANT_NAME2")
+            await assistant_receiver.memory.attach_memories(assistant_donor)
+
+        asyncio.run(main())
+        ```
 
         Args:
             assistant (str): The name of the assistant whose memories to attach.
@@ -409,13 +542,28 @@ class AsyncMemory:
             },
         )
         if not response.is_success:
-            raise APIError(f"Failed to attach collection: {response.text}")
-
+            raise APIError(
+                code=response.status_code,
+                message=f"Failed to attach collection: {response.text}",
+            )
         self.config.attached_memories.append(assistant)
 
     async def detach_memories(self, assistant: str) -> None:
         """
-        Detach a collection of memories that belongs to another assistant.
+        Detach a collection of memories that belongs to another assistant, asynchronously.
+
+        Example:
+        ```python
+        import firedust
+        import asyncio
+
+        async def main():
+            assistant_donor = "ASSISTANT_NAME1"
+            assistant_receiver = await firedust.async_load("ASSISTANT_NAME2")
+            await assistant_receiver.memory.detach_memories(assistant_donor)
+
+        asyncio.run(main())
+        ```
 
         Args:
             assistant (str): The name of the assistant whose memories to detach.
@@ -432,15 +580,48 @@ class AsyncMemory:
             },
         )
         if not response.is_success:
-            raise APIError(f"Failed to detach collection: {response.text}")
-
+            raise APIError(
+                code=response.status_code,
+                message=f"Failed to detach collection: {response.text}",
+            )
         attached_memories.remove(assistant)
 
     async def add_chat_history(self, messages: Iterable[Message]) -> None:
         """
-        Adds a chat message history to the assistant's memory. To ensure privacy
-        between users, the Messages will be available as context only if prompted
-        by the same user id. MemoryItems on the other hand are available to all users.
+        Adds a chat message history to the assistant's memory, asynchronously. It helps the assistant
+        learn from past conversations to improve the quality of responses.
+
+        Example:
+        ```python
+        import firedust
+        import asyncio
+
+        async def main():
+            assistant = await firedust.async_load("ASSISTANT_NAME")
+
+            message1 = Message(
+                assistant="ASSISTANT_NAME",
+                user="product_team",
+                message="John: Based on the last discussion, we've made the following changes to the product...",
+                author="user",
+            )
+            message2 = Message(
+                assistant="ASSISTANT_NAME",
+                user="product_team",
+                message="Helen: John, could you please share the updated product roadmap?",
+                author="user",
+            )
+            message3 = Message(
+                assistant="ASSISTANT_NAME",
+                user="product_team",
+                message="John: Sure, the new roadmap is the following...",
+                author="user",
+            )
+
+            await assistant.memory.add_chat_history([message1, message2, message3])
+
+        asyncio.run(main())
+        ```
 
         Args:
             messages (Iterable[Message]): The chat messages.
@@ -453,18 +634,34 @@ class AsyncMemory:
             },
         )
         if not response.is_success:
-            raise APIError(f"Failed to teach the assistant: {response.text}")
+            raise APIError(
+                code=response.status_code,
+                message=f"Failed to add chat history: {response.text}",
+            )
 
-    async def erase_chat_history(self, user: str) -> str:
+    async def erase_chat_history(self, user: str, confirm: bool = False) -> None:
         """
-        Erase the chat history of a user from the assistant's memory.
+        Irreversebly delete the chat history of a user from the assistant's memory, asynchronously.
+
+        Example:
+        ```python
+        import firedust
+        import asyncio
+
+        async def main():
+            assistant = await firedust.async_load("ASSISTANT_NAME")
+            await assistant.memory.erase_chat_history(user="product_team", confirm=True)
+
+        asyncio.run(main())
+        ```
 
         Args:
             user (str): The unique identifier of the user.
-
-        Returns:
-            str: The response from the API.
+            confirm (bool): Confirm the deletion. Defaults to False.
         """
+        if confirm is False:
+            raise ValueError("Please confirm the deletion by setting confirm=True")
+
         response = await self.api_client.delete(
             "/assistant/memory/chat_history",
             params={
@@ -473,6 +670,7 @@ class AsyncMemory:
             },
         )
         if not response.is_success:
-            raise APIError(f"Failed to erase chat history: {response.text}")
-
-        return response.text
+            raise APIError(
+                code=response.status_code,
+                message=f"Failed to erase chat history: {response.text}",
+            )

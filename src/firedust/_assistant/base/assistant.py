@@ -1,5 +1,14 @@
 """
-To interact with Assistant and AsyncAssistant classes, use the modules in firedust.assistant.*.
+This is a private file. To interact with Assistant and AsyncAssistant classes, use the modules in firedust.assistant.*.
+
+Example:
+```python
+import firedust
+
+assistant = firedust.assistant.create("ASSISTANT_NAME")
+response = assistant.chat.message("Hello, how are you?")
+print(response.message)
+```
 """
 
 from firedust._assistant.chat.base import AsyncChat, Chat
@@ -15,18 +24,30 @@ from firedust.utils.logging import LOG
 
 class Assistant:
     """
-    The Assistant class is the main entry point for interacting with Firedust.
-    It is used to create, load, train, deploy and interact with an AI assistant.
+    The main class to interact with firedust AI assistants. The class doesn't support direct
+    instantiation. To create a new assistant, load an existing one or update it, use the methods
+    firedust.assistant.create, firedust.assistant.load, and assistant.update.*.
+
+    Example:
+    ```python
+    import firedust
+
+    assistant = firedust.assistant.create("ASSISTANT_NAME")
+    response = assistant.chat.message("Hello, how are you?")
+    print(response.message)
+
+    assistant = firedust.assistant.load("ASSISTANT_NAME")
+    assistant.update.instructions("1. Protect the ring bearer. 2. Do not let the ring corrupt you.")
+    ```
 
     Attributes:
         config (AssistantConfig): The assistant configuration.
         api_client (SyncAPIClient): The API client.
         update (Update): Methods to update the configuration of the assistant.
         interface (Interface): Deploy and interact with the assistant on Slack, email, Discord and other interfaces.
-        learn (Learning): Methods to train the assistant on your data.
+        learn (Learning): Methods to add your data to the assistant's knowledge.
         chat (Chat): Methods to chat with the assistant.
         memory (Memory): Methods to interact with the assistant's memory.
-        ability (Ability): Methods to manage and interact with the assistant's abilities.
 
     Private Attributes:
         _allow_instantiation (bool): A private attribute to discourage direct instantiation of the Assistant class.
@@ -41,29 +62,29 @@ class Assistant:
     _chat: Chat
     _memory: Memory
 
-    # assistant should be instantiated using the create and load classmethods
+    # assistant should be started with firedust.assistant.create or .load methods
     _allow_instantiation: bool = False
 
     def __init__(
         self, config: AssistantConfig, api_client: SyncAPIClient | None = None
     ) -> None:
-        """
-        Initializes a new instance of the Assistant class.
-
-        To create or load an assistant, use the following methods:
-        TODO: Add link to github example code.
-
-        Args:
-            config (AssistantConfig, optional): The assistant configuration. Defaults to DEFAULT_CONFIG.
-            api_client (SyncAPIClient, optional): The API client. Defaults to None.
-        """
-
         # prevent direct instantiation
+        # use firedust.assistant.create or .load methods
         if not self._allow_instantiation:
             raise AssistantError(
                 """
-                To load an assistant or create a new one, use the following methods:
-                TODO: Add link to github example code.
+                To load an assistant or create a new one use firedust.assitant.create or .load methods.
+                
+                Example:
+                ```python
+                import firedust
+
+                assistant = firedust.assistant.create("ASSISTANT_NAME")
+                # or
+                assistant = firedust.assistant.load("ASSISTANT_NAME")
+
+                response = assistant.chat.message("Hello, how are you?")
+                print(response.message)
                 """
             )
 
@@ -84,16 +105,24 @@ class Assistant:
         """
         Raise a custom error when trying to set an attribute directly.
         To update the assistant, use the methods assistant.update.* or create a new one.
+
+        Example:
+        ```python
+        import firedust
+
+        assistant = firedust.assistant.load("ASSISTANT_NAME")
+        # or
+        assistant = firedust.assistant.create("ASSISTANT_NAME")
+
+        assistant.update.instructions("1. Protect the ring bearer. 2. Do not let the ring corrupt you.")
+        assistant.update.model("mistral/mistral-medium")
+        ```
         """
         if not key.startswith("_"):
             self._raise_setter_error(key)
         return super().__setattr__(key, value)
 
     def __repr__(self) -> str:
-        """
-        Provides a developer-friendly string representation of the Assistant instance.
-        Includes all attributes for easy inspection and debugging.
-        """
         return (
             "Assistant("
             f"name={self.config.name!r}, "
@@ -103,11 +132,11 @@ class Assistant:
         )
 
     def __str__(self) -> str:
-        """
-        Provides a user-friendly string representation of the Assistant instance.
-        Gives an overview with just the assistant's name and ID.
-        """
-        return f"Assistant {self.config.name}"
+        return (
+            f"assistant: {self.config.name}, "
+            f"model: {self.config.model}, "
+            f"instructions: {self.config.instructions}"
+        )
 
     @property
     def config(self) -> AssistantConfig:
@@ -142,8 +171,16 @@ class Assistant:
         cls, config: AssistantConfig, api_client: SyncAPIClient
     ) -> "Assistant":
         """
-        Reserved for internal use only with the create and load methods.
-        Creates a new instance of the Assistant class.
+        Reserved for internal use only. To create an assistant use firedust.assistant.create method
+
+        Example:
+        ```python
+        import firedust
+
+        assistant = firedust.assistant.create("ASSISTANT_NAME")
+        response = assistant.chat.message("Hello, how are you?")
+        print(response.message)
+        ```
 
         Args:
             config (AssistantConfig): The assistant configuration.
@@ -161,31 +198,46 @@ class Assistant:
     def _raise_setter_error(attribute: str) -> None:
         raise AttributeError(
             f"""
-                Unable to set attribute '{attribute}'. Assistant class is immutable and doesn't support direct attribute assignment.\n
-                To update assistant, use assistant.update.* methods or create a new assistant with the desired configuration following the example below:\n\n
+                Unable to set attribute '{attribute}'. Assistant class is immutable and doesn't support direct attribute assignment.
+                To update assistant, use assistant.update.* methods or create a new assistant.
                 
-                TODO: Add link to github example code.
+                Example:
+                ```python
+                import firedust
+
+                assistant = firedust.assistant.load("ASSISTANT_NAME")
+                assistant.update.instructions("1. Protect the ring bearer. 2. Do not let the ring corrupt you.")
+                assistant.update.model("mistral/mistral-medium")
+                ```
             """
         )
 
     def delete(
         self,
-        api_client: SyncAPIClient | None = None,
         confirm: bool = False,
     ) -> None:
         """
-        Deletes an existing assistant with the specified ID.
+        Delete the assistant irreversibly.
+
+        Example:
+        ```python
+        import firedust
+
+        assistant = firedust.assistant.load("ASSISTANT_NAME")
+        assistant.delete(confirm=True)
+        ```
 
         Args:
-            api_client (SyncAPIClient, optional): The API client. Defaults to None.
+            confirm (bool, optional): Confirm the deletion of the assistant. Defaults to False.
         """
         if not confirm:
             raise AssistantError(
                 "Assistant and all its memories will be permanently deleted. To confirm, set confirm=True."
             )
 
-        api_client = api_client or SyncAPIClient()
-        response = api_client.delete("/assistant", params={"name": self.config.name})
+        response = self.api_client.delete(
+            "/assistant", params={"name": self.config.name}
+        )
         if not response.is_success:
             raise APIError(
                 code=response.status_code,
@@ -196,22 +248,23 @@ class Assistant:
 
 class _Update:
     """
-    A collection of methods to update the configuration of the assistant.
+    A collection of methods to update an existing assistant.
 
-    To update the assistant, you can use the following methods:
-        assistant.update.name("Sam")
-        assistant.update.instructions("You are a helpful assistant..."])
-        assistant.update.inference_config(new_config)
+    Example:
+    ```python
+    import firedust
+
+    assistant = firedust.assistant.load("ASSISTANT_NAME")
+
+    new_instructions = "1. Protect the ring bearer. 2. Do not let the ring corrupt you."
+    new_model = "mistral/mistral-medium"
+
+    assistant.update.instructions(new_instructions)
+    assistant.update.model(new_model)
+    ```
     """
 
     def __init__(self, config: AssistantConfig, api_client: SyncAPIClient) -> None:
-        """
-        Initializes a new instance of the Update class.
-
-        Args:
-            config (AssistantConfig): The assistant configuration.
-            api_client (SyncAPIClient): The API client.
-        """
         self.assistant = config
         self.api_client = api_client
 
@@ -219,8 +272,18 @@ class _Update:
         """
         Updates the instructions of the assistant.
 
+        Example:
+        ```python
+        import firedust
+
+        assistant = firedust.assistant.load("ASSISTANT_NAME")
+
+        new_instructions = "1. Protect the ring bearer. 2. Do not let the ring corrupt you."
+        assistant.update.instructions(new_instructions)
+        ```
+
         Args:
-            instructions (List[str]): The new instructions of the assistant.
+            instructions (str): The new instructions for the assistant.
         """
         response = self.api_client.put(
             "/assistant/instructions",
@@ -243,6 +306,14 @@ class _Update:
     def model(self, new_model: INFERENCE_MODEL) -> None:
         """
         Updates the inference model of the assistant.
+
+        Example:
+        ```python
+        import firedust
+
+        assistant = firedust.assistant.load("ASSISTANT_NAME")
+        assistant.update.model("mistral/mistral-medium")
+        ```
 
         Args:
             new_model (INFERENCE_MODEL): The new inference model.
@@ -268,17 +339,31 @@ class _Update:
 
 class AsyncAssistant:
     """
-    The AsyncAssistant class is the main entry point for interacting with Firedust asynchronously.
-    It is used to create, load, train, deploy and interact with an AI assistant.
+    The main class to interact with firedust AI assistants asynchronously. The class doesn't support direct
+    instantiation. To create a new assistant, load an existing one or update it, use the methods
+    firedust.assistant.async_create, firedust.assistant.async_load, and assistant.update.*.
+
+    Example:
+    ```python
+    import firedust
+    import asyncio
+
+    async def main():
+        assistant = await firedust.assistant.async_load("ASSISTANT_NAME")
+        response = await assistant.chat.message("Hello, how are you?")
+        print(response.message)
+
+    asyncio.run(main())
+    ```
 
     Attributes:
         config (AssistantConfig): The assistant configuration.
         api_client (AsyncAPIClient): The API client.
-        update (Update): Methods to update the configuration of the assistant.
-        interface (Interface): Deploy and interact with the assistant on Slack, email, Discord and other interfaces.
-        learn (Learning): Methods to train the assistant on your data.
-        chat (Chat): Methods to chat with the assistant.
-        memory (Memory): Methods to interact with the assistant's memory.
+        update (_AsyncUpdate): Methods to update the configuration of the assistant.
+        interface (AsyncInterface): Deploy and interact with the assistant on Slack, email, Discord and other interfaces.
+        learn (AsyncLearning): Methods to train the assistant on your data.
+        chat (AsyncChat): Methods to chat with the assistant.
+        memory (AsyncMemory): Methods to interact with the assistant's memory.
 
     Private Attributes:
         _allow_instantiation (bool): A private attribute to discourage direct instantiation of the AsyncAssistant class.
@@ -299,23 +384,26 @@ class AsyncAssistant:
     def __init__(
         self, config: AssistantConfig, api_client: AsyncAPIClient | None = None
     ) -> None:
-        """
-        Initializes a new instance of the AsyncAssistant class.
-
-        To create or load an assistant, use the following methods:
-        TODO: Add link to github example code.
-
-        Args:
-            config (AssistantConfig, optional): The assistant configuration. Defaults to DEFAULT_CONFIG.
-            api_client (AsyncAPIClient, optional): The API client. Defaults to None.
-        """
-
         # prevent direct instantiation
         if not self._allow_instantiation:
             raise AssistantError(
                 """
-                To load an assistant or create a new one, use the following methods:
-                TODO: Add link to github example code.
+                To load an assistant or create a new one use firedust.assitant.async_create or .async_load methods.
+                
+                Example:
+                ```python
+                import firedust
+                import asyncio
+
+                async def main():
+                    assistant = await firedust.assistant.async_load("ASSISTANT_NAME")
+                    # or
+                    assistant = await firedust.assistant.async_create("ASSISTANT_NAME")
+                    
+                    response = await assistant.chat.message("Hello, how are you?")
+                    print(response.message)
+
+                asyncio.run(main())
                 """
             )
 
@@ -336,16 +424,28 @@ class AsyncAssistant:
         """
         Raise a custom error when trying to set an attribute directly.
         To update the assistant, use the methods assistant.update.* or create a new one.
+
+        Example:
+        ```python
+        import firedust
+        import asyncio
+
+        async def main():
+            assistant = await firedust.assistant.async_load("ASSISTANT_NAME")
+            # or
+            assistant = await firedust.assistant.async_create("ASSISTANT_NAME")
+
+            await assistant.update.instructions("1. Protect the ring bearer. 2. Do not let the ring corrupt you.")
+            await assistant.update.model("mistral/mistral-medium")
+
+        asyncio.run(main())
+        ```
         """
         if not key.startswith("_"):
             self._raise_setter_error(key)
         return super().__setattr__(key, value)
 
     def __repr__(self) -> str:
-        """
-        Provides a developer-friendly string representation of the AsyncAssistant instance.
-        Includes all attributes for easy inspection and debugging.
-        """
         return (
             "AsyncAssistant("
             f"name={self.config.name!r}, "
@@ -355,11 +455,11 @@ class AsyncAssistant:
         )
 
     def __str__(self) -> str:
-        """
-        Provides a user-friendly string representation of the AsyncAssistant instance.
-        Gives an overview with just the assistant's name and ID.
-        """
-        return f"AsyncAssistant {self.config.name}"
+        return (
+            f"assistant: {self.config.name}, "
+            f"model: {self.config.model}, "
+            f"instructions: {self.config.instructions}"
+        )
 
     @property
     def config(self) -> AssistantConfig:
@@ -394,9 +494,20 @@ class AsyncAssistant:
         cls, config: AssistantConfig, api_client: AsyncAPIClient
     ) -> "AsyncAssistant":
         """
-        Reserved for internal use only with the create and load methods.
-        Creates a new instance of the AsyncAssistant class.
+        Reserved for internal use only. To create an assistant use firedust.assistant.async_create method.
 
+        Example:
+        ```python
+        import firedust
+        import asyncio
+
+        async def main():
+            assistant = await firedust.assistant.async_create("ASSISTANT_NAME")
+            response = await assistant.chat.message("Hello, how are you?")
+            print(response.message)
+
+        asyncio.run(main())
+        ```
         Args:
             config (AssistantConfig): The assistant configuration.
             api_client (AsyncAPIClient): The API client.
@@ -413,31 +524,54 @@ class AsyncAssistant:
     def _raise_setter_error(attribute: str) -> None:
         raise AttributeError(
             f"""
-                Unable to set attribute '{attribute}'. AsyncAssistant class is immutable and doesn't support direct attribute assignment.\n
-                To update assistant, use assistant.update.* methods or create a new assistant with the desired configuration following the example below:\n\n
-                
-                TODO: Add link to github example code.
+                Unable to set attribute '{attribute}'. AsyncAssistant class is immutable and doesn't support direct attribute assignment.
+                To update assistant, use assistant.update.* methods or create a new assistant.
+
+                Example:
+                ```python
+                import firedust
+                import asyncio
+
+                async def main():
+                    assistant = await firedust.assistant.async_load("ASSISTANT_NAME")
+                    # or
+                    assistant = await firedust.assistant.async_create("ASSISTANT_NAME")
+
+                    await assistant.update.instructions("1. Protect the ring bearer. 2. Do not let the ring corrupt you.")
+                    await assistant.update.model("mistral/mistral-medium")
+
+                asyncio.run(main())
             """
         )
 
     async def delete(
         self,
-        api_client: AsyncAPIClient | None = None,
         confirm: bool = False,
     ) -> None:
         """
-        Deletes an existing assistant with the specified ID.
+        Deletes an existing assistant irreversibly.
+
+        Example:
+        ```python
+        import firedust
+        import asyncio
+
+        async def main():
+            assistant = await firedust.assistant.async_load("ASSISTANT_NAME")
+            await assistant.delete(confirm=True)
+
+        asyncio.run(main())
+        ```
 
         Args:
-            api_client (AsyncAPIClient, optional): The API client. Defaults to None.
+            confirm (bool, optional): Confirm the deletion of the assistant. Defaults to False.
         """
         if not confirm:
             raise AssistantError(
-                "Assistant and all its memories will be permanently deleted. To confirm, set confirm=True."
+                f"Assistant {self.config.name} and all its memories will be permanently deleted. To confirm, set confirm=True."
             )
 
-        api_client = api_client or self._api_client
-        response = await api_client.delete(
+        response = await self.api_client.delete(
             "/assistant", params={"name": self.config.name}
         )
         if not response.is_success:
@@ -450,22 +584,27 @@ class AsyncAssistant:
 
 class _AsyncUpdate:
     """
-    A collection of methods to update the configuration of the assistant.
+    A collection of methods to update an existing assistant asynchronously.
 
-    To update the assistant, you can use the following methods:
-        assistant.update.name("Sam")
-        assistant.update.instructions("You are a helpful assistant..."])
-        assistant.update.inference_config(new_config)
+    Example:
+    ```python
+    import firedust
+    import asyncio
+
+    async def main():
+        assistant = await firedust.assistant.async_load("ASSISTANT_NAME")
+
+        new_instructions = "1. Protect the ring bearer. 2. Do not let the ring corrupt you."
+        new_model = "mistral/mistral-medium"
+
+        await assistant.update.instructions(new_instructions)
+        await assistant.update.model(new_model)
+
+    asyncio.run(main())
+    ```
     """
 
     def __init__(self, config: AssistantConfig, api_client: AsyncAPIClient) -> None:
-        """
-        Initializes a new instance of the Update class.
-
-        Args:
-            config (AssistantConfig): The assistant configuration.
-            api_client (AsyncAPIClient): The API client.
-        """
         self.assistant = config
         self.api_client = api_client
 
@@ -473,8 +612,22 @@ class _AsyncUpdate:
         """
         Updates the instructions of the assistant.
 
+        Example:
+        ```python
+        import firedust
+        import asyncio
+
+        async def main():
+            assistant = await firedust.assistant.async_load("ASSISTANT_NAME")
+
+            new_instructions = "1. Protect the ring bearer. 2. Do not let the ring corrupt you."
+            await assistant.update.instructions(new_instructions)
+
+        asyncio.run(main())
+        ```
+
         Args:
-            instructions (List[str]): The new instructions of the assistant.
+            instructions (str): The new instructions of the assistant.
         """
         response = await self.api_client.put(
             "/assistant/instructions",
@@ -497,6 +650,18 @@ class _AsyncUpdate:
     async def model(self, new_model: INFERENCE_MODEL) -> None:
         """
         Updates the inference model of the assistant.
+
+        Example:
+        ```python
+        import firedust
+        import asyncio
+
+        async def main():
+            assistant = await firedust.assistant.async_load("ASSISTANT_NAME")
+            await assistant.update.model("mistral/mistral-medium")
+
+        asyncio.run(main())
+        ```
 
         Args:
             new_model (INFERENCE_MODEL): The new inference model.

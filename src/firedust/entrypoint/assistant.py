@@ -1,40 +1,41 @@
 """
-firedust.assistant
-~~~~~~~~~~~~~~~~~~
+The main entry point to create, load, and list your AI assistants.
 
-The main entry point.
-This module implements the Assistant class and its related functions.
-
-Quickstart:
+Example:
     ```python
-    import os
-    from firedust.assistant import Assistant
+    import firedust
 
-    # Set your key
-    os.environ["FIREDUST_API_KEY"] = "your_api_key"
+    # create a new assistant and interact with it
+    assistant = firedust.assistant.create(
+        name="Sam",
+        instructions="1. Protect the ring bearer. 2. Do not let the ring corrupt you.",
+    )
+    response = assistant.chat.message("What is the shortest way to Mordor?")
+    print(response.message)
 
-    # Create a new assistant with a default configuration
-    assistant = firedust.assistant.create()
+    # stream messages
+    for event in assistant.chat.stream("What is the shortest way to Mordor?"):
+        print(event.message)
 
-    # Train the assistant on your data
-    documents = [
-        "Book of the Dead...",
-        "Book of the Living...",
-        "Customer support examples..."
+    # add your data to the assistant's memory
+    important_data = [
+        "Do not trust Smeagol.",
+        "The ring is evil, it must be destroyed.",
     ]
+    for data in important_data:
+        assistant.learn.fast(data)
+    response = assistant.chat.message("What should I do with the ring?")
+    assert "destroy" in response.message.lower()
 
-    for doc in documents:
-        assistant.learn.fast(doc)
+    # list all assistants
+    assistants = firedust.assistant.list()
 
-    # Chat with the assistant, training data is available immediately
-    response = assistant.chat.stream("Tell me about the Book of the Dead")
-
-    for msg in response:
-        print(msg)
-
-    # Deploy the assistant
-    assistant.deploy.slack(SLACK_CONFIG)
+    # load an existing assistant
+    assistant = firedust.assistant.load("Sam")
     ```
+
+    For more examples, check:
+    https://github.com/ion2088/firedust/tree/master/examples
 """
 
 from typing import List
