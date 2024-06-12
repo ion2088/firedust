@@ -1,7 +1,5 @@
 import firedust
 
-# TODO: Simplify error types in firedust - two error types: user error and system error
-# TODO: Update and fix example docstrings
 # TODO: Add api documentation in redocly
 # TODO: Create examples for all the methods in the assistant
 # TODO: Create a nice github readme with quickstart and examples
@@ -10,8 +8,6 @@ import firedust
 # TODO: Add slack greeting message to the configuration
 # TODO: Add data encryption before storing in the database and decrypt it before sending it to the user
 # TODO: Learn from pdf, audio and urls
-# TODO: Slackapp - add capability to /learn stuff
-# TODO: Skackapp - add capability to read and process files
 
 # STEP 1
 # add your slack configuration token, you can find it here: https://api.slack.com/apps

@@ -49,7 +49,7 @@ from firedust.utils.logging import LOG
 
 def create(
     name: str,
-    instructions: str,
+    instructions: str = "",
     model: INFERENCE_MODEL = "mistral/mistral-medium",
 ) -> Assistant:
     """
@@ -81,7 +81,7 @@ def create(
 
 async def async_create(
     name: str,
-    instructions: str,
+    instructions: str = "",
     model: INFERENCE_MODEL = "mistral/mistral-medium",
 ) -> AsyncAssistant:
     """

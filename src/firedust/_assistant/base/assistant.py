@@ -265,7 +265,7 @@ class _Update:
     """
 
     def __init__(self, config: AssistantConfig, api_client: SyncAPIClient) -> None:
-        self.assistant = config
+        self.config = config
         self.api_client = api_client
 
     def instructions(self, instructions: str) -> None:
@@ -288,20 +288,16 @@ class _Update:
         response = self.api_client.put(
             "/assistant/instructions",
             data={
-                "assistant": str(self.assistant.name),
+                "assistant": str(self.config.name),
                 "instructions": instructions,
             },
         )
         if not response.is_success:
             raise APIError(
                 code=response.status_code,
-                message=f"Failed to update the instructions of the assistant {self.assistant.name}: {response.text}",
+                message=f"Failed to update the instructions of the assistant {self.config.name}: {response.text}",
             )
-        self.assistant = AssistantConfig(
-            name=self.assistant.name,
-            instructions=instructions,
-            model=self.assistant.model,
-        )
+        self.config.instructions = instructions
 
     def model(self, new_model: INFERENCE_MODEL) -> None:
         """
@@ -321,7 +317,7 @@ class _Update:
         response = self.api_client.put(
             "/assistant/model",
             data={
-                "assistant": str(self.assistant.name),
+                "assistant": str(self.config.name),
                 "model": new_model,
             },
         )
@@ -330,11 +326,7 @@ class _Update:
                 code=response.status_code,
                 message=f"Failed to update the inference configuration: {response.text}",
             )
-        self.assistant = AssistantConfig(
-            name=self.assistant.name,
-            instructions=self.assistant.instructions,
-            model=new_model,
-        )
+        self.config.model = new_model
 
 
 class AsyncAssistant:
@@ -605,7 +597,7 @@ class _AsyncUpdate:
     """
 
     def __init__(self, config: AssistantConfig, api_client: AsyncAPIClient) -> None:
-        self.assistant = config
+        self.config = config
         self.api_client = api_client
 
     async def instructions(self, instructions: str) -> None:
@@ -632,19 +624,19 @@ class _AsyncUpdate:
         response = await self.api_client.put(
             "/assistant/instructions",
             data={
-                "assistant": str(self.assistant.name),
+                "assistant": str(self.config.name),
                 "instructions": instructions,
             },
         )
         if not response.is_success:
             raise APIError(
                 code=response.status_code,
-                message=f"Failed to update the instructions of the assistant {self.assistant.name}: {response.text}",
+                message=f"Failed to update the instructions of the assistant {self.config.name}: {response.text}",
             )
-        self.assistant = AssistantConfig(
-            name=self.assistant.name,
+        self.config = AssistantConfig(
+            name=self.config.name,
             instructions=instructions,
-            model=self.assistant.model,
+            model=self.config.model,
         )
 
     async def model(self, new_model: INFERENCE_MODEL) -> None:
@@ -669,7 +661,7 @@ class _AsyncUpdate:
         response = await self.api_client.put(
             "/assistant/model",
             data={
-                "assistant": str(self.assistant.name),
+                "assistant": str(self.config.name),
                 "model": new_model,
             },
         )
@@ -678,8 +670,8 @@ class _AsyncUpdate:
                 code=response.status_code,
                 message=f"Failed to update the inference configuration: {response.text}",
             )
-        self.assistant = AssistantConfig(
-            name=self.assistant.name,
-            instructions=self.assistant.instructions,
+        self.config = AssistantConfig(
+            name=self.config.name,
+            instructions=self.config.instructions,
             model=new_model,
         )

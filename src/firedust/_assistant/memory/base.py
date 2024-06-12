@@ -1,6 +1,7 @@
 from typing import Iterable, List
 from uuid import UUID
 
+import firedust
 from firedust.types import APIContent, AssistantConfig, MemoryItem, Message
 from firedust.utils.api import AsyncAPIClient, SyncAPIClient
 from firedust.utils.errors import APIError
@@ -64,7 +65,7 @@ class Memory:
         assistant = firedust.assistant.load("ASSISTANT_NAME")
         response = assistant.chat.message("What are the latest sales figures?")
 
-        # Retrieve memories that the assistant used to answer the question
+        # Retrieve memories that the assistant used to generate the response
         memory_ids = response.references.memories
         memories = assistant.memory.get(memory_ids)
         ```
@@ -75,6 +76,9 @@ class Memory:
         Returns:
             List[MemoryItem]: A list of memory items.
         """
+        if len(memory_ids) == 0:
+            return []
+
         response = self.api_client.post(
             "/assistant/memory/list",
             data={
@@ -173,65 +177,76 @@ class Memory:
         content = APIContent(**response.json())
         return [UUID(memory_id) for memory_id in content.data["memory_ids"]]
 
-    def attach_memories(self, assistant: str) -> None:
+    def share(self, assistant_receiver: str) -> None:
         """
-        Attach a collection of memories from another assistant. It shares the memories of an
-        assistant, making them available to be used as context for the current assistant.
+        Share all assistant's memories with another assistant. It makes the memories
+        available for the other assistant to use when answering questions or performing tasks.
+        It's a full sync and applies to both past memories and the ones added in the future.
+
+        To share memories selectively use the assistant.memory.add method.
 
         Example:
         ```python
         import firedust
 
-        assistant_donor = "ASSISTANT_NAME1"
-        assistant_receiver = firedust.assistant.load("ASSISTANT_NAME2")
-        assistant_receiver.memory.attach_memories(assistant_donor)
+        assistant = firedust.assistant.load("ASSISTANT_SHARER")
+        assistant.memory.share("ASSISTANT_RECEIVER")
         ```
 
         Args:
-            assistant (str): The name of the assistant whose memories to attach.
+            assistant_receiver (str): The name of the assistant who will access the memories.
         """
-        if assistant == self.config.name:
+        if assistant_receiver == self.config.name:
             raise ValueError("Cannot attach memories from the same assistant.")
 
+        receiver_config = firedust.assistant.load(assistant_receiver)
+        if self.config.name in receiver_config.config.attached_memories:
+            raise ValueError(
+                f"The memories of {self.config.name} are already shared to the {assistant_receiver}."
+            )
+
         response = self.api_client.put(
-            "/assistant/memory/shared",
+            "/assistant/memory/share",
             data={
-                "assistant": self.config.name,
-                "collection": assistant,
+                "assistant_sharer": self.config.name,
+                "assistant_receiver": assistant_receiver,
             },
         )
         if not response.is_success:
             raise APIError(
                 code=response.status_code,
-                message=f"Failed to attach collection: {response.text}",
+                message=f"Failed to share memories: {response.text}",
             )
-        self.config.attached_memories.append(assistant)
 
-    def detach_memories(self, assistant: str) -> None:
+    def unshare(self, assistant_receiver: str) -> None:
         """
-        Detach a collection of memories that belongs to another assistant.
+        Memories of the assistant will no longer be shared with the assistant receiver.
 
         Example:
         ```python
         import firedust
 
-        assistant_donor = "ASSISTANT_NAME1"
-        assistant_receiver = firedust.assistant.load("ASSISTANT_NAME2")
-        assistant_receiver.memory.detach_memories(assistant_donor)
+        assistant_sharer = firedust.assistant.load("ASSISTANT_SHARER")
+        assistant_sharer.memory.unshare("ASSISTANT_RECEIVER")
         ```
 
         Args:
-            assistant (str): The name of the assistant whose memories to detach.
+            assistant (str): The name of the assistant who will lose access to the memories.
         """
-        attached_memories = self.config.attached_memories
-        if assistant not in attached_memories:
-            raise ValueError("Collection not attached to the assistant.")
+        if assistant_receiver == self.config.name:
+            raise ValueError("Cannot detach memories from the same assistant.")
+
+        reciver_config = firedust.assistant.load(assistant_receiver)
+        if self.config.name not in reciver_config.config.attached_memories:
+            raise ValueError(
+                f"The memories of {self.config.name} are not shared to the {assistant_receiver}."
+            )
 
         response = self.api_client.delete(
-            "/assistant/memory/shared",
+            "/assistant/memory/share",
             params={
-                "assistant": self.config.name,
-                "collection": assistant,
+                "assistant_receiver": assistant_receiver,
+                "assistant_sharer": self.config.name,
             },
         )
         if not response.is_success:
@@ -240,11 +255,9 @@ class Memory:
                 message=f"Failed to detach collection: {response.text}",
             )
 
-        attached_memories.remove(assistant)
-
     def add_chat_history(self, messages: Iterable[Message]) -> None:
         """
-        Adds a chat message history to the assistant's memory. It helps the assistant
+        Adds chat message history. It will become available for the assistant to
         learn from past conversations to improve the quality of responses.
 
         Example:
@@ -511,9 +524,11 @@ class AsyncMemory:
         content = APIContent(**response.json())
         return [UUID(memory_id) for memory_id in content.data["memory_ids"]]
 
-    async def attach_memories(self, assistant: str) -> None:
+    async def share(self, assistant_receiver: str) -> None:
         """
-        Attach a collection of memories from another assistant, asynchronously. It makes the memories
+        Share all assistant's memories with another assistant, asynchronously. It makes the memories
+        available for the assistant receiver to use when answering questions or performing tasks.
+        It's a full memory sync and applies to both past memories and the ones added in the future.
 
         Example:
         ```python
@@ -521,36 +536,40 @@ class AsyncMemory:
         import asyncio
 
         async def main():
-            assistant_donor = "ASSISTANT_NAME1"
-            assistant_receiver = await firedust.async_load("ASSISTANT_NAME2")
-            await assistant_receiver.memory.attach_memories(assistant_donor)
+            assistant = await firedust.async_load("ASSISTANT_SHARER")
+            await assistant.memory.share("ASSISTANT_RECEIVER")
 
         asyncio.run(main())
         ```
 
         Args:
-            assistant (str): The name of the assistant whose memories to attach.
+            assistant_receiver (str): The name of the assistant who will access the memories.
         """
-        if assistant == self.config.name:
-            raise ValueError("Cannot attach memories from the same assistant.")
+        if assistant_receiver == self.config.name:
+            raise ValueError("Cannot share memories from the same assistant.")
+
+        receiver_config = await firedust.assistant.async_load(assistant_receiver)
+        if self.config.name in receiver_config.config.attached_memories:
+            raise ValueError(
+                f"The memories of {self.config.name} are already shared to the {assistant_receiver}."
+            )
 
         response = await self.api_client.put(
-            "/assistant/memory/shared",
+            "/assistant/memory/share",
             data={
-                "assistant": self.config.name,
-                "collection": assistant,
+                "assistant_receiver": assistant_receiver,
+                "assistant_sharer": self.config.name,
             },
         )
         if not response.is_success:
             raise APIError(
                 code=response.status_code,
-                message=f"Failed to attach collection: {response.text}",
+                message=f"Failed to share memories: {response.text}",
             )
-        self.config.attached_memories.append(assistant)
 
-    async def detach_memories(self, assistant: str) -> None:
+    async def unshare(self, assistant_receiver: str) -> None:
         """
-        Detach a collection of memories that belongs to another assistant, asynchronously.
+        Memories of the assistant will no longer be shared with the assistant receiver.
 
         Example:
         ```python
@@ -558,33 +577,36 @@ class AsyncMemory:
         import asyncio
 
         async def main():
-            assistant_donor = "ASSISTANT_NAME1"
-            assistant_receiver = await firedust.async_load("ASSISTANT_NAME2")
-            await assistant_receiver.memory.detach_memories(assistant_donor)
+            assistant = await firedust.async_load("ASSISTANT_SHARER")
+            await assistant.memory.unshare("ASSISTANT_RECEIVER")
 
         asyncio.run(main())
         ```
 
         Args:
-            assistant (str): The name of the assistant whose memories to detach.
+            assistant (str): The name of the assistant who will lose access to the memories.
         """
-        attached_memories = self.config.attached_memories
-        if assistant not in attached_memories:
-            raise ValueError("Collection not attached to the assistant.")
+        if assistant_receiver == self.config.name:
+            raise ValueError("Cannot unshare memories from the same assistant.")
+
+        reciver_config = await firedust.assistant.async_load(assistant_receiver)
+        if self.config.name not in reciver_config.config.attached_memories:
+            raise ValueError(
+                f"The memories of {self.config.name} are not shared with {assistant_receiver}."
+            )
 
         response = await self.api_client.delete(
-            "/assistant/memory/shared",
+            "/assistant/memory/share",
             params={
-                "assistant": self.config.name,
-                "collection": assistant,
+                "assistant_sharer": self.config.name,
+                "assistant_receiver": assistant_receiver,
             },
         )
         if not response.is_success:
             raise APIError(
                 code=response.status_code,
-                message=f"Failed to detach collection: {response.text}",
+                message=f"Failed to unshare collection: {response.text}",
             )
-        attached_memories.remove(assistant)
 
     async def add_chat_history(self, messages: Iterable[Message]) -> None:
         """
