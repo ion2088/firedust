@@ -2,9 +2,8 @@ import asyncio
 
 import firedust
 
-# assistant supports async operations
-# to use async, you just need to create or load the assistant
-# using dedicated async functions. All other operations are mirrored
+# to use async, you just need to create or load the assistant using dedicated async functions
+# all other operations are mirrored
 
 
 async def main() -> None:
