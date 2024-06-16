@@ -90,7 +90,7 @@ class SlackInterface:
         Example:
         https://github.com/ion2088/firedust/blob/master/examples/deploy_to_slack.py
         """
-        response = self.api_client.post(
+        response = self.api_client.put(
             "/assistant/interface/slack/deploy",
             data={
                 "assistant": self.config.name,
@@ -113,8 +113,9 @@ class SlackInterface:
         assistant.interface.slack.remove_deployment()
         ```
         """
-        response = self.api_client.put(
-            f"/assistant/interface/slack/deploy?assistant={self.config.name}"
+        response = self.api_client.delete(
+            "/assistant/interface/slack/deploy",
+            params={"assistant": self.config.name},
         )
         if not response.is_success:
             raise SlackError(f"Failed to remove deployment from Slack: {response.text}")
