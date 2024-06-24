@@ -36,6 +36,7 @@ class SlackConfig(InterfaceConfig):
     """
 
     description: str
+    greeting: str  # A message that the assistant will greet users with.
     interface: Literal["slack"] = "slack"
     app_id: str | None = None  # This is filled-in by the API
     credentials: SlackCredentials | None = None  # This is filled-in by the API

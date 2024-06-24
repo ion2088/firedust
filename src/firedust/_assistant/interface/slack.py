@@ -19,7 +19,9 @@ class SlackInterface:
         self.config: AssistantConfig = config
         self.api_client: SyncAPIClient = api_client
 
-    def create_app(self, description: str, configuration_token: str) -> httpx.Response:
+    def create_app(
+        self, description: str, greeting: str, configuration_token: str
+    ) -> httpx.Response:
         """
         Creates a Slack app for the assistant.
 
@@ -28,6 +30,7 @@ class SlackInterface:
 
         Args:
             description (str): A short description of the assistant.
+            greeting (str): A message that the assistant will greet users with.
             configuration_token (str): The Slack configuration token.
 
         Returns:
@@ -38,6 +41,7 @@ class SlackInterface:
             data={
                 "assistant": self.config.name,
                 "description": description,
+                "greeting": greeting,
                 "configuration_token": configuration_token,
             },
         )
@@ -81,6 +85,39 @@ class SlackInterface:
         self.config.interfaces.slack.tokens = SlackTokens(
             app_token=app_token, bot_token=bot_token
         )
+        return response
+
+    def set_greeting(self, greeting: str) -> httpx.Response:
+        """
+        Sets the Slack greeting message.
+
+        Example:
+        ```python
+        import firedust
+
+        assistant = firedust.assistant.load("ASSISTANT_NAME")
+        assistant.interface.slack.set_greeting("Hello! I'm here to help you.")
+        ```
+
+        Args:
+            greeting (str): The greeting message.
+        """
+        if self.config.interfaces.slack is None:
+            raise SlackError(
+                "Slack configuration not found. Please, create an app first. Hint: assistant.interface.slack.create_app()"
+            )
+
+        response = self.api_client.put(
+            "/assistant/interface/slack/greeting",
+            data={
+                "assistant": self.config.name,
+                "greeting": greeting,
+            },
+        )
+        if not response.is_success:
+            raise SlackError(f"Failed to set Slack greeting: {response.text}")
+
+        self.config.interfaces.slack.greeting = greeting
         return response
 
     def deploy(self) -> httpx.Response:
@@ -220,6 +257,43 @@ class AsyncSlackInterface:
         self.config.interfaces.slack.tokens = SlackTokens(
             app_token=app_token, bot_token=bot_token
         )
+        return response
+
+    async def set_greeting(self, greeting: str) -> httpx.Response:
+        """
+        Sets the Slack greeting message.
+
+        Example:
+        ```python
+        import firedust
+        import asyncio
+
+        async def main():
+            assistant = await firedust.assistant.load("ASSISTANT_NAME")
+            await assistant.interface.slack.set_greeting("Hello! I'm here to help you.")
+
+        asyncio.run(main())
+        ```
+
+        Args:
+            greeting (str): The greeting message.
+        """
+        if self.config.interfaces.slack is None:
+            raise SlackError(
+                "Slack configuration not found. Please, create an app first. Hint: assistant.interface.slack.create_app()"
+            )
+
+        response = await self.api_client.put(
+            "/assistant/interface/slack/greeting",
+            data={
+                "assistant": self.config.name,
+                "greeting": greeting,
+            },
+        )
+        if not response.is_success:
+            raise SlackError(f"Failed to set Slack greeting: {response.text}")
+
+        self.config.interfaces.slack.greeting = greeting
         return response
 
     async def deploy(self) -> httpx.Response:
