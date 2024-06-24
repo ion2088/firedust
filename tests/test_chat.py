@@ -41,7 +41,7 @@ def test_chat_streaming() -> None:
             "Why are we almost a always in various stages of transitioning the architecture of our Data Center, Professional Visualization, and Gaming products?"
         ):
             answer += _e.message
-        assert "product introduction cycles" in answer.lower()
+        assert "ai opportunities" in answer.lower()
 
         # Check that the new stuff is referenced in the last event
         assert _e.references is not None
@@ -107,7 +107,7 @@ async def test_async_chat_streaming() -> None:
             "Why are we almost always in various stages of transitioning the architecture of our Data Center, Professional Visualization, and Gaming products?"
         ):
             answer += _e.message
-        assert "product introduction cycles" in answer.lower()
+        assert "ai opportunities" in answer.lower()
 
         # Check that the new stuff is referenced in the last event
         assert _e.references is not None

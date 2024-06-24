@@ -9,8 +9,8 @@ assistant = firedust.assistant.load("Sam")
 user1 = "Pippin"
 user2 = "Merry"
 
-# user1 shares some important information that the
-# assistant will remember
+# user1 shares some important information which will be
+# stored in the assistant's memory
 assistant.chat.message(
     message="My favourite desert is cinnamon bun.",
     user=user1,

@@ -8,9 +8,9 @@ import firedust
 # when deployed, the data you add to the assistant will become available
 # in real-time to assist you and your team, see how to add data in the quickstart example
 
-assistant = firedust.assistant.create(name="Sam")
+assistant = firedust.assistant.create(name="Dan")
 # or load an existing one
-assistant = firedust.assistant.load(name="Sam")
+assistant = firedust.assistant.load(name="Dan")
 
 # create a slack app
 assistant.interface.slack.create_app(
