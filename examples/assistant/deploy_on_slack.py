@@ -15,12 +15,13 @@ assistant = firedust.assistant.load(name="Dan")
 # create a slack app
 assistant.interface.slack.create_app(
     description="A short description of the assistant. This will be displayed in the app's home tab.",
-    configuration_token="INPUT_CONFIG_TOKEN",  # you can find your configuration token here: https://api.slack.com/apps
+    greeting="A message that the assistant will greet users with.",
+    configuration_token="xoxe.xoxp-1-Mi0yLTY4MDA5NjI4MDg2MjQtNjc5MDgzMjE2ODY0MS02ODMwMjc0MTcwMTE5LTczMTY4Njg2MzA5ODItNmE3ODZiMzBiMWJmOThkMDIyZDk4Mzk2MTM5YWU4Y2NkZTRjMjZiOTBhZmQxZmE4YTZmZTc5MWRjOWMxODM5Nw",  # you can find your configuration token here: https://api.slack.com/apps
 )
 
 # install the app in your slack workspace UI and generate tokens. See here: https://api.slack.com/apps/
-app_token = "INPUT_APP_TOKEN"
-bot_token = "INPUT_BOT_TOKEN"
+app_token = "xapp-1-A079ARNEPPG-7316877561574-d876e83aca757d8ada18df4b99d94f3767aeecbecd1c2cd3dd959c0a4e674e6b"
+bot_token = "xoxb-6800962808624-7320602658149-8HzEJFXxocqDrBYWUt2f6RWq"
 
 # set the tokens
 assistant.interface.slack.set_tokens(
