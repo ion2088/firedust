@@ -11,8 +11,7 @@ Firedust makes it simple to build and deploy AI tools. It is designed to minimiz
 - Chat in groups or one-on-one
 - Privacy and data encryption comes as default
 - Asynchronous support
-- Load and use anywhere
-- Easily configure and update your assitants without downtime. Would you like to switch from GPT4 to Mistral? It takes one line of code and zero downtime.
+- Easily configure and update your assitants without downtime
 
 ## Quickstart
 
@@ -104,10 +103,8 @@ assistant.interface.slack.deploy()
 import firedust
 
 sam = firedust.assistant.create(name="Samwise")
-# or load an existing assistant
-sam = firedust.assistant.load(name="Samwise")
 
-# add some data to the memory
+# add data to the assistant's memory
 data = [
     "To reach Mordor, follow the path through the Mines of Moria.",
     "The ring must be destroyed in the fires of Mount Doom.",
@@ -115,29 +112,27 @@ data = [
 for item in data:
     sam.learn.fast(item)
 
-# list all available memories
+# list all available memories (with pagination)
 memory_ids = sam.memory.list(limit=100, offset=0)
 
-# load memory content
+# load the content of specific memories
 memories = sam.memory.get(memory_ids[:10])
 
-# recall memories by query
+# recall memories based on a query
 query = "Guidance to reach Mordor."
 mordor_memories = sam.memory.recall(query)
 
-# add selected memories to another assistant
+# share selected memories with another assistant
 frodo = firedust.assistant.create(name="Frodo")
 frodo.memory.add(mordor_memories)
 
-# share all memories with another assistant, this
-# is a full memory sync and applies to existing memories as well
-# as the ones created in the future
+# sync all memories with another assistant
 sam.memory.share(assistant_receiver="Frodo")
 
-# stop sharing memories
+# stop sharing memories with another assistant
 sam.memory.unshare(assistant_receiver="Frodo")
 
-# delete memories
+# delete specific memories
 sam.memory.delete(memory_ids[:10])
 ```
 
@@ -165,8 +160,6 @@ assistant.update.instructions(
 ```python
 import firedust
 
-assistant = firedust.assistant.create("Sam")
-# or load an existing assistant
 assistant = firedust.assistant.load("Sam")
 
 # all conversations are private and persist in the assistant's memory
@@ -197,20 +190,15 @@ assert "cinnamon bun" not in response.message.lower()
 
 ### Asynchronous support
 ```python
-
 import asyncio
-
 import firedust
 
 # to use async, you just need to create or load the assistant using dedicated async functions all the other methods are mirrored
 
-
 async def main() -> None:
-    assistant = await firedust.assistant.async_create(name="Sam")
-    # or load an existing one
     assistant = await firedust.assistant.async_load(name="Sam")
 
-    # add some data
+    # add data
     await assistant.learn.fast("Gandalf is a good friend.")
 
     # chat
@@ -223,7 +211,6 @@ async def main() -> None:
 
     # delete assistant
     await assistant.delete(confirm=True)
-
 
 asyncio.run(main())
 ```
