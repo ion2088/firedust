@@ -5,17 +5,18 @@ Firedust makes it simple to build and deploy AI tools. It is designed to minimiz
 ## Features
 
 ### Assistants
-- Build and deploy AI assistants in seconds
-- Deploy to Slack or use the API to integrate in your own app
-- Add your own data and train the assistant in real-time
-- Chat in groups or one-on-one
-- Privacy and data encryption comes as default
-- Asynchronous support
-- Easily configure and update your assitants without downtime
+- **Rapid Deployment**: Build and deploy AI assistants in seconds, allowing you to quickly test and iterate on your ideas.
+- **Model Flexibility**: Use GPT-4, Mistral, or any other model and switch between them effortlessly to find the best fit for your application.
+- **Integration Options**: Deploy to Slack or use the API to integrate into your own app, making it easy to incorporate AI into your existing workflows.
+- **Real-time Training**: Add your data and train the assistant in real-time, ensuring that it can provide up-to-date and relevant responses.
+- **Group Chat**: Support for group chats or one-on-one interactions, catering to different communication needs.
+- **Privacy and Security**: Privacy and data encryption come as default, protecting user data and maintaining trust.
+- **Asynchronous Support**: Fully supports asynchronous programming for non-blocking operations, enhancing performance in high-traffic scenarios.
+- **Seamless Updates**: Easily configure and update your assistants without downtime, ensuring continuous availability and improvement.
 
 ## Quickstart
 
-Get your api key here: [Firedust](https://firedust.ai) and set it as an environment variable.
+Get your api key [here](https://firedust.ai) and set it as an environment variable.
 
 ```sh
 export FIREDUST_API_KEY=your_api_key
@@ -29,6 +30,9 @@ pip install firedust
 ## Examples
 
 ### Create a new assistant
+
+Your assistant is ready to chat in seconds.
+
 ```python
 import firedust
 
@@ -45,6 +49,9 @@ for event in assistant.chat.stream(question):
 ```
 
 ### Load an existing assistant
+
+Your assistants are saved and you can load them anywhere in your code to interact with them, add more data, deploy or change configuration.
+
 ```python
 import firedust
 
@@ -52,6 +59,10 @@ assistant = firedust.assistant.load("Samwise")
 ```
 
 ### Add your data
+
+Add your data to the assistant's memory to make it available in real-time. It's like a database that your users can access by simply chatting with your assistant. Natural language is the new SQL.
+
+
 ```python
 import firedust
 
@@ -70,6 +81,9 @@ assert "destroy" in response.message.lower()
 ```
 
 ### Deploy to Slack
+
+Deploy your assistants to slack to chat in groups or one-on-one. Firedust handles the deployment, server management and scaling for you. The slack app is open sourced. You can self-host it or improve. [Source code](https://github.com/ion2088/firedust-slack)
+
 ```python
 import firedust
 
@@ -99,6 +113,9 @@ assistant.interface.slack.deploy()
 ```
 
 ### Manage memories
+
+The assistant's memory can be managed in real-time. You can add, list, get, delete and share memories with other assistants. It allows you granular control over what data is available to your users.
+
 ```python
 import firedust
 
@@ -137,6 +154,9 @@ sam.memory.delete(memory_ids[:10])
 ```
 
 ### Update assistant
+
+You can easily update the assistant's configuration without any downtime. Would like to switch the inference model from GPT-4 to Mistral, or update the instructions? No problem, you can do it in a few lines of code.
+
 ```python
 import firedust
 
@@ -157,6 +177,9 @@ assistant.update.instructions(
 ```
 
 ### User privacy
+
+The assistant's memories can be used to answer questions for all users, but the conversations themselves are always private. 
+
 ```python
 import firedust
 
@@ -189,11 +212,12 @@ assert "cinnamon bun" not in response.message.lower()
 ```
 
 ### Asynchronous support
+
+All methods support asynchronous programming. You can use the async/await syntax to interact with the assistant.
+
 ```python
 import asyncio
 import firedust
-
-# to use async, you just need to create or load the assistant using dedicated async functions all the other methods are mirrored
 
 async def main() -> None:
     assistant = await firedust.assistant.async_load(name="Sam")
