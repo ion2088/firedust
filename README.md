@@ -64,8 +64,7 @@ assistant = firedust.assistant.load("Samwise")
 
 ### Add your data
 
-Add your data to the assistant's memory to make it available in real-time. It's like a database that your users can access by simply chatting with your assistant. Natural language is the new SQL.
-
+Integrate your data into the assistant's memory for real-time accessibility. Users can effortlessly retrieve information by simply chatting with the assistant, making natural language the new way to query data.
 
 ```python
 important_data = [
