@@ -9,6 +9,7 @@ Firedust makes it simple to build and deploy AI tools, minimizing the time from 
 - **Model Flexibility**: Seamlessly switch between GPT-4, Mistral, or other models to find the best fit.
 - **Integration Options**: Deploy to Slack or integrate via API into your apps.
 - **Real-time Training**: Add your data and train the assistant in real-time.
+- **Dynamic Context Recall**: Assistants utilize past conversations and user-added data to generate responses, clearly referencing the specific data sources used in their answers.
 - **Group Chat**: Support for both group and one-on-one interactions.
 - **Privacy and Security**: The chats are private and the data is encrypted by default.
 - **Asynchronous Support**: Fully supports asynchronous programming.
@@ -53,7 +54,7 @@ for event in assistant.chat.stream(question):
 
 ### Load an existing assistant
 
-Your assistants are saved and you can load them anywhere in your code to interact, add more data, deploy or change configuration.
+Load your assistants anywhere in your code to interact, add more data, deploy or change configuration.
 
 ```python
 import firedust
@@ -74,14 +75,13 @@ important_data = [
 for data in important_data:
     assistant.learn.fast(data)
 
-# data becomes available in real-time
 response = assistant.chat.message("What should I do with the ring?")
 assert "destroy" in response.message.lower()
 ```
 
 ### Deploy to Slack
 
-Deploy your assistants to slack to chat in groups or one-on-one. Firedust handles the deployment, server management and scaling for you. The slack app is open sourced, you can self-host and contribute. [Source code](https://github.com/ion2088/firedust-slack)
+Deploy your assistants to slack to chat in groups or one-on-one. Firedust handles the deployment, server management and scaling for you. The slack app is [open sourced](https://github.com/ion2088/firedust-slack).
 
 ```python
 config_token = "CONFIGURATION_TOKEN" # you can find your configuration token here: https://api.slack.com/apps
@@ -107,7 +107,7 @@ assistant.interface.slack.deploy()
 
 ### Group chat
 
-You can chat in groups with the assistant by annotating messages to different users. You can also add previous chat history to improve the responses.
+Engage in group chats by simply annotating messages for different users. You can also add previous chat history to improve the responses.
 
 ```python
 import firedust
@@ -146,7 +146,7 @@ assert "John" in response.message
 
 ### Manage memories
 
-The assistant's memory can be managed in real-time. You can recall, add, list, retrieve, delete and share memories with other assistants. It allows you granular control over what data is available to your users.
+Gain granular control over the assistant's memory. You can recall, add, list, retrieve, and delete data points. Assistants' memories can also be fully synced, ensuring precise management of the data available to your users.
 
 ```python
 import firedust
@@ -187,7 +187,7 @@ sam.memory.delete(memory_ids[:10])
 
 ### Update assistant
 
-You can easily update the assistant's configuration without any downtime. Would like to switch the inference model from GPT-4 to Mistral, or update the instructions? No problem, you can do it in a few lines of code.
+Easily update configurations without downtime.
 
 ```python
 import firedust
@@ -210,7 +210,7 @@ assistant.update.instructions(
 
 ### User privacy
 
-The conversations with the assistant are always private.
+Conversations with the assistant are always private.
 
 ```python
 import firedust
