@@ -27,7 +27,7 @@ message3 = Message(
 assistant.memory.add_chat_history([message1, message2, message3])
 
 response = assistant.chat.message(
-    message="Who is making the new product roadmap?",
+    message="Who is sharing the new product roadmap?",
     user="product_team",  # Previous conversations are available only to the same user
 )
 assert "John" in response.message

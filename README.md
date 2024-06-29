@@ -1,28 +1,27 @@
 # Firedust
 
-Firedust makes it simple to build and deploy AI tools. It is designed to minimize the time from idea to working product. It abstracts away the complexity of building and deploying AI tools and allows you to focus on the core of your idea. It takes care of the memory persistance, context management, storage and deployment of your AI tools. Privacy and data encryption comes as default.
+Firedust makes it simple to build and deploy AI tools, minimizing the time from idea to working product.
 
 ## Features
 
 ### Assistants
-- **Rapid Deployment**: Build and deploy AI assistants in seconds, allowing you to quickly test and iterate on your ideas.
-- **Model Flexibility**: Use GPT-4, Mistral, or any other model and switch between them effortlessly to find the best fit for your application.
-- **Integration Options**: Deploy to Slack or use the API to integrate into your own app, making it easy to incorporate AI into your existing workflows.
-- **Real-time Training**: Add your data and train the assistant in real-time, ensuring that it can provide up-to-date and relevant responses.
-- **Group Chat**: Support for group chats or one-on-one interactions, catering to different communication needs.
-- **Privacy and Security**: Privacy and data encryption come as default, protecting user data and maintaining trust.
-- **Asynchronous Support**: Fully supports asynchronous programming for non-blocking operations, enhancing performance in high-traffic scenarios.
-- **Seamless Updates**: Easily configure and update your assistants without downtime, ensuring continuous availability and improvement.
+- **Rapid Deployment**: Deploy AI assistants in seconds for quick testing and iteration.
+- **Model Flexibility**: Seamlessly switch between GPT-4, Mistral, or other models to find the best fit.
+- **Integration Options**: Deploy to Slack or integrate via API into your apps.
+- **Real-time Training**: Add your data and train the assistant in real-time.
+- **Group Chat**: Support for both group and one-on-one interactions.
+- **Privacy and Security**: The chats are private and the data is encrypted by default.
+- **Asynchronous Support**: Fully supports asynchronous programming.
+- **Seamless Updates**: Configure and update assistants without downtime.
 
 ## Quickstart
 
-Get your api key [here](https://firedust.ai) and set it as an environment variable.
-
+Get your api key [here](https://firedust.ai) and set it as an environment variable:
 ```sh
 export FIREDUST_API_KEY=your_api_key
 ```
 
-Install the python package using pip, poetry or any other package manager.
+Install the package:
 ```sh
 pip install firedust
 ```
@@ -36,7 +35,11 @@ Your assistant is ready to chat in seconds.
 ```python
 import firedust
 
-assistant = firedust.assistant.create("Samwise")
+assistant = firedust.assistant.create(
+    name="Samwise",
+    instructions="1. Protect the ring bearer. 2. Do not let the ring corrupt you.",
+    model="mistral/mistral-medium", # you can easily switch between models
+)
 
 # ask a question
 question = "What is the shortest way to Mordor?"
@@ -50,7 +53,7 @@ for event in assistant.chat.stream(question):
 
 ### Load an existing assistant
 
-Your assistants are saved and you can load them anywhere in your code to interact with them, add more data, deploy or change configuration.
+Your assistants are saved and you can load them anywhere in your code to interact, add more data, deploy or change configuration.
 
 ```python
 import firedust
@@ -64,10 +67,6 @@ Add your data to the assistant's memory to make it available in real-time. It's 
 
 
 ```python
-import firedust
-
-assistant = firedust.assistant.load("Samwise")
-
 important_data = [
     "Do not trust Smeagol.",
     "The ring is evil, it must be destroyed.",
@@ -82,18 +81,14 @@ assert "destroy" in response.message.lower()
 
 ### Deploy to Slack
 
-Deploy your assistants to slack to chat in groups or one-on-one. Firedust handles the deployment, server management and scaling for you. The slack app is open sourced. You can self-host it or improve. [Source code](https://github.com/ion2088/firedust-slack)
+Deploy your assistants to slack to chat in groups or one-on-one. Firedust handles the deployment, server management and scaling for you. The slack app is open sourced, you can self-host and contribute. [Source code](https://github.com/ion2088/firedust-slack)
 
 ```python
-import firedust
-
-assistant = firedust.assistant.load(name="Samwise")
-
-# create a slack app
+config_token = "CONFIGURATION_TOKEN" # you can find your configuration token here: https://api.slack.com/apps
 assistant.interface.slack.create_app(
     description="A short description of the assistant.",
     greeting="A greeting message for the users.",
-    configuration_token="CONFIGURATION_TOKEN",  # you can find your configuration token here: https://api.slack.com/apps
+    configuration_token=config_token,  
 )
 
 # install the app in your slack workspace UI and generate tokens. See here: https://api.slack.com/apps/
@@ -108,13 +103,50 @@ assistant.interface.slack.set_tokens(
 
 # deploy the assistant
 assistant.interface.slack.deploy()
+```
 
-# That's it. Now you can interact with the assistant in your Slack workspace!
+### Group chat
+
+You can chat in groups with the assistant by annotating messages to different users. You can also add previous chat history to improve the responses.
+
+```python
+import firedust
+
+assistant = firedust.assistant.load(name="Sam")
+
+# add previous chat history to the assistant's memory
+message1 = Message(
+    assistant="Sam",
+    user="product_team", # group name
+    message="John: Based on the last discussion, we've made the following changes to the product...", # annotate each message with the username
+    author="user",
+)
+message2 = Message(
+    assistant="Sam",
+    user="product_team",
+    message="Helen: John, could you please share the updated product roadmap?",
+    author="user",
+)
+message3 = Message(
+    assistant="Sam",
+    user="product_team",
+    message="John: Sure, the new roadmap is the following...",
+    author="user",
+)
+
+assistant.memory.add_chat_history([message1, message2, message3])
+
+# chat in a group
+response = assistant.chat.message(
+    message="Troy: @Sam, who is sharing the new product roadmap?",
+    user="product_team", # group name
+)
+assert "John" in response.message
 ```
 
 ### Manage memories
 
-The assistant's memory can be managed in real-time. You can add, list, get, delete and share memories with other assistants. It allows you granular control over what data is available to your users.
+The assistant's memory can be managed in real-time. You can recall, add, list, retrieve, delete and share memories with other assistants. It allows you granular control over what data is available to your users.
 
 ```python
 import firedust
@@ -178,19 +210,17 @@ assistant.update.instructions(
 
 ### User privacy
 
-The assistant's memories can be used to answer questions for all users, but the conversations themselves are always private. 
+The conversations with the assistant are always private.
 
 ```python
 import firedust
 
 assistant = firedust.assistant.load("Sam")
 
-# all conversations are private and persist in the assistant's memory
 user1 = "Pippin"
 user2 = "Merry"
 
-# user1 shares some important information which will be
-# stored in the assistant's memory
+# user1 shares some important information with the assistant
 assistant.chat.message(
     message="My favourite desert is cinnamon bun.",
     user=user1,
@@ -207,8 +237,6 @@ response = assistant.chat.message(
     user=user2,
 )
 assert "cinnamon bun" not in response.message.lower()
-
-# the conversations are private and persist in the assistant's memory. The assistant will recall the conversations to answer questions and perform tasks
 ```
 
 ### Asynchronous support
