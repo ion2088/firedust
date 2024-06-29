@@ -32,15 +32,3 @@ RUN git config --global --add safe.directory /workspaces/firedust && \
     git config --global user.name "$DEV_NAME"
 
 COPY . .
-
-# --------------------------------------------------
-# Prod image
-# --------------------------------------------------
-FROM stage as firedust-prod
-
-ENV ENV="prod"
-RUN poetry install --no-dev
-
-COPY . .
-
-# What are we trying to achieve here?
