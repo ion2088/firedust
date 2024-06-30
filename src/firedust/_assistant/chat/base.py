@@ -67,7 +67,7 @@ class Chat:
         except Exception as e:
             raise APIError(
                 code=500,
-                message=f"Failed to stream the conversation: {e}",
+                message=f"Failed to stream conversation: {e}",
             )
         finally:
             self._previous_stream_chunk = ""

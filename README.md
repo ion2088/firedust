@@ -11,7 +11,7 @@ Firedust makes it simple to build and deploy AI tools, minimizing the time from 
 - **Real-time Training**: Add your data and train the assistant in real-time.
 - **Dynamic Context Recall**: Assistants utilize past conversations and user-added data to generate responses, clearly referencing the specific data sources used in their answers.
 - **Group Chat**: Support for both group and one-on-one interactions.
-- **Privacy and Security**: The chats are private and the data is encrypted by default.
+- **Privacy and Security**: The chats are private and the data is encrypted in transit and at rest.
 - **Asynchronous Support**: Fully supports asynchronous programming.
 - **Seamless Updates**: Configure and update assistants without downtime.
 
@@ -76,6 +76,9 @@ for data in important_data:
 
 response = assistant.chat.message("What should I do with the ring?")
 assert "destroy" in response.message.lower()
+
+# see which data sources were used in the response
+print(response.references)
 ```
 
 ### Deploy to Slack
