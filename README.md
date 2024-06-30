@@ -11,13 +11,13 @@ Firedust makes it simple to build and deploy AI tools, minimizing the time from 
 - **Real-time Training**: Add your data and train the assistant in real-time.
 - **Dynamic Context Recall**: Assistants utilize past conversations and user-added data to generate responses, clearly referencing the specific data sources used in their answers.
 - **Group Chat**: Support for both group and one-on-one interactions.
-- **Privacy and Security**: The chats are private and the data is encrypted in transit and at rest.
+- **Privacy and Security**: Chats are private, with data encrypted both in transit and at rest.
 - **Asynchronous Support**: Fully supports asynchronous programming.
 - **Seamless Updates**: Configure and update assistants without downtime.
 
 ## Quickstart
 
-Get your api key [here](https://firedust.ai) and set it as an environment variable:
+Get your api key [here](https://tally.so/r/wbkB1L) and set it as an environment variable:
 ```sh
 export FIREDUST_API_KEY=your_api_key
 ```

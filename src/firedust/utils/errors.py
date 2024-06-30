@@ -8,7 +8,7 @@ class MissingFiredustKeyError(Exception):
     def __init__(self) -> None:
         message = """
         FIREDUST_API_KEY environment variable is not found. 
-        Get your API key at https://firedust.com.
+        Get your API key at https://tally.so/r/wbkB1L
         """
         super().__init__(message)
 
