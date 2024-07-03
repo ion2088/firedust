@@ -23,6 +23,7 @@ ENV PATH="/home/vscode/local/bin:$PATH" \
 # Install development dependencies
 RUN apt-get update && \
     apt-get install -y git && \
+    apt-get install -y git openssh-client && \
     rm -rf /var/lib/apt/lists/* && \
     poetry install
 

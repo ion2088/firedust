@@ -11,19 +11,9 @@
 		"-e", "DEV_EMAIL=${localEnv:DEV_EMAIL}",
 		"-e", "FIREDUST_API_KEY=${localEnv:FIREDUST_API_KEY}",
 		"-e", "TEST_PYPI_TOKEN=${localEnv:TEST_PYPI_TOKEN}",
-		"-e", "PYPI_TOKEN=${localEnv:PYPI_TOKEN}"
-	],
-	"mounts": [
-		// ----------------------------------------
-		// SSH keys
-		// mac ssh keys
-		"source=/Users/${localEnv:USER_NAME}/.ssh,target=/root/.ssh,type=bind,consistency=cached",
-		// linux ssh keys
-		// "source=/home/${localEnv:USER_NAME}/.ssh,target=/root/.ssh,type=bind,consistency=cached",
-		// windows ssh keys
-		// "source=C:\\Users\\${localEnv:USER_NAME}\\.ssh,target=/root/.ssh,type=bind,consistency=cached"
-		// TODO: comment out the lines for the OS you are not using
-		// ----------------------------------------
+		"-e", "PYPI_TOKEN=${localEnv:PYPI_TOKEN}",
+		"-v", "/run/host-services/ssh-auth.sock:/run/host-services/ssh-auth.sock",
+        "-e", "SSH_AUTH_SOCK=/run/host-services/ssh-auth.sock"
 	],
 	"postCreateCommand": "bash .devcontainer/configure.sh",
 	"customizations": {

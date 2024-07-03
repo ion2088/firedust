@@ -5,7 +5,12 @@ echo "Configuring the dev environment..."
 # git credentials and keys
 git config --global user.name "$DEV_NAME"
 git config --global user.email "$DEV_EMAIL"
-chmod 600 /root/.ssh/id_rsa
+
+# Ensure the SSH_AUTH_SOCK environment variable is set
+if [ -z "$SSH_AUTH_SOCK" ]; then
+    echo "SSH_AUTH_SOCK is not set. Exiting..."
+    exit 1
+fi
 
 # testpypi
 poetry config pypi-token.testpypi "$TEST_PYPI_TOKEN"
