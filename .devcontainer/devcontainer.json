@@ -12,8 +12,7 @@
 		"-e", "FIREDUST_API_KEY=${localEnv:FIREDUST_API_KEY}",
 		"-e", "TEST_PYPI_TOKEN=${localEnv:TEST_PYPI_TOKEN}",
 		"-e", "PYPI_TOKEN=${localEnv:PYPI_TOKEN}",
-		"-v", "/run/host-services/ssh-auth.sock:/run/host-services/ssh-auth.sock",
-        "-e", "SSH_AUTH_SOCK=/run/host-services/ssh-auth.sock"
+		"-e", "SSH_AUTH_SOCK=${localEnv:SSH_AUTH_SOCK}"
 	],
 	"postCreateCommand": "bash .devcontainer/configure.sh",
 	"customizations": {
