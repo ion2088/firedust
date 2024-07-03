@@ -13,7 +13,7 @@ httpx = "^0.26.0"
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.3.1"
 pytest-asyncio = "^0.23.7"
-black = "^23.12.1"
+black = "^24.3.0"
 mypy = "^1.8.0"
 ruff = "^0.3.5"
 isort = "^5.13.2"
