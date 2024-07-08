@@ -51,7 +51,7 @@ class Learning:
                 message=f"Failed to teach the assistant: {response.text}",
             )
 
-        memory_ids = [UUID(_id) for _id in response.json()["data"]["memory_ids"]]
+        memory_ids = [UUID(_id) for _id in response.json()["data"]]
         return memory_ids
 
     def pdf(self, pdf: Union[str, Path]) -> None:
@@ -174,7 +174,7 @@ class AsyncLearning:
                 message=f"Failed to teach the assistant: {response.text}",
             )
 
-        memory_ids = [UUID(_id) for _id in response.json()["data"]["memory_ids"]]
+        memory_ids = [UUID(_id) for _id in response.json()["data"]]
         return memory_ids
 
     async def pdf(self, pdf: Union[str, Path]) -> None:

@@ -5,7 +5,7 @@ import httpx
 
 from firedust.utils.errors import MissingFiredustKeyError
 
-BASE_URL = "https://api.firedust.dev/v1"
+BASE_URL = "https://api.firedust.dev"
 TIMEOUT = 300
 
 

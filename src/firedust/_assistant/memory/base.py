@@ -52,7 +52,7 @@ class Memory:
             )
 
         content = APIContent(**response.json())
-        return [MemoryItem(**memory) for memory in content.data["memories"]]
+        return [MemoryItem(**memory) for memory in content.data]
 
     def get(self, memory_ids: List[UUID]) -> List[MemoryItem]:
         """
@@ -93,7 +93,7 @@ class Memory:
             )
 
         content = APIContent(**response.json())
-        return [MemoryItem(**memory) for memory in content.data["memories"]]
+        return [MemoryItem(**memory) for memory in content.data]
 
     def add(self, memories: List[MemoryItem]) -> None:
         """
@@ -175,7 +175,7 @@ class Memory:
             )
 
         content = APIContent(**response.json())
-        return [UUID(memory_id) for memory_id in content.data["memory_ids"]]
+        return [UUID(memory_id) for memory_id in content.data]
 
     def share(self, assistant_receiver: str) -> None:
         """
@@ -389,7 +389,7 @@ class AsyncMemory:
             )
 
         content = APIContent(**response.json())
-        return [MemoryItem(**memory) for memory in content.data["memories"]]
+        return [MemoryItem(**memory) for memory in content.data]
 
     async def get(self, memory_ids: List[UUID]) -> List[MemoryItem]:
         """
@@ -431,7 +431,7 @@ class AsyncMemory:
             )
 
         content = APIContent(**response.json())
-        return [MemoryItem(**memory) for memory in content.data["memories"]]
+        return [MemoryItem(**memory) for memory in content.data]
 
     async def add(self, memories: List[MemoryItem]) -> None:
         """
@@ -522,7 +522,7 @@ class AsyncMemory:
             )
 
         content = APIContent(**response.json())
-        return [UUID(memory_id) for memory_id in content.data["memory_ids"]]
+        return [UUID(memory_id) for memory_id in content.data]
 
     async def share(self, assistant_receiver: str) -> None:
         """
