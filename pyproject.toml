@@ -6,7 +6,7 @@ authors = ["ion <firedvst@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.10, <3.13"
+python = "^3.8, <3.13"
 pydantic = "^2.5.3"
 httpx = "^0.26.0"
 
@@ -17,7 +17,6 @@ black = "^24.3.0"
 mypy = "^1.8.0"
 ruff = "^0.3.5"
 isort = "^5.13.2"
-pre-commit = "^3.6.0"
 
 [build-system]
 requires = ["poetry-core"]
@@ -25,7 +24,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.black]
 line-length = 88
-target-version = ['py310']
+target-version = ['py38']
 
 [tool.isort]
 multi_line_output = 3

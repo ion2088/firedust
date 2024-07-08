@@ -11,6 +11,8 @@ print(response.message)
 ```
 """
 
+from typing import Optional
+
 from firedust._assistant.chat.base import AsyncChat, Chat
 from firedust._assistant.interface.base import AsyncInterface, Interface
 from firedust._assistant.learning.base import AsyncLearning, Learning
@@ -66,7 +68,7 @@ class Assistant:
     _allow_instantiation: bool = False
 
     def __init__(
-        self, config: AssistantConfig, api_client: SyncAPIClient | None = None
+        self, config: AssistantConfig, api_client: Optional[SyncAPIClient] = None
     ) -> None:
         # prevent direct instantiation
         # use firedust.assistant.create or .load methods
@@ -374,7 +376,7 @@ class AsyncAssistant:
     _allow_instantiation: bool = False
 
     def __init__(
-        self, config: AssistantConfig, api_client: AsyncAPIClient | None = None
+        self, config: AssistantConfig, api_client: Optional[AsyncAPIClient] = None
     ) -> None:
         # prevent direct instantiation
         if not self._allow_instantiation:

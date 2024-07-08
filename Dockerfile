@@ -1,9 +1,9 @@
-FROM python:3 AS stage
+FROM python:3.8 AS stage
 
 WORKDIR /workspaces/firedust
 
 # Env variables and dep versions
-ENV POETRY_VERSION=1.6 \
+ENV POETRY_VERSION=1.8.3 \
     APP="firedust" \
     PYTHONPATH="${PYTHONPATH}:/workspaces/firedust/src" \
     PATH="$PATH:/root/.poetry/bin"

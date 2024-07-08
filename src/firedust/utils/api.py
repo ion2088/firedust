@@ -1,5 +1,5 @@
 import os
-from typing import Any, AsyncIterator, Dict, Iterator
+from typing import Any, AsyncIterator, Dict, Iterator, Optional
 
 import httpx
 
@@ -19,7 +19,7 @@ class SyncAPIClient:
         headers (Dict[str, str]): The headers to be included in the requests.
     """
 
-    def __init__(self, api_key: str | None = None, base_url: str = BASE_URL) -> None:
+    def __init__(self, api_key: Optional[str] = None, base_url: str = BASE_URL) -> None:
         """
         Initializes a new instance of the SyncAPIClient class.
 
@@ -41,20 +41,22 @@ class SyncAPIClient:
             "Authorization": f"Bearer {api_key}",
         }
 
-    def get(self, url: str, params: Dict[str, Any] | None = None) -> httpx.Response:
+    def get(self, url: str, params: Optional[Dict[str, Any]] = None) -> httpx.Response:
         return self._request("get", url, params=params)
 
-    def post(self, url: str, data: Dict[str, Any] | None = None) -> httpx.Response:
+    def post(self, url: str, data: Optional[Dict[str, Any]] = None) -> httpx.Response:
         return self._request("post", url, data=data)
 
-    def put(self, url: str, data: Dict[str, Any] | None = None) -> httpx.Response:
+    def put(self, url: str, data: Optional[Dict[str, Any]] = None) -> httpx.Response:
         return self._request("put", url, data=data)
 
-    def delete(self, url: str, params: Dict[str, Any] | None = None) -> httpx.Response:
+    def delete(
+        self, url: str, params: Optional[Dict[str, Any]] = None
+    ) -> httpx.Response:
         return self._request("delete", url, params=params)
 
     def get_stream(
-        self, url: str, params: Dict[str, Any] | None = None
+        self, url: str, params: Optional[Dict[str, Any]] = None
     ) -> Iterator[bytes]:
         url = self.base_url + url
         with httpx.stream(
@@ -64,7 +66,7 @@ class SyncAPIClient:
                 yield chunk
 
     def post_stream(
-        self, url: str, data: Dict[str, Any] | None = None
+        self, url: str, data: Optional[Dict[str, Any]] = None
     ) -> Iterator[bytes]:
         url = self.base_url + url
         with httpx.stream(
@@ -77,8 +79,8 @@ class SyncAPIClient:
         self,
         method: str,
         url: str,
-        params: Dict[str, Any] | None = None,
-        data: Dict[str, Any] | None = None,
+        params: Optional[Dict[str, Any]] = None,
+        data: Optional[Dict[str, Any]] = None,
     ) -> httpx.Response:
         url = self.base_url + url
         response = httpx.request(
@@ -97,7 +99,7 @@ class AsyncAPIClient:
         headers (Dict[str, str]): The headers to be included in the requests.
     """
 
-    def __init__(self, api_key: str | None = None, base_url: str = BASE_URL) -> None:
+    def __init__(self, api_key: Optional[str] = None, base_url: str = BASE_URL) -> None:
         """
         Initializes a new instance of the AsyncAPIClient class.
 
@@ -120,25 +122,27 @@ class AsyncAPIClient:
         }
 
     async def get(
-        self, url: str, params: Dict[str, Any] | None = None
+        self, url: str, params: Optional[Dict[str, Any]] = None
     ) -> httpx.Response:
         return await self._request("get", url, params=params)
 
     async def post(
-        self, url: str, data: Dict[str, Any] | None = None
+        self, url: str, data: Optional[Dict[str, Any]] = None
     ) -> httpx.Response:
         return await self._request("post", url, data=data)
 
-    async def put(self, url: str, data: Dict[str, Any] | None = None) -> httpx.Response:
+    async def put(
+        self, url: str, data: Optional[Dict[str, Any]] = None
+    ) -> httpx.Response:
         return await self._request("put", url, data=data)
 
     async def delete(
-        self, url: str, params: Dict[str, Any] | None = None
+        self, url: str, params: Optional[Dict[str, Any]] = None
     ) -> httpx.Response:
         return await self._request("delete", url, params=params)
 
     async def get_stream(
-        self, url: str, params: Dict[str, Any] | None = None
+        self, url: str, params: Optional[Dict[str, Any]] = None
     ) -> AsyncIterator[bytes]:
         url = self.base_url + url
         async with httpx.AsyncClient() as client:
@@ -149,7 +153,7 @@ class AsyncAPIClient:
                     yield chunk
 
     async def post_stream(
-        self, url: str, data: Dict[str, Any] | None = None
+        self, url: str, data: Optional[Dict[str, Any]] = None
     ) -> AsyncIterator[bytes]:
         url = self.base_url + url
         async with httpx.AsyncClient() as client:
@@ -163,8 +167,8 @@ class AsyncAPIClient:
         self,
         method: str,
         url: str,
-        params: Dict[str, Any] | None = None,
-        data: Dict[str, Any] | None = None,
+        params: Optional[Dict[str, Any]] = None,
+        data: Optional[Dict[str, Any]] = None,
     ) -> httpx.Response:
         url = self.base_url + url
         async with httpx.AsyncClient() as client:

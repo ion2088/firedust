@@ -1,4 +1,7 @@
-def is_unix_timestamp(timestamp: int | float) -> bool:
+from typing import Union
+
+
+def is_unix_timestamp(timestamp: Union[int, float]) -> bool:
     """
     Check if the provided integer is a valid UNIX timestamp.
 

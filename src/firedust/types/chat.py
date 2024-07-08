@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Literal, Sequence
+from typing import Literal, Sequence, Optional
 from uuid import UUID
 
 from pydantic import BaseModel, field_serializer
@@ -56,7 +56,7 @@ class MessageReferences(BaseModel):
 
 
 class ReferencedMessage(Message, frozen=True):
-    references: MessageReferences | None = None
+    references: Optional[MessageReferences] = None
 
 
 class MessageStreamEvent(ReferencedMessage, frozen=True):

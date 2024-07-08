@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Literal
+from typing import Literal, Optional, Union
 from uuid import UUID
 
 from pydantic import field_serializer, field_validator
@@ -30,12 +30,12 @@ class MemoryItem(BaseConfig):
     content: str
     timestamp: UNIX_TIMESTAMP = datetime.now().timestamp()
     type: Literal["text", "image", "audio", "video"] = "text"
-    source: str | None = None
-    relevance: float | None = None
+    source: Optional[str] = None
+    relevance: Optional[float] = None
 
     @field_validator("content")
     @classmethod
-    def validate_context_length(cls, context: str) -> str | Exception:
+    def validate_context_length(cls, context: str) -> str:
         if len(context) > MEX_MEMORY_CONTENT:
             raise ValueError(
                 f"Memory content exceeds maximum length of {MEX_MEMORY_CONTENT} characters"
@@ -44,9 +44,7 @@ class MemoryItem(BaseConfig):
 
     @field_validator("timestamp")
     @classmethod
-    def validate_timestamp(
-        cls, timestamp: UNIX_TIMESTAMP
-    ) -> UNIX_TIMESTAMP | Exception:
+    def validate_timestamp(cls, timestamp: UNIX_TIMESTAMP) -> UNIX_TIMESTAMP:
         # Check that the timestamp is UNIX format
         try:
             checks.is_unix_timestamp(timestamp)

@@ -1,4 +1,4 @@
-from typing import Literal
+from typing import Literal, Optional
 
 from pydantic import BaseModel
 
@@ -38,9 +38,9 @@ class SlackConfig(InterfaceConfig):
     description: str
     greeting: str  # A message that the assistant will greet users with.
     interface: Literal["slack"] = "slack"
-    app_id: str | None = None  # This is filled-in by the API
-    credentials: SlackCredentials | None = None  # This is filled-in by the API
-    tokens: SlackTokens | None = None  # This is filled-in by the API
+    app_id: Optional[str] = None  # This is filled-in by the API
+    credentials: Optional[SlackCredentials] = None  # This is filled-in by the API
+    tokens: Optional[SlackTokens] = None  # This is filled-in by the API
 
 
 class Interfaces(BaseModel):
@@ -48,5 +48,5 @@ class Interfaces(BaseModel):
     Represents the interfaces of the assistant.
     """
 
-    slack: SlackConfig | None = None
+    slack: Optional[SlackConfig] = None
     # add more interfaces as they come along

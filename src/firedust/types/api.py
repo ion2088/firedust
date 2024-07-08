@@ -1,4 +1,4 @@
-from typing import Any, Literal
+from typing import Any, Literal, Optional
 
 from pydantic import BaseModel
 
@@ -13,4 +13,4 @@ class APIContent(BaseModel):
     status: Literal["success", "error"]
     timestamp: UNIX_TIMESTAMP
     data: Any = {}
-    message: str | None
+    message: Optional[str] = None
