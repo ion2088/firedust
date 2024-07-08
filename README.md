@@ -3,17 +3,17 @@
 <p align="left">
     <i>Firedust makes it simple to build and deploy AI tools, minimizing the time from idea to working product.</i>
 </p>
-<p align="left" style="display: flex; gap: 10px;">
-<a href="https://github.com/ion2088/firedust/actions/workflows/ci.yml" style="text-decoration: none;">
+<p align="left">
+<a href="https://github.com/ion2088/firedust/actions/workflows/ci.yml">
     <img src="https://github.com/ion2088/firedust/actions/workflows/ci.yml/badge.svg" alt="tests">
 </a>
-<a href="https://pypi.org/project/firedust/" style="text-decoration: none;">
+<a href="https://pypi.org/project/firedust/">
     <img src="https://img.shields.io/pypi/v/firedust?color=%2334D058&label=pypi" alt="Coverage">
 </a>
-<a href="https://pypi.org/project/firedust" style="text-decoration: none;">
+<a href="https://pypi.org/project/firedust">
     <img src="https://img.shields.io/pypi/pyversions/firedust" alt="Package version">
 </a>
-<a href="https://api.firedust.dev/redoc" style="text-decoration: none;">
+<a href="https://api.firedust.dev/redoc">
     <img src="https://img.shields.io/badge/API%20Docs-OpenAPI%203.0-blue" alt="REST API Docs">
 </a>
 </p>
