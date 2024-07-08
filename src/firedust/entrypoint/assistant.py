@@ -50,12 +50,12 @@ from firedust.utils.logging import LOG
 def create(
     name: str,
     instructions: str = "",
-    model: INFERENCE_MODEL = "mistral/mistral-medium",
+    model: INFERENCE_MODEL = "openai/gpt-4",
 ) -> Assistant:
     """
     Creates a new assistant with the specified configuration.
 
-    Args:
+    Arg
         name (str): The name of the assistant.
         instructions (str): The instructions for the assistant.
         model (INFERENCE_MODEL, optional): The inference model to use. Defaults to "mistral/mistral-medium".
@@ -82,7 +82,7 @@ def create(
 async def async_create(
     name: str,
     instructions: str = "",
-    model: INFERENCE_MODEL = "mistral/mistral-medium",
+    model: INFERENCE_MODEL = "openai/gpt-4",
 ) -> AsyncAssistant:
     """
     Asynchronously creates a new assistant with the specified configuration.
@@ -129,7 +129,7 @@ def load(name: str) -> Assistant:
             message=f"Failed to load assistant {name}: {response.text}",
         )
     content = APIContent(**response.json())
-    config = AssistantConfig(**content.data["assistant"])
+    config = AssistantConfig(**content.data)
     return Assistant._create_instance(config, api_client)
 
 
@@ -151,7 +151,7 @@ async def async_load(name: str) -> AsyncAssistant:
             message=f"Failed to load the assistant with id {name}: {response.text}",
         )
     content = APIContent(**response.json())
-    config = AssistantConfig(**content.data["assistant"])
+    config = AssistantConfig(**content.data)
     return await AsyncAssistant._create_instance(config, api_client)
 
 
@@ -170,7 +170,7 @@ def list() -> List[Assistant]:
             message=f"Failed to list the assistants: {response.text}",
         )
     content = APIContent(**response.json())
-    configs = [AssistantConfig(**assistant) for assistant in content.data["assistants"]]
+    configs = [AssistantConfig(**assistant) for assistant in content.data]
     return [Assistant._create_instance(config, api_client) for config in configs]
 
 
@@ -189,7 +189,7 @@ async def async_list() -> List[AsyncAssistant]:
             message=f"Failed to list the assistants: {response.text}",
         )
     content = APIContent(**response.json())
-    configs = [AssistantConfig(**assistant) for assistant in content.data["assistants"]]
+    configs = [AssistantConfig(**assistant) for assistant in content.data]
     return [
         await AsyncAssistant._create_instance(config, api_client) for config in configs
     ]
