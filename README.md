@@ -1,11 +1,11 @@
 # Firedust: fast development and deployment of AI tools
 
 <p align="left">
-    <em>Firedust makes it simple to build and deploy AI tools, minimizing the time from idea to working product.</em>
+    <i>Firedust makes it simple to build and deploy AI tools, minimizing the time from idea to working product.</i>
 </p>
 <p align="left">
-<a href="https://github.com/ion2088/firedust/actions?query=workflow%Tests+event%3Apush+branch%3Amaster" target="_blank">
-    <img src="https://github.com/ion2088/firedust/workflows/Tests/badge.svg?event=push&branch=master" alt="tests">
+<a href="https://github.com/ion2088/firedust/actions/workflows/ci.yml" target="_blank">
+    <img src="https://github.com/ion2088/firedust/actions/workflows/ci.yml/badge.svg" alt="tests">
 </a>
 <a href="https://pypi.org/project/firedust/" target="_blank">
     <img src="https://img.shields.io/pypi/v/firedust?color=%2334D058&label=pypi" alt="Coverage">
