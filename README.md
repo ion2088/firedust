@@ -2,6 +2,8 @@
 
 Firedust makes it simple to build and deploy AI tools, minimizing the time from idea to working product.
 
+[API docs](https://api.firedust.dev/redoc)
+
 ## Features
 
 ### Assistants
