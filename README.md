@@ -33,7 +33,7 @@
 
 ## Quickstart
 
-Get your api key [here](https://tally.so/r/wbkB1L) and set it as an environment variable:
+Get your api key [here](https://www.firedust.dev) and set it as an environment variable:
 ```sh
 export FIREDUST_API_KEY=your_api_key
 ```
