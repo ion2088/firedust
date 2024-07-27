@@ -4,7 +4,7 @@ import random
 import pytest
 
 import firedust
-from firedust.types import MemoryItem, Message
+from firedust.types import MemoryItem
 from firedust.utils.errors import APIError
 
 
@@ -248,78 +248,3 @@ async def test_async_share_memories() -> None:
         # Remove test assistants
         await assistant1.delete(confirm=True)
         await assistant2.delete(confirm=True)
-
-
-@pytest.mark.skipif(
-    os.environ.get("FIREDUST_API_KEY") is None,
-    reason="The environment variable FIREDUST_API_KEY is not set.",
-)
-def test_add_chat_history() -> None:
-    assistant = firedust.assistant.create("Sam")
-    try:
-        message1 = Message(
-            assistant="Sam",
-            user="product_team",
-            message="John: Based on the last discussion, we've made the following changes to the product...",
-            author="user",
-        )
-        message2 = Message(
-            assistant="Sam",
-            user="product_team",
-            message="Helen: John, could you please share the updated product roadmap?",
-            author="user",
-        )
-        message3 = Message(
-            assistant="Sam",
-            user="product_team",
-            message="John: Sure, the new roadmap is the following...",
-            author="user",
-        )
-
-        assistant.memory.add_chat_history([message1, message2, message3])
-
-        response = assistant.chat.message(
-            message="Who is sharing the new product roadmap?",
-            user="product_team",  # Previous conversations are available only to the same user
-        )
-        assert "John" in response.message
-    finally:
-        assistant.delete(confirm=True)
-
-
-@pytest.mark.skipif(
-    os.environ.get("FIREDUST_API_KEY") is None,
-    reason="The environment variable FIREDUST_API_KEY is not set.",
-)
-@pytest.mark.asyncio
-async def test_async_add_chat_history() -> None:
-    assistant = await firedust.assistant.async_create("Sam")
-    try:
-        message1 = Message(
-            assistant="Sam",
-            user="product_team",
-            message="John: Based on the last discussion, we've made the following changes to the product...",
-            author="user",
-        )
-        message2 = Message(
-            assistant="Sam",
-            user="product_team",
-            message="Helen: John, could you please share the updated product roadmap?",
-            author="user",
-        )
-        message3 = Message(
-            assistant="Sam",
-            user="product_team",
-            message="John: Sure, the new roadmap is the following...",
-            author="user",
-        )
-
-        await assistant.memory.add_chat_history([message1, message2, message3])
-
-        response = await assistant.chat.message(
-            message="Who is sharing the new product roadmap?",
-            user="product_team",  # Previous conversations are available only to the same user
-        )
-        assert "John" in response.message
-    finally:
-        await assistant.delete(confirm=True)

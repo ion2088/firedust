@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Literal, Optional, Union
+from typing import Literal, Optional
 from uuid import UUID
 
 from pydantic import field_serializer, field_validator

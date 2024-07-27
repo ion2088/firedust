@@ -1,5 +1,6 @@
 from typing import Literal, Optional
-from firedust.utils.api import SyncAPIClient, AsyncAPIClient
+
+from firedust.utils.api import AsyncAPIClient, SyncAPIClient
 from firedust.utils.errors import APIError
 
 

@@ -152,7 +152,7 @@ message3 = Message(
     author="user",
 )
 
-assistant.memory.add_chat_history([message1, message2, message3])
+assistant.chat.add_history([message1, message2, message3])
 
 # chat in a group
 response = assistant.chat.message(

@@ -1,7 +1,7 @@
 import json
 import re
 from datetime import datetime
-from typing import AsyncIterable, AsyncIterator, Iterable, Iterator
+from typing import AsyncIterable, AsyncIterator, Iterable, Iterator, List
 
 from firedust.types import (
     AssistantConfig,
@@ -113,6 +113,128 @@ class Chat:
             )
         return ReferencedMessage(**response.json()["data"])
 
+    def add_history(self, messages: Iterable[Message]) -> None:
+        """
+        Adds chat message history. It will become available for the assistant to
+        learn from past conversations to improve the quality of responses.
+
+        Example:
+        ```python
+        import firedust
+        from firedust.types import Message
+
+        assistant = firedust.assistant.load("ASSISTANT_NAME")
+
+        message1 = Message(
+            assistant="ASSISTANT_NAME",
+            user="product_team",
+            message="John: Based on the last discussion, we've made the following changes to the product...",
+            author="user",
+        )
+        message2 = Message(
+            assistant="ASSISTANT_NAME",
+            user="product_team",
+            message="Helen: John, could you please share the updated product roadmap?",
+            author="user",
+        )
+        message3 = Message(
+            assistant="ASSISTANT_NAME",
+            user="product_team",
+            message="John: Sure, the new roadmap is the following...",
+            author="user",
+        )
+
+        assistant.chat.add_history([message1, message2, message3])
+        ```
+
+        Args:
+            messages (Iterable[Message]): The chat messages.
+        """
+        response = self.api_client.put(
+            "/assistant/chat/history",
+            data={
+                "assistant": self.config.name,
+                "messages": [msg.model_dump() for msg in messages],
+            },
+        )
+        if not response.is_success:
+            raise APIError(
+                code=response.status_code,
+                message=f"Failed to add chat history: {response.text}",
+            )
+
+    def erase_history(self, user: str, confirm: bool = False) -> None:
+        """
+        Irreversebly delete the chat history of a user from the assistant's memory.
+
+        Example:
+        ```python
+        import firedust
+
+        assistant = firedust.assistant.load("ASSISTANT_NAME")
+        assistant.chat.erase_history(user="product_team", confirm=True)
+        ```
+
+        Args:
+            user (str): The unique identifier of the user.
+            confirm (bool): Confirm the deletion. Defaults to False.
+        """
+        if confirm is False:
+            raise ValueError("Please confirm the deletion by setting confirm=True")
+
+        response = self.api_client.delete(
+            "/assistant/chat/history",
+            params={
+                "assistant": self.config.name,
+                "user": user,
+            },
+        )
+        if not response.is_success:
+            raise APIError(
+                code=response.status_code,
+                message=f"Failed to erase chat history: {response.text}",
+            )
+
+    def get_history(self, user: str, limit: int = 25, offset: int = 0) -> List[Message]:
+        """
+        Get the chat history of a user from the assistant's memory.
+
+        Example:
+        ```python
+        import firedust
+
+        assistant = firedust.assistant.load("ASSISTANT_NAME")
+        history = assistant.chat.get_history(user="product_team", limit=10)
+
+        for message in history:
+            print(message.message)
+        ```
+
+        Args:
+            user (str): The unique identifier of the user.
+            limit (int): The maximum number of messages to return. Defaults to 25.
+            offset (int): The number of messages to skip. Defaults to 0.
+
+        Returns:
+            List[Message]: The chat history of the user
+        """
+        response = self.api_client.get(
+            "/assistant/chat/history",
+            params={
+                "assistant": self.config.name,
+                "user": user,
+                "limit": limit,
+                "offset": offset,
+            },
+        )
+        if not response.is_success:
+            raise APIError(
+                code=response.status_code,
+                message=f"Failed to get chat history: {response.text}",
+            )
+
+        return [Message(**msg) for msg in response.json()["data"]]
+
 
 class AsyncChat:
     """
@@ -221,6 +343,141 @@ class AsyncChat:
             )
 
         return ReferencedMessage(**response.json()["data"])
+
+    async def add_history(self, messages: Iterable[Message]) -> None:
+        """
+        Adds a chat message history to the assistant's memory, asynchronously. It helps the assistant
+        learn from past conversations to improve the quality of responses.
+
+        Example:
+        ```python
+        import firedust
+        import asyncio
+
+        async def main():
+            assistant = await firedust.async_load("ASSISTANT_NAME")
+
+            message1 = Message(
+                assistant="ASSISTANT_NAME",
+                user="product_team",
+                message="John: Based on the last discussion, we've made the following changes to the product...",
+                author="user",
+            )
+            message2 = Message(
+                assistant="ASSISTANT_NAME",
+                user="product_team",
+                message="Helen: John, could you please share the updated product roadmap?",
+                author="user",
+            )
+            message3 = Message(
+                assistant="ASSISTANT_NAME",
+                user="product_team",
+                message="John: Sure, the new roadmap is the following...",
+                author="user",
+            )
+
+            await assistant.chat.add_history([message1, message2, message3])
+
+        asyncio.run(main())
+        ```
+
+        Args:
+            messages (Iterable[Message]): The chat messages.
+        """
+        response = await self.api_client.put(
+            "/assistant/chat/history",
+            data={
+                "assistant": self.config.name,
+                "messages": [msg.model_dump() for msg in messages],
+            },
+        )
+        if not response.is_success:
+            raise APIError(
+                code=response.status_code,
+                message=f"Failed to add chat history: {response.text}",
+            )
+
+    async def erase_history(self, user: str, confirm: bool = False) -> None:
+        """
+        Irreversebly delete the chat history of a user from the assistant's memory, asynchronously.
+
+        Example:
+        ```python
+        import firedust
+        import asyncio
+
+        async def main():
+            assistant = await firedust.async_load("ASSISTANT_NAME")
+            await assistant.chat.erase_history(user="product_team", confirm=True)
+
+        asyncio.run(main())
+        ```
+
+        Args:
+            user (str): The unique identifier of the user.
+            confirm (bool): Confirm the deletion. Defaults to False.
+        """
+        if confirm is False:
+            raise ValueError("Please confirm the deletion by setting confirm=True")
+
+        response = await self.api_client.delete(
+            "/assistant/chat/history",
+            params={
+                "assistant": self.config.name,
+                "user": user,
+            },
+        )
+        if not response.is_success:
+            raise APIError(
+                code=response.status_code,
+                message=f"Failed to erase chat history: {response.text}",
+            )
+
+    async def get_history(
+        self, user: str, limit: int = 25, offset: int = 0
+    ) -> List[Message]:
+        """
+        Get the chat history of a user from the assistant's memory, asynchronously.
+
+        Example:
+        ```python
+        import firedust
+        import asyncio
+
+        async def main():
+            assistant = await firedust.async_load("ASSISTANT_NAME")
+            history = await assistant.chat.get_history(user="product_team", limit=10)
+
+            for message in history:
+                print(message.message)
+
+        asyncio.run(main())
+        ```
+
+        Args:
+            user (str): The unique identifier of the user.
+            limit (int): The maximum number of messages to return. Defaults to 25.
+            offset (int): The number of messages to skip. Defaults to 0.
+
+        Returns:
+            List[Message]: The chat history of the user
+        """
+        response = await self.api_client.get(
+            "/assistant/chat/history",
+            params={
+                "assistant": self.config.name,
+                "user": user,
+                "limit": limit,
+                "offset": offset,
+            },
+        )
+        if not response.is_success:
+            raise APIError(
+                code=response.status_code,
+                message=f"Failed to get chat history: {response.text}",
+            )
+
+        return [Message(**msg) for msg in response.json()["data"]]
 
 
 def _process_stream_chunk(
