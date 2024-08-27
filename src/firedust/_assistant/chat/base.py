@@ -4,10 +4,13 @@ from datetime import datetime
 from typing import AsyncIterable, AsyncIterator, Iterable, Iterator, List
 
 from firedust.types import (
+    STRUCTURED_SCHEMA,
     AssistantConfig,
     Message,
     MessageStreamEvent,
     ReferencedMessage,
+    StructuredAssistantMessage,
+    StructuredUserMessage,
 )
 from firedust.utils.api import AsyncAPIClient, SyncAPIClient
 from firedust.utils.errors import APIError
@@ -112,6 +115,65 @@ class Chat:
                 message=f"Failed to send the message: {response.text}",
             )
         return ReferencedMessage(**response.json()["data"])
+
+    def structured(
+        self,
+        message: str,
+        schema: STRUCTURED_SCHEMA,
+        user: str = "default",
+        add_to_memory: bool = True,
+    ) -> StructuredAssistantMessage:
+        """
+        Returns a json response that is structured based on the given schema.
+
+        Example:
+        ```python
+        import firedust
+        from firedust.types import ...
+
+        assistant = firedust.assistant.load("ASSISTANT_NAME")
+        schema: STRUCTURED_SCHEMA = {
+            "name": StringField(hint="The name of the person."),
+            "occupation": StringField(hint="The occupation of the person."),
+        }
+        response = assistant.chat.structured(
+            message="My name is John Doe and I'm a software engineer.",
+            user="test_user",
+            schema=schema,
+        )
+        print(response.message)
+        ```
+
+        Args:
+            message (str): The message to send.
+            schema (STRUCTURED_SCHEMA): The schema to structure the response.
+            user (str, optional): The unique identifier of the user. Defaults to "default".
+            add_to_memory (bool, optional): Whether to add the interaction to memory. Defaults to True.
+
+        Returns:
+            StructuredAssistantMessage: The structured response from the assistant.
+        """
+        user_message = StructuredUserMessage(
+            assistant=self.config.name,
+            user=user,
+            message=message,
+            schema_=schema,
+            timestamp=datetime.now().timestamp(),
+        )
+        response = self.api_client.post(
+            "/assistant/chat/structured",
+            data={
+                "add_to_memory": add_to_memory,
+                "message": {**user_message.model_dump()},
+            },
+        )
+        if not response.is_success:
+            raise APIError(
+                code=response.status_code,
+                message=f"Failed to send the message: {response.text}",
+            )
+
+        return StructuredAssistantMessage(**response.json()["data"])
 
     def add_history(self, messages: Iterable[Message]) -> None:
         """
@@ -343,6 +405,67 @@ class AsyncChat:
             )
 
         return ReferencedMessage(**response.json()["data"])
+
+    async def structured(
+        self,
+        message: str,
+        schema: STRUCTURED_SCHEMA,
+        user: str = "default",
+        add_to_memory: bool = True,
+    ) -> StructuredAssistantMessage:
+        """
+        Returns a json response that is structured based on the given schema, asynchronously.
+
+        Example:
+        ```python
+        import firedust
+        from firedust.types import STRUCTURED_SCHEMA, StringField
+        import asyncio
+
+        async def main():
+            assistant = await firedust.assistant.async_load("ASSISTANT_NAME")
+            schema: STRUCTURED_SCHEMA = {
+                "name": StringField(hint="The name of the person."),
+                "occupation": StringField(hint="The occupation of the person."),
+            }
+            message = "My name is John Doe and I'm a software engineer."
+
+            response = await assistant.chat.structured(message, schema)
+            print(response.message)
+
+        asyncio.run(main())
+        ```
+
+        Args:
+            message (str): The message to send.
+            schema (STRUCTURED_SCHEMA): The schema to structure the response.
+            user (str, optional): The unique identifier of the user. Defaults to "default".
+            add_to_memory (bool, optional): Whether to add the interaction to memory. Defaults to True.
+
+        Returns:
+            StructuredAssistantMessage: The structured response from the assistant.
+        """
+        user_message = StructuredUserMessage(
+            assistant=self.config.name,
+            user=user,
+            message=message,
+            schema_=schema,
+            timestamp=datetime.now().timestamp(),
+        )
+        response = await self.api_client.post(
+            "/assistant/chat/structured",
+            data={
+                "add_to_memory": add_to_memory,
+                "message": {**user_message.model_dump()},
+            },
+        )
+        if not response.is_success:
+            raise APIError(
+                code=response.status_code,
+                message=f"Failed to send the message: {response.text}",
+            )
+
+        return StructuredAssistantMessage(**response.json()["data"])
 
     async def add_history(self, messages: Iterable[Message]) -> None:
         """

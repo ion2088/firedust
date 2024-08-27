@@ -1,10 +1,11 @@
 from datetime import datetime
-from typing import Literal, Optional, Sequence
+from typing import Literal, Optional, Sequence, Union
 from uuid import UUID
 
 from pydantic import BaseModel, field_serializer
 
 from .base import UNIX_TIMESTAMP, BaseConfig
+from .structured import STRUCTURED_RESPONSE, STRUCTURED_SCHEMA
 
 
 class Message(BaseConfig, frozen=True):
@@ -30,6 +31,10 @@ class UserMessage(Message):
     author: Literal["user"] = "user"
 
 
+class StructuredUserMessage(UserMessage):
+    schema_: STRUCTURED_SCHEMA
+
+
 class AssistantMessage(Message):
     author: Literal["assistant"] = "assistant"
 
@@ -53,6 +58,16 @@ class MessageReferences(BaseModel):
     @field_serializer("conversations", when_used="always")
     def serialize_conversation_refs(self, value: Sequence[UUID]) -> Sequence[str]:
         return [str(ref) for ref in value]
+
+
+class StructuredAssistantMessage(BaseConfig, frozen=True):
+    # Unable to build of Assistant message because message is redefined
+    assistant: str
+    user: str
+    timestamp: UNIX_TIMESTAMP
+    message: STRUCTURED_RESPONSE
+    author: Literal["assistant"] = "assistant"
+    references: Union[MessageReferences, None] = None
 
 
 class ReferencedMessage(Message, frozen=True):

@@ -9,9 +9,9 @@ from firedust.utils.errors import APIError
 
 class Learning:
     """
-    A collection of methods add various types of data to the assistant's
+    A collection of methods to add various types of data to the assistant's
     knowledge graph. The data is embedded into the assistant's memory and
-    is used when a relevant taskor question is asked.
+    used when a relevant taskor question is asked.
     """
 
     def __init__(self, config: AssistantConfig, api_client: SyncAPIClient) -> None:
