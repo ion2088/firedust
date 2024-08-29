@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Literal, Mapping, Union
+from typing import Any, Dict, List, Literal, Mapping, Union, Optional
 
 from pydantic import BaseModel
 
@@ -16,6 +16,8 @@ class BaseField(BaseModel):
 
 class FloatField(BaseField):
     type: Literal["float"] = "float"
+    min_: Optional[float] = None
+    max_: Optional[float] = None
 
 
 class BooleanField(BaseField):
