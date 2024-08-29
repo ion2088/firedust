@@ -1,3 +1,3 @@
-from firedust._data import score
+from firedust._data import embed, score
 
-__all__ = ["score"]
+__all__ = ["score", "embed"]
