@@ -29,8 +29,6 @@ class AssistantConfig(BaseModel):
     @field_validator("name")
     @classmethod
     def validate_name(cls, name: str) -> str:
-        if len(name) > 50:
-            raise ValueError("Assistant name exceeds maximum length of 50 characters")
         if len(name) < 1:
             raise ValueError("Assistant name must be at least 1 character")
         return name

@@ -12,6 +12,8 @@ INFERENCE_MODEL = Literal[
     "mistral/mistral-tiny",
     "openai/gpt-4",
     "openai/gpt-4-turbo-preview",
+    "openai/gpt-4o",
+    "openai/gpt-4o-mini",
     "openai/gpt-3.5-turbo",
 ]
 

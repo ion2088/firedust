@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Literal, Optional, Sequence, Union
 from uuid import UUID
 
-from pydantic import BaseModel, field_serializer
+from pydantic import BaseModel, Field, field_serializer
 
 from .base import UNIX_TIMESTAMP, BaseConfig
 from .structured import STRUCTURED_RESPONSE, STRUCTURED_SCHEMA
@@ -20,23 +20,25 @@ class Message(BaseConfig, frozen=True):
         author (Literal["user", "assistant"]): The author of the message.
     """
 
-    assistant: str
-    user: str
-    timestamp: UNIX_TIMESTAMP = datetime.now().timestamp()
-    message: str
-    author: Literal["user", "assistant"]
+    assistant: str = Field(...)
+    user: str = Field(...)
+    timestamp: UNIX_TIMESTAMP = Field(
+        default_factory=lambda: datetime.now().timestamp()
+    )
+    message: str = Field(...)
+    author: Literal["user", "assistant"] = Field(...)
 
 
 class UserMessage(Message):
-    author: Literal["user"] = "user"
+    author: Literal["user"] = Field(default="user", const=True)
 
 
 class StructuredUserMessage(UserMessage):
-    schema_: STRUCTURED_SCHEMA
+    schema_: STRUCTURED_SCHEMA = Field(...)
 
 
 class AssistantMessage(Message):
-    author: Literal["assistant"] = "assistant"
+    author: Literal["assistant"] = Field(default="assistant", const=True)
 
 
 class MessageReferences(BaseModel):
@@ -48,8 +50,8 @@ class MessageReferences(BaseModel):
         conversations (Sequence[UUID]): The references to the relevant conversations.
     """
 
-    memories: Sequence[UUID]
-    conversations: Sequence[UUID]
+    memories: Sequence[UUID] = Field(...)
+    conversations: Sequence[UUID] = Field(...)
 
     @field_serializer("memories", when_used="always")
     def serialize_memory_refs(self, value: Sequence[UUID]) -> Sequence[str]:
@@ -62,17 +64,17 @@ class MessageReferences(BaseModel):
 
 class StructuredAssistantMessage(BaseConfig, frozen=True):
     # Unable to build of Assistant message because message is redefined
-    assistant: str
-    user: str
-    timestamp: UNIX_TIMESTAMP
-    message: STRUCTURED_RESPONSE
-    author: Literal["assistant"] = "assistant"
-    references: Union[MessageReferences, None] = None
+    assistant: str = Field(...)
+    user: str = Field(...)
+    timestamp: UNIX_TIMESTAMP = Field(...)
+    message: STRUCTURED_RESPONSE = Field(...)
+    author: Literal["assistant"] = Field(default="assistant", const=True)
+    references: Union[MessageReferences, None] = Field(default=None)
 
 
 class ReferencedMessage(Message, frozen=True):
-    references: Optional[MessageReferences] = None
+    references: Optional[MessageReferences] = Field(default=None)
 
 
 class MessageStreamEvent(ReferencedMessage, frozen=True):
-    stream_ended: bool
+    stream_ended: bool = Field(...)
