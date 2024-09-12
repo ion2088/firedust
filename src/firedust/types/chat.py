@@ -30,7 +30,7 @@ class Message(BaseConfig, frozen=True):
 
 
 class UserMessage(Message):
-    author: Literal["user"] = Field(default="user", const=True)
+    author: Literal["user"] = Field(default="user")
 
 
 class StructuredUserMessage(UserMessage):
@@ -38,7 +38,7 @@ class StructuredUserMessage(UserMessage):
 
 
 class AssistantMessage(Message):
-    author: Literal["assistant"] = Field(default="assistant", const=True)
+    author: Literal["assistant"] = Field(default="assistant")
 
 
 class MessageReferences(BaseModel):
@@ -63,12 +63,11 @@ class MessageReferences(BaseModel):
 
 
 class StructuredAssistantMessage(BaseConfig, frozen=True):
-    # Unable to build of Assistant message because message is redefined
     assistant: str = Field(...)
     user: str = Field(...)
     timestamp: UNIX_TIMESTAMP = Field(...)
     message: STRUCTURED_RESPONSE = Field(...)
-    author: Literal["assistant"] = Field(default="assistant", const=True)
+    author: Literal["assistant"] = Field(default="assistant")
     references: Union[MessageReferences, None] = Field(default=None)
 
 

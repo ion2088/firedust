@@ -42,7 +42,7 @@ from typing import List
 
 from firedust.types import APIContent, Assistant, AssistantConfig, AsyncAssistant
 from firedust.types.base import INFERENCE_MODEL
-from firedust.utils.api import AsyncAPIClient, SyncAPIClient
+from firedust.utils.api import SyncAPIClient, AsyncAPIClient
 from firedust.utils.errors import APIError
 from firedust.utils.logging import LOG
 
@@ -50,15 +50,15 @@ from firedust.utils.logging import LOG
 def create(
     name: str,
     instructions: str = "",
-    model: INFERENCE_MODEL = "openai/gpt-4",
+    model: INFERENCE_MODEL = "openai/gpt-4o",
 ) -> Assistant:
     """
     Creates a new assistant with the specified configuration.
 
-    Arg
+    Args:
         name (str): The name of the assistant.
         instructions (str): The instructions for the assistant.
-        model (INFERENCE_MODEL, optional): The inference model to use. Defaults to "mistral/mistral-medium".
+        model (INFERENCE_MODEL, optional): The inference model to use. Defaults to "openai/gpt-4".
 
     Returns:
         Assistant: A new instance of the assistant class.
@@ -68,6 +68,7 @@ def create(
 
     response = api_client.post("/assistant", data=config.model_dump())
     if not response.is_success:
+        api_client.close()
         raise APIError(
             code=response.status_code,
             message=f"Failed to create an assistant with config {config}: {response.text}",
@@ -75,14 +76,13 @@ def create(
     LOG.info(
         f"Assistant {config.name} was created successfully and saved to the cloud."
     )
-
     return Assistant._create_instance(config, api_client)
 
 
 async def async_create(
     name: str,
     instructions: str = "",
-    model: INFERENCE_MODEL = "openai/gpt-4",
+    model: INFERENCE_MODEL = "openai/gpt-4o",
 ) -> AsyncAssistant:
     """
     Asynchronously creates a new assistant with the specified configuration.
@@ -90,7 +90,7 @@ async def async_create(
     Args:
         name (str): The name of the assistant.
         instructions (str): The instructions for the assistant.
-        model (INFERENCE_MODEL, optional): The inference model to use. Defaults to "mistral/mistral-medium".
+        model (INFERENCE_MODEL, optional): The inference model to use. Defaults to "openai/gpt-4".
 
     Returns:
         AsyncAssistant: A new instance of the AsyncAssistant class.
@@ -100,6 +100,7 @@ async def async_create(
 
     response = await api_client.post("/assistant", data=config.model_dump())
     if not response.is_success:
+        await api_client.close()
         raise APIError(
             code=response.status_code,
             message=f"Failed to create an assistant with config {config}: {response.text}",
@@ -107,7 +108,6 @@ async def async_create(
     LOG.info(
         f"Assistant {config.name} was created successfully and saved to the cloud."
     )
-
     return await AsyncAssistant._create_instance(config, api_client)
 
 
@@ -124,6 +124,7 @@ def load(name: str) -> Assistant:
     api_client = SyncAPIClient()
     response = api_client.get("/assistant", params={"name": name})
     if not response.is_success:
+        api_client.close()
         raise APIError(
             code=response.status_code,
             message=f"Failed to load assistant {name}: {response.text}",
@@ -146,6 +147,7 @@ async def async_load(name: str) -> AsyncAssistant:
     api_client = AsyncAPIClient()
     response = await api_client.get("/assistant", params={"name": name})
     if not response.is_success:
+        await api_client.close()
         raise APIError(
             code=response.status_code,
             message=f"Failed to load the assistant with id {name}: {response.text}",
@@ -165,6 +167,7 @@ def list() -> List[Assistant]:
     api_client = SyncAPIClient()
     response = api_client.get("/assistant/list")
     if not response.is_success:
+        api_client.close()
         raise APIError(
             code=response.status_code,
             message=f"Failed to list the assistants: {response.text}",
@@ -184,6 +187,7 @@ async def async_list() -> List[AsyncAssistant]:
     api_client = AsyncAPIClient()
     response = await api_client.get("/assistant/list")
     if not response.is_success:
+        await api_client.close()
         raise APIError(
             code=response.status_code,
             message=f"Failed to list the assistants: {response.text}",

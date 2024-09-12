@@ -1,35 +1,18 @@
 import os
-from typing import Any, AsyncIterator, Dict, Iterator, Optional
+from types import TracebackType
+from typing import Any, AsyncIterator, Dict, Iterator, Optional, Type
 
 import httpx
 
 from firedust.utils.errors import MissingFiredustKeyError
 
-BASE_URL = "https://api.firedust.dev"
+BASE_URL = "http://localhost:3002"
+# BASE_URL = "https://api.firedust.dev"
 TIMEOUT = 300
 
 
-class SyncAPIClient:
-    """
-    A synchronous client for interacting with the Firedust API.
-
-    Attributes:
-        base_url (str): The base URL of the Firedust API.
-        api_key (str): The API key used for authentication.
-        headers (Dict[str, str]): The headers to be included in the requests.
-    """
-
+class BaseAPIClient:
     def __init__(self, api_key: Optional[str] = None, base_url: str = BASE_URL) -> None:
-        """
-        Initializes a new instance of the SyncAPIClient class.
-
-        Args:
-            api_key (str, optional): The API key to authenticate requests. If not provided, it will be fetched from the environment variable "FIREDUST_API_KEY". Defaults to None.
-            base_url (str, optional): The base URL of the Firedust API. Defaults to BASE_URL.
-
-        Raises:
-            MissingFiredustKeyError: If the API key is not provided and not found in the environment variable.
-        """
         api_key = api_key or os.environ.get("FIREDUST_API_KEY")
         if not api_key:
             raise MissingFiredustKeyError()
@@ -40,6 +23,26 @@ class SyncAPIClient:
             "Content-Type": "application/json",
             "Authorization": f"Bearer {api_key}",
         }
+
+
+class SyncAPIClient(BaseAPIClient):
+    def __init__(self, api_key: Optional[str] = None, base_url: str = BASE_URL) -> None:
+        super().__init__(api_key, base_url)
+        self.client: httpx.Client = httpx.Client(timeout=TIMEOUT, headers=self.headers)
+
+    def __enter__(self) -> "SyncAPIClient":
+        return self
+
+    def __exit__(
+        self,
+        exc_type: Optional[Type[BaseException]],
+        exc_val: Optional[BaseException],
+        exc_tb: Optional[TracebackType],
+    ) -> None:
+        self.client.close()
+
+    def __del__(self) -> None:
+        self.client.close()
 
     def get(self, url: str, params: Optional[Dict[str, Any]] = None) -> httpx.Response:
         return self._request("get", url, params=params)
@@ -59,9 +62,7 @@ class SyncAPIClient:
         self, url: str, params: Optional[Dict[str, Any]] = None
     ) -> Iterator[bytes]:
         url = self.base_url + url
-        with httpx.stream(
-            "get", url, params=params, headers=self.headers, timeout=TIMEOUT
-        ) as response:
+        with self.client.stream("get", url, params=params) as response:
             for chunk in response.iter_bytes():
                 yield chunk
 
@@ -69,9 +70,7 @@ class SyncAPIClient:
         self, url: str, data: Optional[Dict[str, Any]] = None
     ) -> Iterator[bytes]:
         url = self.base_url + url
-        with httpx.stream(
-            "post", url, json=data, headers=self.headers, timeout=TIMEOUT
-        ) as response:
+        with self.client.stream("post", url, json=data) as response:
             for chunk in response.iter_bytes():
                 yield chunk
 
@@ -83,43 +82,34 @@ class SyncAPIClient:
         data: Optional[Dict[str, Any]] = None,
     ) -> httpx.Response:
         url = self.base_url + url
-        response = httpx.request(
-            method, url, params=params, json=data, headers=self.headers, timeout=TIMEOUT
-        )
+        response = self.client.request(method, url, params=params, json=data)
         return response
 
+    def close(self) -> None:
+        """
+        Close the underlying HTTP client.
+        """
+        self.client.close()
 
-class AsyncAPIClient:
-    """
-    An asynchronous client for interacting with the Firedust API.
 
-    Attributes:
-        base_url (str): The base URL of the Firedust API.
-        api_key (str): The API key used for authentication.
-        headers (Dict[str, str]): The headers to be included in the requests.
-    """
-
+class AsyncAPIClient(BaseAPIClient):
     def __init__(self, api_key: Optional[str] = None, base_url: str = BASE_URL) -> None:
-        """
-        Initializes a new instance of the AsyncAPIClient class.
+        super().__init__(api_key, base_url)
+        self.client = httpx.AsyncClient(timeout=TIMEOUT, headers=self.headers)
 
-        Args:
-            api_key (str, optional): The API key to authenticate requests. If not provided, it will be fetched from the environment variable "FIREDUST_API_KEY". Defaults to None.
-            base_url (str, optional): The base URL of the Firedust API. Defaults to BASE_URL.
+    async def __aenter__(self) -> "AsyncAPIClient":
+        return self
 
-        Raises:
-            MissingFiredustKeyError: If the API key is not provided and not found in the environment variable.
-        """
-        api_key = api_key or os.environ.get("FIREDUST_API_KEY")
-        if not api_key:
-            raise MissingFiredustKeyError()
+    async def __aexit__(
+        self,
+        exc_type: Optional[Type[BaseException]],
+        exc_val: Optional[BaseException],
+        exc_tb: Optional[TracebackType],
+    ) -> None:
+        await self.client.aclose()
 
-        self.base_url = base_url
-        self.api_key = api_key
-        self.headers = {
-            "Content-Type": "application/json",
-            "Authorization": f"Bearer {api_key}",
-        }
+    async def __del__(self) -> None:
+        await self.client.aclose()
 
     async def get(
         self, url: str, params: Optional[Dict[str, Any]] = None
@@ -145,23 +135,17 @@ class AsyncAPIClient:
         self, url: str, params: Optional[Dict[str, Any]] = None
     ) -> AsyncIterator[bytes]:
         url = self.base_url + url
-        async with httpx.AsyncClient() as client:
-            async with client.stream(
-                "get", url, params=params, headers=self.headers, timeout=TIMEOUT
-            ) as response:
-                async for chunk in response.aiter_bytes():
-                    yield chunk
+        async with self.client.stream("get", url, params=params) as response:
+            async for chunk in response.aiter_bytes():
+                yield chunk
 
     async def post_stream(
         self, url: str, data: Optional[Dict[str, Any]] = None
     ) -> AsyncIterator[bytes]:
         url = self.base_url + url
-        async with httpx.AsyncClient() as client:
-            async with client.stream(
-                "post", url, json=data, headers=self.headers, timeout=TIMEOUT
-            ) as response:
-                async for chunk in response.aiter_bytes():
-                    yield chunk
+        async with self.client.stream("post", url, json=data) as response:
+            async for chunk in response.aiter_bytes():
+                yield chunk
 
     async def _request(
         self,
@@ -171,13 +155,11 @@ class AsyncAPIClient:
         data: Optional[Dict[str, Any]] = None,
     ) -> httpx.Response:
         url = self.base_url + url
-        async with httpx.AsyncClient() as client:
-            response = await client.request(
-                method,
-                url,
-                params=params,
-                json=data,
-                headers=self.headers,
-                timeout=TIMEOUT,
-            )
-            return response
+        response = await self.client.request(method, url, params=params, json=data)
+        return response
+
+    async def close(self) -> None:
+        """
+        Close the underlying HTTP client.
+        """
+        await self.client.aclose()
