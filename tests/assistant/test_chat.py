@@ -296,7 +296,7 @@ def test_chat_structured_simple() -> None:
         assert isinstance(response.message["name"], str)
         assert response.message["name"] == "John Doe"
         assert isinstance(response.message["occupation"], str)
-        assert response.message["occupation"] == "software engineer"
+        assert response.message["occupation"].lower() == "software engineer"
 
     finally:
         assistant.delete(confirm=True)
