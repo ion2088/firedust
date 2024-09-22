@@ -14,4 +14,4 @@ for data in important_data:
 
 # data becomes available in real-time
 response = assistant.chat.message("What should I do with the ring?")
-assert "destroy" in response.message.lower()
+assert "destroy" in response.content.lower()

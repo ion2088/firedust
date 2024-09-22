@@ -42,7 +42,7 @@ from typing import List
 
 from firedust.types import APIContent, Assistant, AssistantConfig, AsyncAssistant
 from firedust.types.base import INFERENCE_MODEL
-from firedust.utils.api import SyncAPIClient, AsyncAPIClient
+from firedust.utils.api import AsyncAPIClient, SyncAPIClient
 from firedust.utils.errors import APIError
 from firedust.utils.logging import LOG
 

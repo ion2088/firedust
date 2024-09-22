@@ -10,4 +10,4 @@ assistant.learn.fast("Gandalf is a good friend.")
 
 # data becomes available in real-time and persists in memory
 response = assistant.chat.message("Who is Gandalf?")
-assert "friend" in response.message.lower()
+assert "friend" in response.content.lower()

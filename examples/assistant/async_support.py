@@ -16,11 +16,11 @@ async def main() -> None:
 
     # chat
     response = await assistant.chat.message("Who is Gandalf?")
-    assert "friend" in response.message.lower()
+    assert "friend" in response.content.lower()
 
     # stream
     async for event in assistant.chat.stream("Who is Gandalf?"):
-        print(event.message)
+        print(event.content)
 
     # delete assistant
     await assistant.delete(confirm=True)

@@ -61,11 +61,11 @@ assistant = firedust.assistant.create(
 # ask a question
 question = "What is the shortest way to Mordor?"
 response = assistant.chat.message(question)
-print(response.message)
+print(response.content)
 
 # stream
 for event in assistant.chat.stream(question):
-    print(event.message)
+    print(event.content)
 ```
 
 ### Load an existing assistant
@@ -91,7 +91,7 @@ for data in important_data:
     assistant.learn.fast(data)
 
 response = assistant.chat.message("What should I do with the ring?")
-assert "destroy" in response.message.lower()
+assert "destroy" in response.content.lower()
 
 # see which data sources were used in the response
 print(response.references)
@@ -135,20 +135,23 @@ assistant = firedust.assistant.load(name="Sam")
 # add previous chat history to the assistant's memory
 message1 = Message(
     assistant="Sam",
-    user="product_team", # group name
-    message="John: Based on the last discussion, we've made the following changes to the product...", # annotate each message with the username
+    chat_group="product_team", # group name
+    username="John",
+    message="Based on the last discussion, we've made the following changes to the product",
     author="user",
 )
 message2 = Message(
     assistant="Sam",
-    user="product_team",
-    message="Helen: John, could you please share the updated product roadmap?",
+    chat_group="product_team",
+    username="Helen",
+    message="John, could you please share the updated product roadmap?",
     author="user",
 )
 message3 = Message(
     assistant="Sam",
-    user="product_team",
-    message="John: Sure, the new roadmap is the following...",
+    chat_group="product_team",
+    username="John",
+    message="Sure, the new roadmap is the following...",
     author="user",
 )
 
@@ -156,10 +159,11 @@ assistant.chat.add_history([message1, message2, message3])
 
 # chat in a group
 response = assistant.chat.message(
-    message="Troy: @Sam, who is sharing the new product roadmap?",
-    user="product_team", # group name
+    message="@Sam, who is sharing the new product roadmap?",
+    chat_group="product_team",
+    username="Troy",
 )
-assert "John" in response.message
+assert "John" in response.content
 ```
 
 ### Manage memories
@@ -235,26 +239,26 @@ import firedust
 
 assistant = firedust.assistant.load("Sam")
 
-user1 = "Pippin"
-user2 = "Merry"
-
 # user1 shares some important information with the assistant
 assistant.chat.message(
     message="My favourite desert is cinnamon bun.",
-    user=user1,
+    username="Merry",
+    chat_group="1"
 )
 response = assistant.chat.message(
     message="What is my favourite desert?",
-    user=user1,
+    username="Merry",
+    chat_group="1",
 )
-assert "cinnamon bun" in response.message.lower()
+assert "cinnamon bun" in response.content.lower()
 
 # user2 has no access to this information
 response = assistant.chat.message(
     message="What is Pippin's favourite desert?",
-    user=user2,
+    username="Pippin",
+    chat_group="2",
 )
-assert "cinnamon bun" not in response.message.lower()
+assert "cinnamon bun" not in response.content.lower()
 ```
 
 ### Asynchronous support
@@ -273,11 +277,11 @@ async def main() -> None:
 
     # chat
     response = await assistant.chat.message("Who is Gandalf?")
-    assert "friend" in response.message.lower()
+    assert "friend" in response.content.lower()
 
     # stream
     async for event in assistant.chat.stream("Who is Gandalf?"):
-        print(event.message)
+        print(event.content)
 
     # delete assistant
     await assistant.delete(confirm=True)

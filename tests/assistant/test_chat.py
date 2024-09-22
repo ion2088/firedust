@@ -36,7 +36,7 @@ def test_chat_streaming() -> None:
         # Check the response
         for _e in response:
             assert isinstance(_e, MessageStreamEvent)
-            assert isinstance(_e.message, str)
+            assert isinstance(_e.content, str)
 
         # Learn new stuff
         memory_id1 = assistant.learn.fast(
@@ -52,7 +52,7 @@ def test_chat_streaming() -> None:
         for _e in assistant.chat.stream(
             "What product categories are we almost always in various stages of transitioning the architecture?"
         ):
-            answer += _e.message
+            answer += _e.content
         assert any(
             [
                 "data center" in answer.lower(),
@@ -63,8 +63,8 @@ def test_chat_streaming() -> None:
 
         # Check that the new stuff is referenced in the last event
         assert _e.references is not None
-        assert memory_ids[0] in _e.references.memories
-        assert memory_ids[1] in _e.references.memories
+        assert memory_ids[0] in _e.references.memory_ids
+        assert memory_ids[1] in _e.references.memory_ids
     finally:
         # Remove the test assistant
         assistant.delete(confirm=True)
@@ -84,7 +84,63 @@ def test_chat_complete() -> None:
     try:
         response = assistant.chat.message("Hi, how are you?")
         assert isinstance(response, ReferencedMessage)
-        assert isinstance(response.message, str)
+        assert isinstance(response.content, str)
+    finally:
+        # Remove the test assistant
+        assistant.delete(confirm=True)
+
+
+@pytest.mark.skipif(
+    os.environ.get("FIREDUST_API_KEY") is None,
+    reason="The environment variable FIREDUST_API_KEY is not set.",
+)
+def test_chat_character() -> None:
+    # Create a test assistant with a role-playing scenario
+    assistant = firedust.assistant.create(
+        name=f"test-assistant-{random.randint(1, 1000)}",
+        instructions="""
+        Scenario: You are in a medieval fantasy world. The characters are:
+        - Brave Knight: A courageous and chivalrous knight who fights for justice.
+        - Wise Wizard: A powerful and knowledgeable wizard who provides guidance.
+        - Evil Sorcerer: A malevolent sorcerer who seeks to conquer the kingdom.
+        """,
+    )
+
+    try:
+        # Send a message as the Brave Knight
+        response = assistant.chat.message(
+            message="Who shall protect the innocent and vanquish evil?",
+            character="Brave Knight",
+        )
+        assert isinstance(response, ReferencedMessage)
+        assert (
+            "knight" in response.content.lower()
+            or "protect" in response.content.lower()
+        )
+        assert not response.content.lower().startswith("brave knight:")
+
+        # Send a message as the Wise Wizard
+        response = assistant.chat.message(
+            message="Who is the wisest?",
+            character="Wise Wizard",
+        )
+        assert isinstance(response, ReferencedMessage)
+        assert (
+            "wise" in response.content.lower() or "wizard" in response.content.lower()
+        )
+        assert not response.content.lower().startswith("wise wizard:")
+
+        # Send a message as the Evil Sorcerer
+        response = assistant.chat.message(
+            message="Who seeks to conquer the kingdom?",
+            character="Evil Sorcerer",
+        )
+        assert isinstance(response, ReferencedMessage)
+        assert (
+            "evil" in response.content.lower() or "sorcerer" in response.content.lower()
+        )
+        assert not response.content.lower().startswith("evil sorcerer:")
+
     finally:
         # Remove the test assistant
         assistant.delete(confirm=True)
@@ -107,7 +163,7 @@ async def test_async_chat_streaming() -> None:
         # Check the response
         async for _e in response:
             assert isinstance(_e, MessageStreamEvent)
-            assert isinstance(_e.message, str)
+            assert isinstance(_e.content, str)
 
         # Learn new stuff
         memory_id1 = await assistant.learn.fast(
@@ -123,7 +179,7 @@ async def test_async_chat_streaming() -> None:
         async for _e in assistant.chat.stream(
             "What product categories are we almost always in various stages of transitioning the architecture?"
         ):
-            answer += _e.message
+            answer += _e.content
         assert any(
             [
                 "data center" in answer.lower(),
@@ -134,8 +190,8 @@ async def test_async_chat_streaming() -> None:
 
         # Check that the new stuff is referenced in the last event
         assert _e.references is not None
-        assert memory_ids[0] in _e.references.memories
-        assert memory_ids[1] in _e.references.memories
+        assert memory_ids[0] in _e.references.memory_ids
+        assert memory_ids[1] in _e.references.memory_ids
     finally:
         await assistant.delete(confirm=True)
 
@@ -153,8 +209,65 @@ async def test_async_chat_complete() -> None:
     try:
         response = await assistant.chat.message("Hi, how are you?")
         assert isinstance(response, ReferencedMessage)
-        assert isinstance(response.message, str)
+        assert isinstance(response.content, str)
     finally:
+        await assistant.delete(confirm=True)
+
+
+@pytest.mark.skipif(
+    os.environ.get("FIREDUST_API_KEY") is None,
+    reason="The environment variable FIREDUST_API_KEY is not set.",
+)
+@pytest.mark.asyncio
+async def test_async_chat_character() -> None:
+    # Create a test assistant with a role-playing scenario
+    assistant = await firedust.assistant.async_create(
+        name=f"test-assistant-{random.randint(1, 1000)}",
+        instructions="""
+        Scenario: You are in a medieval fantasy world. The characters are:
+        - Brave Knight: A courageous and chivalrous knight who fights for justice.
+        - Wise Wizard: A powerful and knowledgeable wizard who provides guidance.
+        - Evil Sorcerer: A malevolent sorcerer who seeks to conquer the kingdom.
+        """,
+    )
+
+    try:
+        # Send a message as the Brave Knight
+        response = await assistant.chat.message(
+            message="Who shall protect the innocent and vanquish evil?",
+            character="Brave Knight",
+        )
+        assert isinstance(response, ReferencedMessage)
+        assert (
+            "knight" in response.content.lower()
+            or "protect" in response.content.lower()
+        )
+        assert not response.content.lower().startswith("brave knight:")
+
+        # Send a message as the Wise Wizard
+        response = await assistant.chat.message(
+            message="Who is the wisest?",
+            character="Wise Wizard",
+        )
+        assert isinstance(response, ReferencedMessage)
+        assert (
+            "wise" in response.content.lower() or "wizard" in response.content.lower()
+        )
+        assert not response.content.lower().startswith("wise wizard:")
+
+        # Send a message as the Evil Sorcerer
+        response = await assistant.chat.message(
+            message="Who seeks to conquer the kingdom?",
+            character="Evil Sorcerer",
+        )
+        assert isinstance(response, ReferencedMessage)
+        assert (
+            "evil" in response.content.lower() or "sorcerer" in response.content.lower()
+        )
+        assert not response.content.lower().startswith("evil sorcerer:")
+
+    finally:
+        # Remove the test assistant
         await assistant.delete(confirm=True)
 
 
@@ -167,20 +280,23 @@ def test_add_get_delete_chat_hisoty() -> None:
     try:
         message1 = Message(
             assistant=assistant.config.name,
-            user="product_team",
-            message="John: Based on the last discussion, we've made the following changes to the product...",
+            chat_group="product_team",
+            username="John",
+            content="Based on the last discussion, we've made the following changes to the product...",
             author="user",
         )
         message2 = Message(
             assistant=assistant.config.name,
-            user="product_team",
-            message="Helen: John, could you please share the updated product roadmap?",
+            chat_group="product_team",
+            username="Helen",
+            content="John, could you please share the updated product roadmap?",
             author="user",
         )
         message3 = Message(
             assistant=assistant.config.name,
-            user="product_team",
-            message="John: Sure, the new roadmap is the following...",
+            chat_group="product_team",
+            username="John",
+            content="Sure, the new roadmap is the following...",
             author="user",
         )
         messages = [message1, message2, message3]
@@ -191,12 +307,12 @@ def test_add_get_delete_chat_hisoty() -> None:
         # Test that the history is available in context
         response = assistant.chat.message(
             message="Who is sharing the new product roadmap?",
-            user="product_team",  # Previous conversations are available only to the same user
+            chat_group="product_team",  # Previous conversations are available only to the same user
         )
-        assert "John" in response.message
+        assert "John" in response.content
 
         # Get chat history
-        history = assistant.chat.get_history(user="product_team")
+        history = assistant.chat.get_history(chat_group="product_team")
         assert (
             len(history) == 5
         )  # 3 messages from history + 1 msg from user + 1 msg from assistant
@@ -204,10 +320,10 @@ def test_add_get_delete_chat_hisoty() -> None:
         assert all(m in history for m in messages)
 
         # Erase chat history
-        assistant.chat.erase_history(user="product_team", confirm=True)
+        assistant.chat.erase_history(chat_group="product_team", confirm=True)
 
         # Check that the history is erased
-        history = assistant.chat.get_history(user="product_team")
+        history = assistant.chat.get_history(chat_group="product_team")
         assert len(history) == 0
     finally:
         assistant.delete(confirm=True)
@@ -225,20 +341,23 @@ async def test_async_add_get_delete_history() -> None:
     try:
         message1 = Message(
             assistant=assistant.config.name,
-            user="product_team",
-            message="John: Based on the last discussion, we've made the following changes to the product...",
+            chat_group="product_team",
+            username="John",
+            content="Based on the last discussion, we've made the following changes to the product...",
             author="user",
         )
         message2 = Message(
             assistant=assistant.config.name,
-            user="product_team",
-            message="Helen: John, could you please share the updated product roadmap?",
+            chat_group="product_team",
+            username="Helen",
+            content="John, could you please share the updated product roadmap?",
             author="user",
         )
         message3 = Message(
             assistant=assistant.config.name,
-            user="product_team",
-            message="John: Sure, the new roadmap is the following...",
+            chat_group="product_team",
+            username="John",
+            content="Sure, the new roadmap is the following...",
             author="user",
         )
         messages = [message1, message2, message3]
@@ -249,12 +368,12 @@ async def test_async_add_get_delete_history() -> None:
         # Test that the history is available in context
         response = await assistant.chat.message(
             message="Who is sharing the new product roadmap?",
-            user="product_team",  # Previous conversations are available only to the same user
+            chat_group="product_team",  # Previous conversations are available only to the same user
         )
-        assert "John" in response.message
+        assert "John" in response.content
 
         # Get chat history
-        history = await assistant.chat.get_history(user="product_team")
+        history = await assistant.chat.get_history(chat_group="product_team")
         assert (
             len(history) == 5
         )  # 3 messages from history + 1 msg from user + 1 msg from assistant
@@ -262,10 +381,10 @@ async def test_async_add_get_delete_history() -> None:
         assert all(m in history for m in messages)
 
         # Erase chat history
-        await assistant.chat.erase_history(user="product_team", confirm=True)
+        await assistant.chat.erase_history(chat_group="product_team", confirm=True)
 
         # Check that the history is erased
-        history = await assistant.chat.get_history(user="product_team")
+        history = await assistant.chat.get_history(chat_group="product_team")
         assert len(history) == 0
     finally:
         await assistant.delete(confirm=True)
@@ -285,18 +404,18 @@ def test_chat_structured_simple() -> None:
     try:
         response = assistant.chat.structured(
             message="My name is John Doe and I'm a software engineer.",
-            user="test_user",
+            chat_group="test_user",
             schema=schema,
             add_to_memory=False,
         )
 
         # Check the response
         assert isinstance(response, StructuredAssistantMessage)
-        assert schema.keys() == response.message.keys()
-        assert isinstance(response.message["name"], str)
-        assert response.message["name"] == "John Doe"
-        assert isinstance(response.message["occupation"], str)
-        assert response.message["occupation"].lower() == "software engineer"
+        assert schema.keys() == response.content.keys()
+        assert isinstance(response.content["name"], str)
+        assert response.content["name"] == "John Doe"
+        assert isinstance(response.content["occupation"], str)
+        assert response.content["occupation"].lower() == "software engineer"
 
     finally:
         assistant.delete(confirm=True)
@@ -319,18 +438,18 @@ async def test_async_chat_structured_simple() -> None:
     try:
         response = await assistant.chat.structured(
             message="My name is Jane Smith and I'm a data scientist.",
-            user="test_user",
+            chat_group="test_user",
             schema=schema,
             add_to_memory=False,
         )
 
         # Check the response
         assert isinstance(response, StructuredAssistantMessage)
-        assert schema.keys() == response.message.keys()
-        assert isinstance(response.message["name"], str)
-        assert response.message["name"] == "Jane Smith"
-        assert isinstance(response.message["occupation"], str)
-        assert response.message["occupation"].lower() == "data scientist"
+        assert schema.keys() == response.content.keys()
+        assert isinstance(response.content["name"], str)
+        assert response.content["name"] == "Jane Smith"
+        assert isinstance(response.content["occupation"], str)
+        assert response.content["occupation"].lower() == "data scientist"
 
     finally:
         await assistant.delete(confirm=True)
@@ -399,38 +518,38 @@ def test_chat_structured_complex_message() -> None:
     try:
         response = assistant.chat.structured(
             message=f"Extract information from the text: {data}",
-            user="product_team",
+            chat_group="product_team",
             schema=schema,
             add_to_memory=False,
         )
 
         # Check the response
         assert isinstance(response, StructuredAssistantMessage)
-        assert schema.keys() == response.message.keys()
-        assert isinstance(response.message["name"], str)
-        assert response.message["name"].lower() == "general dynamics"
-        assert isinstance(response.message["description"], str)
-        assert isinstance(response.message["values"], list)
-        for value in response.message["values"]:
+        assert schema.keys() == response.content.keys()
+        assert isinstance(response.content["name"], str)
+        assert response.content["name"].lower() == "general dynamics"
+        assert isinstance(response.content["description"], str)
+        assert isinstance(response.content["values"], list)
+        for value in response.content["values"]:
             assert isinstance(value, dict)
             assert isinstance(value["name"], str)
             assert isinstance(value["description"], str)
 
-        assert isinstance(response.message["products"], list)
-        assert all(isinstance(product, str) for product in response.message["products"])
+        assert isinstance(response.content["products"], list)
+        assert all(isinstance(product, str) for product in response.content["products"])
 
-        assert isinstance(response.message["industry"], str)
-        assert response.message["industry"].lower() in [
+        assert isinstance(response.content["industry"], str)
+        assert response.content["industry"].lower() in [
             "agriculture",
             "defense",
             "chemicals",
             "energy",
         ]
 
-        assert isinstance(response.message["weapons"], bool)
-        assert response.message["weapons"] is True
+        assert isinstance(response.content["weapons"], bool)
+        assert response.content["weapons"] is True
 
-        assert isinstance(response.message["employees"], float)
+        assert isinstance(response.content["employees"], float)
 
     finally:
         assistant.delete(confirm=True)
@@ -521,7 +640,7 @@ def test_structured_frodo() -> None:
     try:
         response = assistant.chat.structured(
             message="You: Hello",
-            user="Youb5531c29",
+            chat_group="Youb5531c29",
             schema=schema_,
             add_to_memory=False,
         )
