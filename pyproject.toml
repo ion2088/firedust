@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "firedust"
-version = "0.0.55"
+version = "0.0.56"
 description = "A simple framework to build and deploy AI tools."
 authors = ["ion <firedvst@gmail.com>"]
 readme = "README.md"

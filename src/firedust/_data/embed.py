@@ -26,5 +26,5 @@ def text(content: str) -> List[float]:
             code=response.status_code,
             message=f"Failed to generate embeddings: {response.text}",
         )
-    embeddings: List[float] = response.json()["data"]["embeddings"]
+    embeddings: List[float] = response.json()["data"]["embedding"]
     return embeddings
