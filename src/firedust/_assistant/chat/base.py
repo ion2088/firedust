@@ -65,7 +65,7 @@ class Chat:
         """
         user_message = UserMessage(
             assistant=self.config.name,
-            username=username,
+            name=username,
             content=message,
             chat_group=chat_group,
             timestamp=datetime.now().timestamp(),
@@ -135,7 +135,7 @@ class Chat:
         """
         user_message = UserMessage(
             assistant=self.config.name,
-            username=username,
+            name=username,
             content=message,
             chat_group=chat_group,
             timestamp=datetime.now().timestamp(),
@@ -200,7 +200,7 @@ class Chat:
         user_message = StructuredUserMessage(
             assistant=self.config.name,
             chat_group=chat_group,
-            username=username,
+            name=username,
             content=message,
             schema_=schema,
             timestamp=datetime.now().timestamp(),
@@ -401,7 +401,7 @@ class AsyncChat:
         user_message = UserMessage(
             assistant=self.config.name,
             chat_group=chat_group,
-            username=username,
+            name=username,
             content=message,
             timestamp=datetime.now().timestamp(),
         )
@@ -475,7 +475,7 @@ class AsyncChat:
         user_message = UserMessage(
             assistant=self.config.name,
             chat_group=chat_group,
-            username=username,
+            name=username,
             content=message,
             timestamp=datetime.now().timestamp(),
         )
@@ -543,7 +543,7 @@ class AsyncChat:
         user_message = StructuredUserMessage(
             assistant=self.config.name,
             chat_group=chat_group,
-            username=username,
+            name=username,
             content=message,
             schema_=schema,
             timestamp=datetime.now().timestamp(),

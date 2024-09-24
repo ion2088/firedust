@@ -281,21 +281,21 @@ def test_add_get_delete_chat_hisoty() -> None:
         message1 = Message(
             assistant=assistant.config.name,
             chat_group="product_team",
-            username="John",
+            name="John",
             content="Based on the last discussion, we've made the following changes to the product...",
             author="user",
         )
         message2 = Message(
             assistant=assistant.config.name,
             chat_group="product_team",
-            username="Helen",
+            name="Helen",
             content="John, could you please share the updated product roadmap?",
             author="user",
         )
         message3 = Message(
             assistant=assistant.config.name,
             chat_group="product_team",
-            username="John",
+            name="John",
             content="Sure, the new roadmap is the following...",
             author="user",
         )
@@ -342,21 +342,21 @@ async def test_async_add_get_delete_history() -> None:
         message1 = Message(
             assistant=assistant.config.name,
             chat_group="product_team",
-            username="John",
+            name="John",
             content="Based on the last discussion, we've made the following changes to the product...",
             author="user",
         )
         message2 = Message(
             assistant=assistant.config.name,
             chat_group="product_team",
-            username="Helen",
+            name="Helen",
             content="John, could you please share the updated product roadmap?",
             author="user",
         )
         message3 = Message(
             assistant=assistant.config.name,
             chat_group="product_team",
-            username="John",
+            name="John",
             content="Sure, the new roadmap is the following...",
             author="user",
         )

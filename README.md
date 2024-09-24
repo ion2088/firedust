@@ -136,21 +136,21 @@ assistant = firedust.assistant.load(name="Sam")
 message1 = Message(
     assistant="Sam",
     chat_group="product_team", # group name
-    username="John",
+    name="John",
     message="Based on the last discussion, we've made the following changes to the product",
     author="user",
 )
 message2 = Message(
     assistant="Sam",
     chat_group="product_team",
-    username="Helen",
+    name="Helen",
     message="John, could you please share the updated product roadmap?",
     author="user",
 )
 message3 = Message(
     assistant="Sam",
     chat_group="product_team",
-    username="John",
+    name="John",
     message="Sure, the new roadmap is the following...",
     author="user",
 )
@@ -161,7 +161,7 @@ assistant.chat.add_history([message1, message2, message3])
 response = assistant.chat.message(
     message="@Sam, who is sharing the new product roadmap?",
     chat_group="product_team",
-    username="Troy",
+    name="Troy",
 )
 assert "John" in response.content
 ```
@@ -242,12 +242,12 @@ assistant = firedust.assistant.load("Sam")
 # user1 shares some important information with the assistant
 assistant.chat.message(
     message="My favourite desert is cinnamon bun.",
-    username="Merry",
+    name="Merry",
     chat_group="1"
 )
 response = assistant.chat.message(
     message="What is my favourite desert?",
-    username="Merry",
+    name="Merry",
     chat_group="1",
 )
 assert "cinnamon bun" in response.content.lower()
@@ -255,7 +255,7 @@ assert "cinnamon bun" in response.content.lower()
 # user2 has no access to this information
 response = assistant.chat.message(
     message="What is Pippin's favourite desert?",
-    username="Pippin",
+    name="Pippin",
     chat_group="2",
 )
 assert "cinnamon bun" not in response.content.lower()

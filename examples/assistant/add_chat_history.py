@@ -10,21 +10,21 @@ message1 = Message(
     chat_group="product_team",
     content="Based on the last discussion, we've made the following changes to the product...",
     author="user",
-    username="John",
+    name="John",
 )
 message2 = Message(
     assistant="Sam",
     chat_group="product_team",
     content="John, could you please share the updated product roadmap?",
     author="user",
-    username="Helen",
+    name="Helen",
 )
 message3 = Message(
     assistant="Sam",
     chat_group="product_team",
     content="Sure, the new roadmap is the following...",
     author="user",
-    username="John",
+    name="John",
 )
 
 assistant.chat.add_history([message1, message2, message3])
