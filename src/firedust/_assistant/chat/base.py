@@ -263,7 +263,6 @@ class Chat:
         response = self.api_client.put(
             "/assistant/chat/history",
             data={
-                "assistant": self.config.name,
                 "messages": [msg.model_dump() for msg in messages],
             },
         )
@@ -609,7 +608,6 @@ class AsyncChat:
         response = await self.api_client.put(
             "/assistant/chat/history",
             data={
-                "assistant": self.config.name,
                 "messages": [msg.model_dump() for msg in messages],
             },
         )
