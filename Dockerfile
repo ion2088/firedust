@@ -18,7 +18,8 @@ COPY pyproject.toml poetry.lock ./
 FROM stage as firedust-dev
 
 ENV PATH="/home/vscode/local/bin:$PATH" \
-    ENV="local"
+    ENV="local" \
+    FIREDUST_API_URL="http://localhost:8000"
 
 # Install development dependencies
 RUN apt-get update && \
