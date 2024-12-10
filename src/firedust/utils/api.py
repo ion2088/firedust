@@ -96,6 +96,7 @@ class AsyncAPIClient(BaseAPIClient):
     def __init__(self, api_key: Optional[str] = None, base_url: str = BASE_URL) -> None:
         super().__init__(api_key, base_url)
         self.client = httpx.AsyncClient(timeout=TIMEOUT, headers=self.headers)
+        self._closed = False
 
     async def __aenter__(self) -> "AsyncAPIClient":
         return self
@@ -106,10 +107,12 @@ class AsyncAPIClient(BaseAPIClient):
         exc_val: Optional[BaseException],
         exc_tb: Optional[TracebackType],
     ) -> None:
-        await self.client.aclose()
+        await self.close()
 
-    async def __del__(self) -> None:
-        await self.client.aclose()
+    async def close(self) -> None:
+        if not self._closed:
+            await self.client.aclose()
+            self._closed = True
 
     async def get(
         self, url: str, params: Optional[Dict[str, Any]] = None
@@ -157,9 +160,3 @@ class AsyncAPIClient(BaseAPIClient):
         url = self.base_url + url
         response = await self.client.request(method, url, params=params, json=data)
         return response
-
-    async def close(self) -> None:
-        """
-        Close the underlying HTTP client.
-        """
-        await self.client.aclose()

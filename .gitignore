@@ -45,3 +45,6 @@ dmypy.json
 # Package distribution
 *.egg-info/
 dist/
+
+# Ignore temp folder
+temp/

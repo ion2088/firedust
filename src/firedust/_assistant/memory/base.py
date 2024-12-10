@@ -91,6 +91,8 @@ class Memory:
                 code=response.status_code,
                 message=f"Failed to get memories: {response.text}",
             )
+        if response.status_code == 204:
+            return []
 
         content = APIContent(**response.json())
         return [MemoryItem(**memory) for memory in content.data]
@@ -305,8 +307,12 @@ class AsyncMemory:
                 code=response.status_code,
                 message=f"Failed to recall memories: {response.text}",
             )
+        try:
+            content = APIContent(**response.json())
+        except Exception as e:
+            print(f"Failed to parse response: {response.text}")
+            raise e
 
-        content = APIContent(**response.json())
         return [MemoryItem(**memory) for memory in content.data]
 
     async def get(self, memory_ids: List[UUID]) -> List[MemoryItem]:
