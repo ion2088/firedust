@@ -15,6 +15,8 @@ INFERENCE_MODEL = Literal[
     "openai/gpt-4o",
     "openai/gpt-4o-mini",
     "openai/gpt-3.5-turbo",
+    "groq/llama-3.3-70b-versatile",
+    "groq/llama-3.1-8b-instant",
 ]
 
 
