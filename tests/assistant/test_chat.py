@@ -313,11 +313,12 @@ def test_add_get_delete_chat_hisoty() -> None:
 
         # Get chat history
         history = assistant.chat.get_history(chat_group="product_team")
+        history_ids = [message.id for message in history]
         assert (
             len(history) == 5
         )  # 3 messages from history + 1 msg from user + 1 msg from assistant
         assert all(isinstance(message, Message) for message in history)
-        assert all(m in history for m in messages)
+        assert all(m.id in history_ids for m in messages)
 
         # Erase chat history
         assistant.chat.erase_history(chat_group="product_team", confirm=True)
@@ -374,12 +375,13 @@ async def test_async_add_get_delete_history() -> None:
 
         # Get chat history
         history = await assistant.chat.get_history(chat_group="product_team")
+        history_ids = [message.id for message in history]
         assert (
             len(history) == 5
         )  # 3 messages from history + 1 msg from user + 1 msg from assistant
         assert all(isinstance(message, Message) for message in history)
-        assert all(m in history for m in messages)
-
+        assert all(m.id in history_ids for m in messages)
+        
         # Erase chat history
         await assistant.chat.erase_history(chat_group="product_team", confirm=True)
 

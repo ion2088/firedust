@@ -17,8 +17,10 @@ MODELS: List[INFERENCE_MODEL] = [
     "openai/gpt-4o",
     "openai/gpt-4o-mini",
     "openai/gpt-3.5-turbo",
+    "openai/o3-mini",
     "groq/llama-3.3-70b-versatile",
     "groq/llama-3.1-8b-instant",
+    "groq/deepseek-r1-distill-llama-70b",
 ]
 
 

@@ -34,6 +34,7 @@ from firedust._assistant.base.assistant import (
     Assistant as Assistant,
     AsyncAssistant as AsyncAssistant,
 )
+from .safety import SafetyCheck
 
 __all__ = [
     "Assistant",
@@ -54,4 +55,5 @@ __all__ = [
     "StructuredAssistantMessage",
     "StructuredUserMessage",
     "INFERENCE_MODEL",
+    "SafetyCheck",
 ]
