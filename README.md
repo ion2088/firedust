@@ -26,6 +26,7 @@
 - **Integration Options**: Deploy to Slack or integrate via API into your apps.
 - **Real-time Training**: Add your data and train the assistant in real-time.
 - **Dynamic Context Recall**: Assistants utilize past conversations and user-added data to generate responses, clearly referencing the specific data sources used in their answers.
+- **Function-Calling Abilities**: Expose your own functions (tools) that the model can call to augment its capabilities.
 - **Group Chat**: Support for both group and one-on-one interactions.
 - **Privacy and Security**: Chats are private, with data encrypted both in transit and at rest.
 - **Asynchronous Support**: Fully supports asynchronous programming.
@@ -33,7 +34,7 @@
 
 ## Quickstart
 
-Get your api key [here](https://www.firedust.dev) and set it as an environment variable:
+Request an API key at hello@firedust.dev and set it as an environment variable:
 ```sh
 export FIREDUST_API_KEY=your_api_key
 ```
@@ -97,6 +98,65 @@ assert "destroy" in response.content.lower()
 print(response.references)
 ```
 
+### Add abilities (function-calling tools)
+
+Empower the assistant with custom abilities that it can invoke when needed. These follow the OpenAI function-calling format.
+
+```python
+from firedust.types import FunctionDefinition, Tool
+import firedust
+
+# load an existing assistant (or create a new one)
+assistant = firedust.assistant.load("Samwise")
+
+# define a simple weather function
+weather_tool = Tool(
+    function=FunctionDefinition(
+        name="get_current_weather",
+        description="Get the current weather for a location.",
+        parameters={
+            "type": "object",
+            "properties": {
+                "location": {"type": "string", "description": "City name"}
+            },
+            "required": ["location"],
+        },
+    )
+)
+
+# Add the ability to the assistant
+assistant.abilities.add(weather_tool)
+
+# Ask a question that should trigger the tool call
+response = assistant.chat.message("What's the weather like in Paris today?", add_to_memory=False)
+
+# Inspect tool calls
+print(response.tool_calls)  # -> list with the invocation and arguments
+
+# Update an ability (e.g., change its schema)
+updated_tool = Tool(
+    function=FunctionDefinition(
+        name="get_current_weather",
+        description="Retrieve current weather details by coordinates.",
+        parameters={
+            "type": "object",
+            "properties": {
+                "coordinates": {
+                    "type": "array",
+                    "description": "[latitude, longitude]",
+                    "items": {"type": "number"},
+                }
+            },
+            "required": ["coordinates"],
+        },
+    )
+)
+assistant.abilities.update(updated_tool)
+
+# Remove an ability
+assistant.abilities.remove("get_current_weather")
+```
+
 ### Deploy to Slack
 
 Deploy your assistants to slack to chat in groups or one-on-one. Firedust handles the deployment, server management and scaling for you. The slack app is [open sourced](https://github.com/ion2088/firedust-slack).
@@ -137,21 +197,21 @@ message1 = Message(
     assistant="Sam",
     chat_group="product_team", # group name
     name="John",
-    message="Based on the last discussion, we've made the following changes to the product",
+    content="Based on the last discussion, we've made the following changes to the product",
     author="user",
 )
 message2 = Message(
     assistant="Sam",
     chat_group="product_team",
     name="Helen",
-    message="John, could you please share the updated product roadmap?",
+    content="John, could you please share the updated product roadmap?",
     author="user",
 )
 message3 = Message(
     assistant="Sam",
     chat_group="product_team",
     name="John",
-    message="Sure, the new roadmap is the following...",
+    content="Sure, the new roadmap is the following...",
     author="user",
 )
 
@@ -241,12 +301,12 @@ assistant = firedust.assistant.load("Sam")
 
 # user1 shares some important information with the assistant
 assistant.chat.message(
-    message="My favourite desert is cinnamon bun.",
+    message="My favourite dessert is cinnamon bun.",
     name="Merry",
     chat_group="1"
 )
 response = assistant.chat.message(
-    message="What is my favourite desert?",
+    message="What is my favourite dessert?",
     name="Merry",
     chat_group="1",
 )

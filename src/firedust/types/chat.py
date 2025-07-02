@@ -6,6 +6,7 @@ from pydantic import BaseModel, Field, field_serializer
 
 from .base import UNIX_TIMESTAMP, BaseConfig
 from .structured import STRUCTURED_RESPONSE, STRUCTURED_SCHEMA
+from .tools import ToolCalls
 
 
 class Message(BaseConfig):
@@ -50,6 +51,10 @@ class AssistantMessage(Message):
         "assistant",
         description="Indicates that the author of the message is the assistant.",
     )
+    tool_calls: Optional[ToolCalls] = Field(
+        None,
+        description="Tool calls requested by the assistant, if any.",
+    )
 
 
 class MessageReferences(BaseModel):
@@ -78,6 +83,10 @@ class ReferencedMessage(Message):
         None,
         description="References to memories and conversations used by the assistant as context to answer the query.",
     )
+    tool_calls: Optional[ToolCalls] = Field(
+        None,
+        description="Tool calls requested by the assistant, if any.",
+    )
 
 
 class StructuredAssistantMessage(BaseConfig):
@@ -105,6 +114,10 @@ class StructuredAssistantMessage(BaseConfig):
     references: Optional[MessageReferences] = Field(
         None,
         description="References to memories and conversations used by the assistant as context to answer the query.",
+    )
+    tool_calls: Optional[ToolCalls] = Field(
+        None,
+        description="Tool calls requested by the assistant, if any.",
     )
 
 

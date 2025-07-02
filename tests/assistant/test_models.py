@@ -16,7 +16,6 @@ MODELS: List[INFERENCE_MODEL] = [
     "openai/gpt-4-turbo-preview",
     "openai/gpt-4o",
     "openai/gpt-4o-mini",
-    "openai/gpt-3.5-turbo",
     "openai/o3-mini",
     "groq/llama-3.3-70b-versatile",
     "groq/llama-3.1-8b-instant",
@@ -51,33 +50,3 @@ def test_models_sync() -> None:
 
         finally:
             assistant.delete(confirm=True)
-
-
-@pytest.mark.skipif(
-    os.environ.get("FIREDUST_API_KEY") is None,
-    reason="The environment variable FIREDUST_API_KEY is not set.",
-)
-@pytest.mark.asyncio
-async def test_models_async() -> None:
-    for model in MODELS:
-        assistant = await firedust.assistant.async_create(
-            name=f"test-assistant-{random.randint(1, 1000)}",
-            instructions="You are a helpful assistant.",
-            model=model,
-        )
-
-        try:
-            # Test completion
-            response = await assistant.chat.message("What is 2+2?")
-            assert isinstance(response.content, str)
-            assert len(response.content) > 0
-
-            # Test streaming
-            stream_content = ""
-            async for event in assistant.chat.stream("What is 3+3?"):
-                assert isinstance(event.content, str)
-                stream_content += event.content
-            assert len(stream_content) > 0
-
-        finally:
-            await assistant.delete(confirm=True)

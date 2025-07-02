@@ -381,7 +381,7 @@ async def test_async_add_get_delete_history() -> None:
         )  # 3 messages from history + 1 msg from user + 1 msg from assistant
         assert all(isinstance(message, Message) for message in history)
         assert all(m.id in history_ids for m in messages)
-        
+
         # Erase chat history
         await assistant.chat.erase_history(chat_group="product_team", confirm=True)
 

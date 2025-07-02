@@ -30,6 +30,14 @@ from firedust.types.structured import (
 from firedust.types.base import INFERENCE_MODEL as INFERENCE_MODEL
 from firedust.types.memory import MemoryItem as MemoryItem
 from firedust.types.api import APIContent as APIContent
+from firedust.types.tools import (
+    Tools,
+    ToolCalls,
+    Tool,
+    FunctionDefinition,
+    ToolCall,
+    FunctionCall,
+)
 from firedust._assistant.base.assistant import (
     Assistant as Assistant,
     AsyncAssistant as AsyncAssistant,
@@ -56,4 +64,10 @@ __all__ = [
     "StructuredUserMessage",
     "INFERENCE_MODEL",
     "SafetyCheck",
+    "Tools",
+    "ToolCalls",
+    "Tool",
+    "FunctionDefinition",
+    "ToolCall",
+    "FunctionCall",
 ]

@@ -4,6 +4,7 @@ from pydantic import BaseModel, field_validator
 
 from .base import INFERENCE_MODEL
 from .interface import Interfaces
+from .tools import Tools
 
 ASSISTANT_NAME = str
 
@@ -18,13 +19,15 @@ class AssistantConfig(BaseModel):
         model (INFERENCE_MODEL, optional): The inference model used by the assistant. Defaults to "openai/gpt-4".
         attached_memories (List[ASSISTANT_NAME], optional): A list of assistant names whose memories are shared with the current assistant. Defaults to [].
         interfaces (Sequence[Interface], optional): The deployments of the assistant. Defaults to None.
+        abilities (Tools, optional): List of function tools (abilities) available to the assistant. Defaults to [].
     """
 
     name: str
     instructions: str
-    model: INFERENCE_MODEL = "openai/gpt-4"
+    model: INFERENCE_MODEL = "openai/gpt-4o"
     attached_memories: List[ASSISTANT_NAME] = []
     interfaces: Interfaces = Interfaces()
+    abilities: Tools = []
 
     @field_validator("name")
     @classmethod

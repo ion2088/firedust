@@ -13,6 +13,7 @@ print(response.message)
 
 from typing import Optional
 
+from firedust._assistant.abilities.base import Abilities, AsyncAbilities
 from firedust._assistant.chat.base import AsyncChat, Chat
 from firedust._assistant.interface.base import AsyncInterface, Interface
 from firedust._assistant.learning.base import AsyncLearning, Learning
@@ -50,6 +51,7 @@ class Assistant:
         learn (Learning): Methods to add your data to the assistant's knowledge.
         chat (Chat): Methods to chat with the assistant.
         memory (Memory): Methods to interact with the assistant's memory.
+        abilities (Abilities): Manage the assistant's function-calling tools (abilities).
 
     Private Attributes:
         _allow_instantiation (bool): A private attribute to discourage direct instantiation of the Assistant class.
@@ -63,6 +65,7 @@ class Assistant:
     _learn: Learning
     _chat: Chat
     _memory: Memory
+    _abilities: Abilities
 
     # assistant should be started with firedust.assistant.create or .load methods
     _allow_instantiation: bool = False
@@ -102,6 +105,7 @@ class Assistant:
         self._learn = Learning(self._config, self._api_client)
         self._chat = Chat(self._config, self._api_client)
         self._memory = Memory(self._config, self._api_client)
+        self._abilities = Abilities(self._config, self._api_client)
 
     def __setattr__(self, key: str, value: str) -> None:
         """
@@ -167,6 +171,11 @@ class Assistant:
     @property
     def memory(self) -> Memory:
         return self._memory
+
+    @property
+    def abilities(self) -> Abilities:
+        """Manage the assistant's function-calling tools (abilities)."""
+        return self._abilities
 
     @classmethod
     def _create_instance(
@@ -358,6 +367,7 @@ class AsyncAssistant:
         learn (AsyncLearning): Methods to train the assistant on your data.
         chat (AsyncChat): Methods to chat with the assistant.
         memory (AsyncMemory): Methods to interact with the assistant's memory.
+        abilities (AsyncAbilities): Manage the assistant's function-calling tools (abilities), asynchronously.
 
     Private Attributes:
         _allow_instantiation (bool): A private attribute to discourage direct instantiation of the AsyncAssistant class.
@@ -371,6 +381,7 @@ class AsyncAssistant:
     _learn: AsyncLearning
     _chat: AsyncChat
     _memory: AsyncMemory
+    _abilities: AsyncAbilities
 
     # assistant should be instantiated using the create and load classmethods
     _allow_instantiation: bool = False
@@ -413,6 +424,7 @@ class AsyncAssistant:
         self._learn = AsyncLearning(self._config, self._api_client)
         self._chat = AsyncChat(self._config, self._api_client)
         self._memory = AsyncMemory(self._config, self._api_client)
+        self._abilities = AsyncAbilities(self._config, self._api_client)
 
     def __setattr__(self, key: str, value: str) -> None:
         """
@@ -482,6 +494,11 @@ class AsyncAssistant:
     @property
     def memory(self) -> AsyncMemory:
         return self._memory
+
+    @property
+    def abilities(self) -> AsyncAbilities:
+        """Manage the assistant's function-calling tools (abilities), asynchronously."""
+        return self._abilities
 
     @classmethod
     async def _create_instance(
