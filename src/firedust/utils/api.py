@@ -7,8 +7,7 @@ import httpx
 from firedust.utils.errors import MissingFiredustKeyError
 
 # Use environment variable with fallback to production URL
-# BASE_URL = os.getenv("FIREDUST_API_URL", "https://api.firedust.dev")
-BASE_URL = "http://localhost:8080"
+BASE_URL = os.getenv("FIREDUST_API_URL", "https://api.firedust.dev")
 TIMEOUT = 300
 
 
