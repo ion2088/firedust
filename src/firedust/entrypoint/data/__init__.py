@@ -1,3 +1,3 @@
-from firedust._data import embed, safetycheck, score
+from firedust._data import embed, safetycheck
 
-__all__ = ["score", "embed", "safetycheck"]
+__all__ = ["embed", "safetycheck"]

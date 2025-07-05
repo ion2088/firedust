@@ -4,22 +4,25 @@ from datetime import datetime
 from typing import AsyncIterable, AsyncIterator, Iterable, Iterator, List, Optional
 
 from firedust.types import (
-    STRUCTURED_SCHEMA,
     AssistantConfig,
     Message,
     MessageStreamEvent,
     ReferencedMessage,
-    StructuredAssistantMessage,
-    StructuredUserMessage,
 )
-from firedust.types.chat import UserMessage
+from firedust.types.chat import (
+    ChatRequest,
+    MemoryConfiguration,
+    ResponseConfiguration,
+    ResponseFormat,
+    UserMessage,
+)
 from firedust.utils.api import AsyncAPIClient, SyncAPIClient
 from firedust.utils.errors import APIError
 
 
 class Chat:
     """
-    A collection of asynchronous methods to chat with the assistant.
+    A collection of methods to chat with the assistant.
     """
 
     def __init__(self, config: AssistantConfig, api_client: SyncAPIClient) -> None:
@@ -33,10 +36,13 @@ class Chat:
         chat_group: str = "default",
         username: Optional[str] = None,
         character: Optional[str] = None,
+        instructions: Optional[str] = None,
         add_to_memory: bool = True,
+        use_memory: bool = True,
+        response_format: Optional[ResponseFormat] = None,
     ) -> Iterator[MessageStreamEvent]:
         """
-        Streams the assistant's response to a message. The assistants uses relevant memories and
+        Streams the assistant's response to a message. The assistant uses relevant memories and
         previous conversations to generate a response. Conversations with the given user are private,
         and the assistant does not share the information with other users.
 
@@ -48,17 +54,23 @@ class Chat:
         query = "Summarize the research papers about..."
 
         for event in assistant.chat.stream(query):
-            print(event.message)
+            print(event.content)
 
         # See which memories the assistant used to generate the response. The references
         # are always provided in the last event of the stream.
-        memory_ids = event.references.memories
+        memory_ids = event.references.memory_ids
         memories = assistant.memory.get(memory_ids)
         ```
 
         Args:
             message (str): The message to send.
-            user (str, optional): The unique identifier of the user. Defaults to "default".
+            chat_group (str, optional): The unique identifier of the chat group. Defaults to "default".
+            username (str, optional): The username of the user. Defaults to None.
+            character (str, optional): The name of the persona the assistant should embody in the response. Defaults to None.
+            instructions (str, optional): Additional instructions for this specific request. Defaults to None.
+            add_to_memory (bool, optional): Whether to add the interaction to memory. Defaults to True.
+            use_memory (bool, optional): Whether to use memory for generating the response. Defaults to True.
+            response_format (ResponseFormat, optional): Structured output configuration. Defaults to None.
 
         Yields:
             MessageStreamEvent: The response from the assistant.
@@ -70,16 +82,25 @@ class Chat:
             chat_group=chat_group,
             timestamp=datetime.now().timestamp(),
         )
+
+        # Build the request using the new ChatRequest structure
+        chat_request = ChatRequest(
+            message=user_message,
+            response_config=ResponseConfiguration(
+                character=character,
+                instructions=instructions,
+                response_format=response_format,
+            ),
+            memory_config=MemoryConfiguration(
+                add_to_memory=add_to_memory,
+                use_memory=use_memory,
+            ),
+        )
+
         try:
             for msg in self.api_client.post_stream(
                 "/assistant/chat/stream",
-                data={
-                    "message": user_message.model_dump(),
-                    "response_config": {
-                        "character": character,
-                    },
-                    "add_to_memory": add_to_memory,
-                },
+                data=chat_request.model_dump(),
             ):
                 msg_decoded = msg.decode("utf-8")
                 for event in _process_stream_chunk(
@@ -100,7 +121,10 @@ class Chat:
         chat_group: str = "default",
         username: Optional[str] = None,
         character: Optional[str] = None,
+        instructions: Optional[str] = None,
         add_to_memory: bool = True,
+        use_memory: bool = True,
+        response_format: Optional[ResponseFormat] = None,
     ) -> ReferencedMessage:
         """
         Returns a full response from the assistant to a message. It takes longer to get a response
@@ -120,15 +144,19 @@ class Chat:
         print(response.content)
 
         # See which memories the assistant used to generate the response.
-        memory_ids = response.references.memories
+        memory_ids = response.references.memory_ids
         memories = assistant.memory.get(memory_ids)
         ```
 
         Args:
-            content (str): The content of the message to send.
+            message (str): The message to send.
             chat_group (str, optional): The unique identifier of the chat group. Defaults to "default".
             username (str, optional): The username of the user. Defaults to None.
             character (str, optional): The name of the persona the assistant should embody in the response. Defaults to None.
+            instructions (str, optional): Additional instructions for this specific request. Defaults to None.
+            add_to_memory (bool, optional): Whether to add the interaction to memory. Defaults to True.
+            use_memory (bool, optional): Whether to use memory for generating the response. Defaults to True.
+            response_format (ResponseFormat, optional): Structured output configuration. Defaults to None.
 
         Returns:
             ReferencedMessage: The response from the assistant.
@@ -141,15 +169,23 @@ class Chat:
             timestamp=datetime.now().timestamp(),
         )
 
+        # Build the request using the new ChatRequest structure
+        chat_request = ChatRequest(
+            message=user_message,
+            response_config=ResponseConfiguration(
+                character=character,
+                instructions=instructions,
+                response_format=response_format,
+            ),
+            memory_config=MemoryConfiguration(
+                add_to_memory=add_to_memory,
+                use_memory=use_memory,
+            ),
+        )
+
         response = self.api_client.post(
             "/assistant/chat/message",
-            data={
-                "message": user_message.model_dump(),
-                "response_config": {
-                    "character": character,
-                },
-                "add_to_memory": add_to_memory,
-            },
+            data=chat_request.model_dump(),
         )
         if not response.is_success:
             raise APIError(
@@ -157,71 +193,6 @@ class Chat:
                 message=f"Failed to send the message: {response.text}",
             )
         return ReferencedMessage(**response.json()["data"])
-
-    def structured(
-        self,
-        message: str,
-        schema: STRUCTURED_SCHEMA,
-        chat_group: str = "default",
-        username: Optional[str] = None,
-        character: Optional[str] = None,
-        add_to_memory: bool = True,
-    ) -> StructuredAssistantMessage:
-        """
-        Returns a json response that is structured based on the given schema.
-
-        Example:
-        ```python
-        import firedust
-        from firedust.types import ...
-
-        assistant = firedust.assistant.load("ASSISTANT_NAME")
-        schema: STRUCTURED_SCHEMA = {
-            "name": StringField(hint="The name of the person."),
-            "occupation": StringField(hint="The occupation of the person."),
-        }
-        response = assistant.chat.structured(
-            message="My name is John Doe and I'm a software engineer.",
-            user="test_user",
-            schema=schema,
-        )
-        print(response.message)
-        ```
-
-        Args:
-            message (str): The message to send.
-            schema (STRUCTURED_SCHEMA): The schema to structure the response.
-            user (str, optional): The unique identifier of the user. Defaults to "default".
-            add_to_memory (bool, optional): Whether to add the interaction to memory. Defaults to True.
-
-        Returns:
-            StructuredAssistantMessage: The structured response from the assistant.
-        """
-        user_message = StructuredUserMessage(
-            assistant=self.config.name,
-            chat_group=chat_group,
-            name=username,
-            content=message,
-            schema_=schema,
-            timestamp=datetime.now().timestamp(),
-        )
-        response = self.api_client.post(
-            "/assistant/chat/structured",
-            data={
-                "add_to_memory": add_to_memory,
-                "message": {**user_message.model_dump()},
-                "response_config": {
-                    "character": character,
-                },
-            },
-        )
-        if not response.is_success:
-            raise APIError(
-                code=response.status_code,
-                message=f"Failed to send the message: {response.text}",
-            )
-
-        return StructuredAssistantMessage(**response.json()["data"])
 
     def add_history(self, messages: Iterable[Message]) -> None:
         """
@@ -238,19 +209,19 @@ class Chat:
         message1 = Message(
             assistant="ASSISTANT_NAME",
             chat_group="product_team",
-            message="John: Based on the last discussion, we've made the following changes to the product...",
+            content="John: Based on the last discussion, we've made the following changes to the product...",
             author="user",
         )
         message2 = Message(
             assistant="ASSISTANT_NAME",
             chat_group="product_team",
-            message="Helen: John, could you please share the updated product roadmap?",
+            content="Helen: John, could you please share the updated product roadmap?",
             author="user",
         )
         message3 = Message(
             assistant="ASSISTANT_NAME",
             chat_group="product_team",
-            message="John: Sure, the new roadmap is the following...",
+            content="John: Sure, the new roadmap is the following...",
             author="user",
         )
 
@@ -274,7 +245,7 @@ class Chat:
 
     def erase_history(self, chat_group: str, confirm: bool = False) -> None:
         """
-        Irreversebly delete the chat history of a chat group from the assistant's memory.
+        Irreversibly delete the chat history of a chat group from the assistant's memory.
 
         Example:
         ```python
@@ -318,7 +289,7 @@ class Chat:
         history = assistant.chat.get_history(chat_group="product_team", limit=10)
 
         for message in history:
-            print(message.message)
+            print(message.content)
         ```
 
         Args:
@@ -363,10 +334,13 @@ class AsyncChat:
         chat_group: str = "default",
         username: Optional[str] = None,
         character: Optional[str] = None,
+        instructions: Optional[str] = None,
         add_to_memory: bool = True,
+        use_memory: bool = True,
+        response_format: Optional[ResponseFormat] = None,
     ) -> AsyncIterator[MessageStreamEvent]:
         """
-        Streams the assistant's response to a message. The assistants uses relevant memories and
+        Streams the assistant's response to a message. The assistant uses relevant memories and
         previous conversations to generate a response. Conversations with the given user are private and
         are not shared with other users.
 
@@ -380,19 +354,25 @@ class AsyncChat:
             query = "Summarize the research papers about..."
 
             async for event in assistant.chat.stream(query):
-                print(event.message)
+                print(event.content)
 
             # See which memories the assistant used to generate the response. The references
             # are always provided in the last event of the stream.
-            memory_ids = event.references.memories
-            memories = await assistant.memory.async_get(memory_ids)
+            memory_ids = event.references.memory_ids
+            memories = await assistant.memory.get(memory_ids)
 
         asyncio.run(main())
         ```
 
         Args:
             message (str): The message to send.
-            user (str, optional): The unique identifier of the user. Defaults to "default".
+            chat_group (str, optional): The unique identifier of the chat group. Defaults to "default".
+            username (str, optional): The username of the user. Defaults to None.
+            character (str, optional): The name of the persona the assistant should embody in the response. Defaults to None.
+            instructions (str, optional): Additional instructions for this specific request. Defaults to None.
+            add_to_memory (bool, optional): Whether to add the interaction to memory. Defaults to True.
+            use_memory (bool, optional): Whether to use memory for generating the response. Defaults to True.
+            response_format (ResponseFormat, optional): Structured output configuration. Defaults to None.
 
         Yields:
             MessageStreamEvent: The response from the assistant.
@@ -404,16 +384,25 @@ class AsyncChat:
             content=message,
             timestamp=datetime.now().timestamp(),
         )
+
+        # Build the request using the new ChatRequest structure
+        chat_request = ChatRequest(
+            message=user_message,
+            response_config=ResponseConfiguration(
+                character=character,
+                instructions=instructions,
+                response_format=response_format,
+            ),
+            memory_config=MemoryConfiguration(
+                add_to_memory=add_to_memory,
+                use_memory=use_memory,
+            ),
+        )
+
         try:
             async for msg in self.api_client.post_stream(
                 "/assistant/chat/stream",
-                data={
-                    "message": user_message.model_dump(),
-                    "response_config": {
-                        "character": character,
-                    },
-                    "add_to_memory": add_to_memory,
-                },
+                data=chat_request.model_dump(),
             ):
                 msg_decoded = msg.decode("utf-8")
                 async for event in _async_process_stream_chunk(
@@ -434,7 +423,10 @@ class AsyncChat:
         chat_group: str = "default",
         username: Optional[str] = None,
         character: Optional[str] = None,
+        instructions: Optional[str] = None,
         add_to_memory: bool = True,
+        use_memory: bool = True,
+        response_format: Optional[ResponseFormat] = None,
     ) -> ReferencedMessage:
         """
         Returns a full response from the assistant to a message. It takes longer to get a response
@@ -452,11 +444,11 @@ class AsyncChat:
             query = "Summarize the research papers about..."
 
             response = await assistant.chat.message(query)
-            print(response.message)
+            print(response.content)
 
             # See which memories the assistant used to generate the response.
-            memory_ids = response.references.memories
-            memories = await assistant.memory.async_get(memory_ids)
+            memory_ids = response.references.memory_ids
+            memories = await assistant.memory.get(memory_ids)
 
         asyncio.run(main())
         ```
@@ -464,12 +456,15 @@ class AsyncChat:
         Args:
             message (str): The message to send.
             chat_group (str, optional): The unique identifier of the chat group. Defaults to "default".
-            username (str, optional): The unique identifier of the user. Defaults to "default".
-            character (str, optional): The character of the assistant. Defaults to "default".
+            username (str, optional): The username of the user. Defaults to None.
+            character (str, optional): The name of the persona the assistant should embody in the response. Defaults to None.
+            instructions (str, optional): Additional instructions for this specific request. Defaults to None.
             add_to_memory (bool, optional): Whether to add the interaction to memory. Defaults to True.
+            use_memory (bool, optional): Whether to use memory for generating the response. Defaults to True.
+            response_format (ResponseFormat, optional): Structured output configuration. Defaults to None.
 
         Returns:
-            str: The response from the assistant.
+            ReferencedMessage: The response from the assistant.
         """
         user_message = UserMessage(
             assistant=self.config.name,
@@ -478,15 +473,24 @@ class AsyncChat:
             content=message,
             timestamp=datetime.now().timestamp(),
         )
+
+        # Build the request using the new ChatRequest structure
+        chat_request = ChatRequest(
+            message=user_message,
+            response_config=ResponseConfiguration(
+                character=character,
+                instructions=instructions,
+                response_format=response_format,
+            ),
+            memory_config=MemoryConfiguration(
+                add_to_memory=add_to_memory,
+                use_memory=use_memory,
+            ),
+        )
+
         response = await self.api_client.post(
             "/assistant/chat/message",
-            data={
-                "message": {**user_message.model_dump()},
-                "response_config": {
-                    "character": character,
-                },
-                "add_to_memory": add_to_memory,
-            },
+            data=chat_request.model_dump(),
         )
         if not response.is_success:
             raise APIError(
@@ -495,75 +499,6 @@ class AsyncChat:
             )
 
         return ReferencedMessage(**response.json()["data"])
-
-    async def structured(
-        self,
-        message: str,
-        schema: STRUCTURED_SCHEMA,
-        chat_group: str = "default",
-        username: Optional[str] = None,
-        character: Optional[str] = None,
-        add_to_memory: bool = True,
-    ) -> StructuredAssistantMessage:
-        """
-        Returns a json response that is structured based on the given schema, asynchronously.
-
-        Example:
-        ```python
-        import firedust
-        from firedust.types import STRUCTURED_SCHEMA, StringField
-        import asyncio
-
-        async def main():
-            assistant = await firedust.assistant.async_load("ASSISTANT_NAME")
-            schema: STRUCTURED_SCHEMA = {
-                "name": StringField(hint="The name of the person."),
-                "occupation": StringField(hint="The occupation of the person."),
-            }
-            message = "My name is John Doe and I'm a software engineer."
-
-            response = await assistant.chat.structured(message, schema)
-            print(response.message)
-
-        asyncio.run(main())
-        ```
-
-        Args:
-            message (str): The message to send.
-            schema (STRUCTURED_SCHEMA): The schema to structure the response.
-            chat_group (str, optional): The unique identifier of the chat group. Defaults to "default".
-            username (str, optional): The unique identifier of the user. Defaults to "default".
-            character (str, optional): The character of the assistant. Defaults to "default".
-            add_to_memory (bool, optional): Whether to add the interaction to memory. Defaults to True.
-
-        Returns:
-            StructuredAssistantMessage: The structured response from the assistant.
-        """
-        user_message = StructuredUserMessage(
-            assistant=self.config.name,
-            chat_group=chat_group,
-            name=username,
-            content=message,
-            schema_=schema,
-            timestamp=datetime.now().timestamp(),
-        )
-        response = await self.api_client.post(
-            "/assistant/chat/structured",
-            data={
-                "add_to_memory": add_to_memory,
-                "message": {**user_message.model_dump()},
-                "response_config": {
-                    "character": character,
-                },
-            },
-        )
-        if not response.is_success:
-            raise APIError(
-                code=response.status_code,
-                message=f"Failed to send the message: {response.text}",
-            )
-
-        return StructuredAssistantMessage(**response.json()["data"])
 
     async def add_history(self, messages: Iterable[Message]) -> None:
         """
@@ -576,24 +511,24 @@ class AsyncChat:
         import asyncio
 
         async def main():
-            assistant = await firedust.async_load("ASSISTANT_NAME")
+            assistant = await firedust.assistant.async_load("ASSISTANT_NAME")
 
             message1 = Message(
                 assistant="ASSISTANT_NAME",
                 chat_group="product_team",
-                message="John: Based on the last discussion, we've made the following changes to the product...",
+                content="John: Based on the last discussion, we've made the following changes to the product...",
                 author="user",
             )
             message2 = Message(
                 assistant="ASSISTANT_NAME",
                 chat_group="product_team",
-                message="Helen: John, could you please share the updated product roadmap?",
+                content="Helen: John, could you please share the updated product roadmap?",
                 author="user",
             )
             message3 = Message(
                 assistant="ASSISTANT_NAME",
                 chat_group="product_team",
-                message="John: Sure, the new roadmap is the following...",
+                content="John: Sure, the new roadmap is the following...",
                 author="user",
             )
 
@@ -623,7 +558,7 @@ class AsyncChat:
         confirm: bool = False,
     ) -> None:
         """
-        Irreversebly delete the chat history of a user from the assistant's memory, asynchronously.
+        Irreversibly delete the chat history of a user from the assistant's memory, asynchronously.
 
         Example:
         ```python
@@ -631,7 +566,7 @@ class AsyncChat:
         import asyncio
 
         async def main():
-            assistant = await firedust.async_load("ASSISTANT_NAME")
+            assistant = await firedust.assistant.async_load("ASSISTANT_NAME")
             await assistant.chat.erase_history(chat_group="product_team", confirm=True)
 
         asyncio.run(main())
@@ -672,11 +607,11 @@ class AsyncChat:
         import asyncio
 
         async def main():
-            assistant = await firedust.async_load("ASSISTANT_NAME")
+            assistant = await firedust.assistant.async_load("ASSISTANT_NAME")
             history = await assistant.chat.get_history(chat_group="product_team", limit=10)
 
             for message in history:
-                print(message.message)
+                print(message.content)
 
         asyncio.run(main())
         ```

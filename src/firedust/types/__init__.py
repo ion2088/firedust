@@ -3,7 +3,7 @@
 Make the main types easily accessible.
 
 ```python
-from firedust.types import Assistant, AssistantConfig, Message, ReferencedMessage, MessageStreamEvent, StructuredAssistantMessage, StructuredUserMessage, STRUCTURED_SCHEMA, BooleanField, DictField, FloatField, ListField, CategoryField, StringField, MemoryItem, APIContent, INFERENCE_MODEL
+from firedust.types import Assistant, AssistantConfig, Message, ReferencedMessage, MessageStreamEvent, ResponseFormat, ResponseConfiguration, MemoryConfiguration, ChatRequest, JSONSchema, JSONSchemaConfig, UserMessage, SystemMessage, AssistantMessage, MemoryItem, APIContent, INFERENCE_MODEL
 
 def custom_funk(assistant: Assistant) -> ...:
     ...
@@ -15,17 +15,17 @@ from firedust.types.chat import (
     Message as Message,
     ReferencedMessage as ReferencedMessage,
     MessageStreamEvent as MessageStreamEvent,
-    StructuredAssistantMessage as StructuredAssistantMessage,
-    StructuredUserMessage as StructuredUserMessage,
-)
-from firedust.types.structured import (
-    STRUCTURED_SCHEMA as STRUCTURED_SCHEMA,
-    BooleanField as BooleanField,
-    DictField as DictField,
-    FloatField as FloatField,
-    ListField as ListField,
-    CategoryField as CategoryField,
-    StringField as StringField,
+    ResponseFormat as ResponseFormat,
+    ResponseConfiguration as ResponseConfiguration,
+    MemoryConfiguration as MemoryConfiguration,
+    ChatRequest as ChatRequest,
+    JSONSchema as JSONSchema,
+    JSONSchemaConfig as JSONSchemaConfig,
+    UserMessage as UserMessage,
+    SystemMessage as SystemMessage,
+    AssistantMessage as AssistantMessage,
+    MessageReferences as MessageReferences,
+    MessageContext as MessageContext,
 )
 from firedust.types.base import INFERENCE_MODEL as INFERENCE_MODEL
 from firedust.types.memory import MemoryItem as MemoryItem
@@ -51,17 +51,19 @@ __all__ = [
     "Message",
     "ReferencedMessage",
     "MessageStreamEvent",
+    "ResponseFormat",
+    "ResponseConfiguration",
+    "MemoryConfiguration",
+    "ChatRequest",
+    "JSONSchema",
+    "JSONSchemaConfig",
+    "UserMessage",
+    "SystemMessage",
+    "AssistantMessage",
+    "MessageReferences",
+    "MessageContext",
     "MemoryItem",
     "APIContent",
-    "STRUCTURED_SCHEMA",
-    "BooleanField",
-    "DictField",
-    "FloatField",
-    "ListField",
-    "CategoryField",
-    "StringField",
-    "StructuredAssistantMessage",
-    "StructuredUserMessage",
     "INFERENCE_MODEL",
     "SafetyCheck",
     "Tools",
