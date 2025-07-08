@@ -8,7 +8,7 @@ assistant = firedust.assistant.create(
         2. Protect the ring bearer. 
         3. Do not let the ring corrupt you.
         """,
-    model="openai/gpt-4",
+    model="openai/gpt-4o",
 )
 
 # ask a question

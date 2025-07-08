@@ -22,7 +22,7 @@
 
 ### Assistants
 - **Rapid Deployment**: Deploy AI assistants in seconds for quick testing and iteration.
-- **Model Flexibility**: Seamlessly switch between GPT-4, Mistral, or other models to find the best fit.
+- **Model Flexibility**: Seamlessly switch between GPT-4o, GPT-4.1, Mistral, or other models to find the best fit.
 - **Integration Options**: Deploy to Slack or integrate via API into your apps.
 - **Real-time Training**: Add your data and train the assistant in real-time.
 - **Dynamic Context Recall**: Assistants utilize past conversations and user-added data to generate responses, clearly referencing the specific data sources used in their answers.
