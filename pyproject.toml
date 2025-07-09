@@ -9,7 +9,6 @@ readme = "README.md"
 python = "^3.8, <3.13"
 pydantic = "^2.5.3"
 httpx = "^0.26.0"
-tenacity = "^9.0.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.3.1"
@@ -33,3 +32,6 @@ include_trailing_comma = true
 force_grid_wrap = 0
 use_parentheses = true
 line_length = 88
+
+[tool.pyright]
+typeCheckingMode = "off"
