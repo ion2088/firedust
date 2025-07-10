@@ -1,6 +1,7 @@
 import json
 import os
 import random
+from typing import List
 
 import pytest
 
@@ -226,21 +227,21 @@ def test_abilities_streaming() -> None:
         ), "Ability was not added to assistant config."
 
         # 2. Send a message that should trigger the tool call (streaming)
-        text_parts: list[str] = []
-        calls = {}
+        text_parts2: List[str] = []
+        calls2 = {}
         for ev in assistant.chat.stream(
             "What's the weather like in Paris today?", add_to_memory=False
         ):
             if ev.content:
-                text_parts.append(ev.content)
+                text_parts2.append(ev.content)
             if ev.tool_calls:
                 for tc in ev.tool_calls:
-                    calls[tc.id] = tc
+                    calls2[tc.id] = tc
             if ev.stream_ended:
                 break
 
-        assert calls, "Tool calls missing at stream end"
-        for call in calls.values():
+        assert calls2, "Tool calls missing at stream end"
+        for call in calls2.values():
             assert call.function.name == tool_v1.function.name
             function_args = json.loads(call.function.arguments)
             assert function_args == {"location": "Paris"}
@@ -248,7 +249,7 @@ def test_abilities_streaming() -> None:
         # 3. Update the ability (change description)
         tool_v2 = _update_weather_tool(tool_v1)
         assistant.abilities.update(tool_v2)
-        text_parts = []
+        text_parts = []  # type: List[str]
         calls = {}
         for ev in assistant.chat.stream(
             "What's the weather like in Paris today?", add_to_memory=False
@@ -296,21 +297,21 @@ async def test_async_abilities_streaming() -> None:
         ), "Ability was not added to assistant config."
 
         # 2. Send a message that should trigger the tool call (streaming)
-        text_parts: list[str] = []
-        calls = {}
+        text_parts2: List[str] = []
+        calls2 = {}
         async for ev in assistant.chat.stream(
             "What's the weather like in London now?", add_to_memory=False
         ):
             if ev.content:
-                text_parts.append(ev.content)
+                text_parts2.append(ev.content)
             if ev.tool_calls:
                 for tc in ev.tool_calls:
-                    calls[tc.id] = tc
+                    calls2[tc.id] = tc
             if ev.stream_ended:
                 break
 
-        assert calls, "Tool calls missing at stream end"
-        for call in calls.values():
+        assert calls2, "Tool calls missing at stream end"
+        for call in calls2.values():
             assert call.function.name == tool_v1.function.name
             function_args = json.loads(call.function.arguments)
             assert function_args == {"location": "London"}
@@ -318,21 +319,21 @@ async def test_async_abilities_streaming() -> None:
         # 3. Update the ability
         tool_v2 = _update_weather_tool(tool_v1)
         await assistant.abilities.update(tool_v2)
-        text_parts = []
-        calls = {}
+        text_parts3: List[str] = []
+        calls3 = {}
         async for ev in assistant.chat.stream(
             "What's the weather like in London now?", add_to_memory=False
         ):
             if ev.content:
-                text_parts.append(ev.content)
+                text_parts3.append(ev.content)
             if ev.tool_calls:
                 for tc in ev.tool_calls:
-                    calls[tc.id] = tc
+                    calls3[tc.id] = tc
             if ev.stream_ended:
                 break
 
-        assert calls, "Tool calls missing at stream end"
-        for call in calls.values():
+        assert calls3, "Tool calls missing at stream end"
+        for call in calls3.values():
             assert call.function.name == tool_v2.function.name
             function_args = json.loads(call.function.arguments)
             assert function_args.get("coordinates") is not None
