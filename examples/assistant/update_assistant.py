@@ -1,8 +1,8 @@
 import firedust
 
-assistant = firedust.assistant.create(name="Sam")
-# or load an existing assistant
-assistant = firedust.assistant.load(name="Sam")
+# Load an existing assistant (or create one if it doesn't exist)
+assistant = firedust.assistant.load("Sam")
+# assistant = firedust.assistant.create(name="Sam")  # alternative: create a new one
 
 # update the assistant's inference model
 assistant.update.model("mistral/mistral-medium")

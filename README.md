@@ -190,7 +190,7 @@ Engage in group chats by simply annotating messages for different users. You can
 ```python
 import firedust
 
-assistant = firedust.assistant.load(name="Sam")
+assistant = firedust.assistant.load("Sam")
 
 # add previous chat history to the assistant's memory
 message1 = Message(
@@ -274,7 +274,7 @@ Easily update configurations without downtime.
 ```python
 import firedust
 
-assistant = firedust.assistant.load(name="Sam")
+assistant = firedust.assistant.load("Sam")
 
 # update the assistant's inference model
 assistant.update.model("mistral/mistral-medium")
@@ -330,7 +330,7 @@ import asyncio
 import firedust
 
 async def main() -> None:
-    assistant = await firedust.assistant.async_load(name="Sam")
+    assistant = await firedust.assistant.async_load("Sam")
 
     # add data
     await assistant.learn.fast("Gandalf is a good friend.")

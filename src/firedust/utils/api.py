@@ -53,6 +53,10 @@ class SyncAPIClient(BaseAPIClient):
     def put(self, url: str, data: Optional[Dict[str, Any]] = None) -> httpx.Response:
         return self._request("put", url, data=data)
 
+    def patch(self, url: str, data: Optional[Dict[str, Any]] = None) -> httpx.Response:
+        """Send a JSON *PATCH* request to the API."""
+        return self._request("patch", url, data=data)
+
     def delete(
         self, url: str, params: Optional[Dict[str, Any]] = None
     ) -> httpx.Response:
@@ -128,6 +132,12 @@ class AsyncAPIClient(BaseAPIClient):
         self, url: str, data: Optional[Dict[str, Any]] = None
     ) -> httpx.Response:
         return await self._request("put", url, data=data)
+
+    async def patch(
+        self, url: str, data: Optional[Dict[str, Any]] = None
+    ) -> httpx.Response:
+        """Send a JSON *PATCH* request to the API asynchronously."""
+        return await self._request("patch", url, data=data)
 
     async def delete(
         self, url: str, params: Optional[Dict[str, Any]] = None

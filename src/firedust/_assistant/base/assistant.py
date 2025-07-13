@@ -296,8 +296,8 @@ class _Update:
         Args:
             instructions (str): The new instructions for the assistant.
         """
-        response = self.api_client.put(
-            "/assistant/instructions",
+        response = self.api_client.patch(
+            "/assistant",
             data={
                 "assistant": str(self.config.name),
                 "instructions": instructions,
@@ -325,8 +325,8 @@ class _Update:
         Args:
             new_model (INFERENCE_MODEL): The new inference model.
         """
-        response = self.api_client.put(
-            "/assistant/model",
+        response = self.api_client.patch(
+            "/assistant",
             data={
                 "assistant": str(self.config.name),
                 "model": new_model,
@@ -640,8 +640,8 @@ class _AsyncUpdate:
         Args:
             instructions (str): The new instructions of the assistant.
         """
-        response = await self.api_client.put(
-            "/assistant/instructions",
+        response = await self.api_client.patch(
+            "/assistant",
             data={
                 "assistant": str(self.config.name),
                 "instructions": instructions,
@@ -677,8 +677,8 @@ class _AsyncUpdate:
         Args:
             new_model (INFERENCE_MODEL): The new inference model.
         """
-        response = await self.api_client.put(
-            "/assistant/model",
+        response = await self.api_client.patch(
+            "/assistant",
             data={
                 "assistant": str(self.config.name),
                 "model": new_model,

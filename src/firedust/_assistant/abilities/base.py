@@ -35,7 +35,7 @@ __all__: List[str] = [
 class Abilities:
     """Synchronous wrapper around *ability* management endpoints."""
 
-    _PATH: str = "/assistant/abilities"
+    _PATH: str = "/assistant"  # unified PATCH endpoint
 
     def __init__(self, config: AssistantConfig, api_client: SyncAPIClient) -> None:
         self._config = config
@@ -47,11 +47,14 @@ class Abilities:
 
     def add(self, ability: Tool) -> None:
         """Add a new ability to the assistant."""
-        response = self._api_client.post(
+        # Build updated abilities list (server expects full replacement)
+        updated_abilities = [*self._config.abilities, ability]
+
+        response = self._api_client.patch(
             self._PATH,
             data={
                 "assistant": self._config.name,
-                "ability": ability.model_dump(),
+                "abilities": [tool.model_dump() for tool in updated_abilities],
             },
         )
         if not response.is_success:
@@ -60,60 +63,67 @@ class Abilities:
                 message=f"Failed to add ability '{ability.function.name}': {response.text}",
             )
         # Update local config
-        self._config.abilities.append(ability)
+        self._config.abilities = updated_abilities
 
     def update(self, ability: Tool) -> None:
         """Update an existing ability (matched by *name*)."""
-        response = self._api_client.put(
+        # Replace or append ability locally
+        updated = False
+        new_list = []
+        for existing in self._config.abilities:
+            if existing.function.name == ability.function.name:
+                new_list.append(ability)
+                updated = True
+            else:
+                new_list.append(existing)
+        if not updated:
+            new_list.append(ability)
+
+        response = self._api_client.patch(
             self._PATH,
             data={
                 "assistant": self._config.name,
-                "ability": ability.model_dump(),
+                "abilities": [tool.model_dump() for tool in new_list],
             },
         )
-        if not response.is_success:
+
+        if response.is_success:
+            self._config.abilities = new_list
+        else:
             raise APIError(
                 code=response.status_code,
                 message=f"Failed to update ability '{ability.function.name}': {response.text}",
             )
-        # Replace in local config if present, else append
-        found = False
-        for idx, existing in enumerate(self._config.abilities):
-            if existing.function.name == ability.function.name:
-                self._config.abilities[idx] = ability
-                found = True
-                break
-        if not found:
-            self._config.abilities.append(ability)
 
     def remove(self, ability_name: str) -> None:
         """Remove an ability by *name*."""
-        # DELETE with JSON body – using the protected `_request` helper to allow body.
-        response = self._api_client._request(
-            "delete",
-            self._PATH,
-            data={
-                "assistant": self._config.name,
-                "ability_name": ability_name,
-            },
-        )
-        if not response.is_success:
-            raise APIError(
-                code=response.status_code,
-                message=f"Failed to remove ability '{ability_name}': {response.text}",
-            )
-        # Prune from local config
-        self._config.abilities = [
+        pruned_list = [
             tool
             for tool in self._config.abilities
             if tool.function.name != ability_name
         ]
 
+        response = self._api_client.patch(
+            self._PATH,
+            data={
+                "assistant": self._config.name,
+                "abilities": [tool.model_dump() for tool in pruned_list],
+            },
+        )
+
+        if response.is_success:
+            self._config.abilities = pruned_list
+        else:
+            raise APIError(
+                code=response.status_code,
+                message=f"Failed to remove ability '{ability_name}': {response.text}",
+            )
+
 
 class AsyncAbilities:
     """Asynchronous wrapper around *ability* management endpoints."""
 
-    _PATH: str = "/assistant/abilities"
+    _PATH: str = "/assistant"  # unified PATCH endpoint
 
     def __init__(self, config: AssistantConfig, api_client: AsyncAPIClient) -> None:
         self._config = config
@@ -124,58 +134,71 @@ class AsyncAbilities:
     # ------------------------------------------------------------------
 
     async def add(self, ability: Tool) -> None:
-        response = await self._api_client.post(
+        updated_abilities = [*self._config.abilities, ability]
+
+        response = await self._api_client.patch(
             self._PATH,
             data={
                 "assistant": self._config.name,
-                "ability": ability.model_dump(),
+                "abilities": [tool.model_dump() for tool in updated_abilities],
             },
         )
-        if not response.is_success:
+
+        if response.is_success:
+            self._config.abilities = updated_abilities
+        else:
             raise APIError(
                 code=response.status_code,
                 message=f"Failed to add ability '{ability.function.name}': {response.text}",
             )
-        self._config.abilities.append(ability)
 
     async def update(self, ability: Tool) -> None:
-        response = await self._api_client.put(
+        new_list = []
+        updated = False
+        for existing in self._config.abilities:
+            if existing.function.name == ability.function.name:
+                new_list.append(ability)
+                updated = True
+            else:
+                new_list.append(existing)
+        if not updated:
+            new_list.append(ability)
+
+        response = await self._api_client.patch(
             self._PATH,
             data={
                 "assistant": self._config.name,
-                "ability": ability.model_dump(),
+                "abilities": [tool.model_dump() for tool in new_list],
             },
         )
-        if not response.is_success:
+
+        if response.is_success:
+            self._config.abilities = new_list
+        else:
             raise APIError(
                 code=response.status_code,
                 message=f"Failed to update ability '{ability.function.name}': {response.text}",
             )
-        found = False
-        for idx, existing in enumerate(self._config.abilities):
-            if existing.function.name == ability.function.name:
-                self._config.abilities[idx] = ability
-                found = True
-                break
-        if not found:
-            self._config.abilities.append(ability)
 
     async def remove(self, ability_name: str) -> None:
-        response = await self._api_client._request(
-            "delete",
-            self._PATH,
-            data={
-                "assistant": self._config.name,
-                "ability_name": ability_name,
-            },
-        )
-        if not response.is_success:
-            raise APIError(
-                code=response.status_code,
-                message=f"Failed to remove ability '{ability_name}': {response.text}",
-            )
-        self._config.abilities = [
+        pruned_list = [
             tool
             for tool in self._config.abilities
             if tool.function.name != ability_name
         ]
+
+        response = await self._api_client.patch(
+            self._PATH,
+            data={
+                "assistant": self._config.name,
+                "abilities": [tool.model_dump() for tool in pruned_list],
+            },
+        )
+
+        if response.is_success:
+            self._config.abilities = pruned_list
+        else:
+            raise APIError(
+                code=response.status_code,
+                message=f"Failed to remove ability '{ability_name}': {response.text}",
+            )

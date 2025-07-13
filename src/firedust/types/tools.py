@@ -29,7 +29,8 @@ class FunctionDefinition(BaseModel):
               "query": {"type": "string", "description": "..."}
             },
             "required": ["query"]
-          }
+          },
+          "strict": true
         }
     """
 
@@ -53,6 +54,10 @@ class FunctionDefinition(BaseModel):
                 "required": ["query"],
             }
         ],
+    )
+    strict: bool = Field(
+        default=True,
+        description="Whether to enforce strict JSON-Schema validation.",
     )
 
     # ---------------------------------------------------------------------
