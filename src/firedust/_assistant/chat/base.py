@@ -1,7 +1,15 @@
 import json
 import re
 from datetime import datetime
-from typing import AsyncIterable, AsyncIterator, Iterable, Iterator, List, Optional
+from typing import (
+    AsyncIterable,
+    AsyncIterator,
+    Iterable,
+    Iterator,
+    List,
+    Optional,
+    Union,
+)
 
 from firedust.types import (
     AssistantConfig,
@@ -117,7 +125,9 @@ class Chat:
 
     def message(
         self,
-        message: str,
+        message: Union[
+            str, Message
+        ],  # Accept pre-built Message (e.g. ToolMessage) as well as a plain string
         chat_group: str = "default",
         username: Optional[str] = None,
         character: Optional[str] = None,
@@ -161,13 +171,27 @@ class Chat:
         Returns:
             ReferencedMessage: The response from the assistant.
         """
-        user_message = UserMessage(
-            assistant=self.config.name,
-            name=username,
-            content=message,
-            chat_group=chat_group,
-            timestamp=datetime.now().timestamp(),
-        )
+        # ------------------------------------------------------------------
+        # Build the *message* object that will be sent to the API.
+        # If the caller passed a plain ``str`` we treat it as a *user* message
+        # (the behaviour that existed prior to this change).  If the caller
+        # passed an actual :class:`~firedust.types.chat.Message` instance we use
+        # it directly – this enables sending specialised message types such as
+        # :class:`~firedust.types.chat.ToolMessage`.
+        # ------------------------------------------------------------------
+
+        if isinstance(message, str):
+            user_message: Message = UserMessage(
+                assistant=self.config.name,
+                name=username,
+                content=message,
+                chat_group=chat_group,
+                timestamp=datetime.now().timestamp(),
+            )
+        elif isinstance(message, Message):
+            user_message = message
+        else:
+            raise TypeError("'message' must be either 'str' or 'Message' instance")
 
         # Build the request using the new ChatRequest structure
         chat_request = ChatRequest(
@@ -419,7 +443,9 @@ class AsyncChat:
 
     async def message(
         self,
-        message: str,
+        message: Union[
+            str, Message
+        ],  # Accept pre-built Message (e.g. ToolMessage) as well as a plain string
         chat_group: str = "default",
         username: Optional[str] = None,
         character: Optional[str] = None,
@@ -466,13 +492,27 @@ class AsyncChat:
         Returns:
             ReferencedMessage: The response from the assistant.
         """
-        user_message = UserMessage(
-            assistant=self.config.name,
-            chat_group=chat_group,
-            name=username,
-            content=message,
-            timestamp=datetime.now().timestamp(),
-        )
+        # ------------------------------------------------------------------
+        # Build the *message* object that will be sent to the API.
+        # If the caller passed a plain ``str`` we treat it as a *user* message
+        # (the behaviour that existed prior to this change).  If the caller
+        # passed an actual :class:`~firedust.types.chat.Message` instance we use
+        # it directly – this enables sending specialised message types such as
+        # :class:`~firedust.types.chat.ToolMessage`.
+        # ------------------------------------------------------------------
+
+        if isinstance(message, str):
+            user_message: Message = UserMessage(
+                assistant=self.config.name,
+                chat_group=chat_group,
+                name=username,
+                content=message,
+                timestamp=datetime.now().timestamp(),
+            )
+        elif isinstance(message, Message):
+            user_message = message
+        else:
+            raise TypeError("'message' must be either 'str' or 'Message' instance")
 
         # Build the request using the new ChatRequest structure
         chat_request = ChatRequest(

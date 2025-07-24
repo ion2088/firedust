@@ -24,6 +24,8 @@ from firedust.types.chat import (
     UserMessage as UserMessage,
     SystemMessage as SystemMessage,
     AssistantMessage as AssistantMessage,
+    DeveloperMessage as DeveloperMessage,
+    ToolMessage as ToolMessage,
     MessageReferences as MessageReferences,
     MessageContext as MessageContext,
 )
@@ -60,6 +62,8 @@ __all__ = [
     "UserMessage",
     "SystemMessage",
     "AssistantMessage",
+    "DeveloperMessage",
+    "ToolMessage",
     "MessageReferences",
     "MessageContext",
     "MemoryItem",

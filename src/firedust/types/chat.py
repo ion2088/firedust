@@ -10,11 +10,12 @@ from pydantic import (
     field_validator,
     model_validator,
 )
+from typing_extensions import Annotated
 
 from .base import UNIX_TIMESTAMP, BaseConfig
 from .tools import ToolCalls
 
-_author = Literal["user", "assistant", "system"]
+_author = Literal["user", "assistant", "system", "developer", "tool"]
 
 
 class Message(BaseConfig):
@@ -35,9 +36,19 @@ class Message(BaseConfig):
         None,
         description="A name to diferentiate between users within the same chat_group. Applicable to both users and assistants.",
     )
+    # Timestamp is stored internally as seconds since Unix epoch (float).
+    # The model accepts:
+    #   • seconds  (e.g. 1752246365.123456)
+    #   • milliseconds (Date.now() → 13-digit int)
+    #   • microseconds  (rare 16-17-digit int)
+    #   • None ⇒ current server time will be applied
     timestamp: UNIX_TIMESTAMP = Field(
         default_factory=lambda: datetime.now().timestamp(),
-        description="The timestamp of the message.",
+        description=(
+            "Unix timestamp in **seconds**. If omitted, it is set automatically. "
+            "Integer/float milliseconds or microseconds are accepted and will be "
+            "normalised to seconds."
+        ),
     )
     content: str = Field(..., description="The content of the message.")
     author: _author = Field(..., description="The author of the message.")
@@ -45,6 +56,32 @@ class Message(BaseConfig):
         None,
         description="Additional metadata about the message.",
     )
+
+    @field_validator("timestamp", mode="before")
+    def _normalise_timestamp(cls, v: Optional[Union[int, float]]) -> float:
+        """Ensure *v* is seconds (float) regardless of the input unit.
+
+        Accepted inputs:
+        • None                 → replace with current time (seconds)
+        • seconds   (int/float)
+        • milliseconds         → auto-divide by 1 000
+        • microseconds         → auto-divide by 1 000 000
+        """
+
+        # Missing/None → now()
+        if v is None:
+            return datetime.now().timestamp()
+
+        # Numeric inputs
+        if isinstance(v, (int, float)):
+            # µs (≥ 1e14) → seconds
+            if v > 1e14:
+                return v / 1_000_000
+            # ms (≥ 1e11) → seconds
+            if v > 1e11:
+                return v / 1_000
+            # Already seconds
+            return float(v)
 
 
 class UserMessage(Message):
@@ -70,6 +107,32 @@ class AssistantMessage(Message):
         None,
         description="Tool calls requested by the assistant, if any.",
     )
+
+
+class DeveloperMessage(Message):
+    """Message authored by the *developer* (system-level instructions)."""
+
+    author: Literal["developer"] = Field(
+        "developer",
+        description="Indicates that the author of the message is the developer.",
+    )
+
+
+class ToolMessage(Message):
+    """Message emitted by a *tool* after a function call execution."""
+
+    author: Literal["tool"] = Field(
+        "tool",
+        description="Indicates that the author of the message is a tool.",
+    )
+
+    tool_call_id: str = Field(
+        ...,
+        description="Identifier of the tool call this message relates to.",
+    )
+
+    # The optional ``name`` field inherited from ``Message`` is used to store
+    # the function name (if provided) for extra context.
 
 
 class MessageReferences(BaseModel):
@@ -298,12 +361,30 @@ class MemoryConfiguration(BaseModel):
     use_memory: bool = True
 
 
+# Union helper for any message subtype
+# ------------------------------------------------------------------
+
+AnyMessage = Union[
+    UserMessage,
+    SystemMessage,
+    AssistantMessage,
+    DeveloperMessage,
+    ToolMessage,
+]
+
+# ------------------------------------------------------------------
+# API payload types
+# ------------------------------------------------------------------
+
+
 class ChatRequest(BaseModel):
     """
     Represents a request to chat with an assistant.
     """
 
-    message: Message = Field(..., description="The message to chat with the assistant.")
+    message: Annotated[AnyMessage, Field(discriminator="author")] = Field(
+        ..., description="The message to chat with the assistant (any role)."
+    )
     response_config: Optional[ResponseConfiguration] = Field(
         None, description="The configuration of the response."
     )

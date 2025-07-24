@@ -1,12 +1,14 @@
 import json
 import os
 import random
+from datetime import datetime
 from typing import List
 
 import pytest
 
 import firedust
 from firedust.types import FunctionDefinition, Tool
+from firedust.types.chat import ToolMessage
 
 # ---------------------------------------------------------------------------
 # Helper utilities
@@ -83,9 +85,7 @@ def test_abilities_lifecycle() -> None:  # noqa: WPS210 (many variables is OK in
         # ------------------------------------------------------------------
         # 2. Send a message that should trigger the tool call (optional)
         # ------------------------------------------------------------------
-        response = assistant.chat.message(
-            "What's the weather like in Paris today?", add_to_memory=False
-        )
+        response = assistant.chat.message("What's the weather like in Paris today?")
         if response.tool_calls is None:
             raise ValueError(
                 f"Tool calls is empty: {response.content} {response.tool_calls}"
@@ -99,14 +99,39 @@ def test_abilities_lifecycle() -> None:  # noqa: WPS210 (many variables is OK in
             assert function_args == {"location": "Paris"}
 
         # ------------------------------------------------------------------
+        # 2b. Send back a ToolMessage simulating the tool execution result
+        # ------------------------------------------------------------------
+        first_call = response.tool_calls[0]
+        tool_reply = ToolMessage(
+            assistant=assistant_name,
+            chat_group="default",
+            author="tool",
+            name=first_call.function.name,
+            tool_call_id=first_call.id,
+            content=json.dumps(
+                {
+                    "status": "success",
+                    "result": {
+                        "temperature": "15°C",
+                        "condition": "Sunny",
+                    },
+                }
+            ),
+            timestamp=datetime.now().timestamp(),
+        )
+
+        follow_up = assistant.chat.message(tool_reply)
+        # Basic validation – assistant should reply with some content
+        assert follow_up.content is not None and len(follow_up.content) > 0
+        print("Assistant after tool execution:", follow_up.content)
+
+        # ------------------------------------------------------------------
         # 3. Update the ability (change description)
         # ------------------------------------------------------------------
         tool_v2 = _update_weather_tool(tool_v1)
         assistant.abilities.update(tool_v2)
 
-        response = assistant.chat.message(
-            "What's the weather like in Paris today?", add_to_memory=False
-        )
+        response = assistant.chat.message("What's the weather like in Paris today?")
         if response.tool_calls is None:
             raise ValueError(
                 f"Tool calls is empty: {response.content} {response.tool_calls}"
@@ -119,6 +144,32 @@ def test_abilities_lifecycle() -> None:  # noqa: WPS210 (many variables is OK in
             function_args = json.loads(call.function.arguments)
             assert function_args.get("coordinates") is not None
             assert len(function_args.get("coordinates")) == 2
+
+        # ------------------------------------------------------------------
+        # 3b. Send back a ToolMessage simulating the tool execution result
+        # ------------------------------------------------------------------
+        first_call = response.tool_calls[0]
+        tool_reply = ToolMessage(
+            assistant=assistant_name,
+            chat_group="default",
+            author="tool",
+            name=first_call.function.name,
+            tool_call_id=first_call.id,
+            content=json.dumps(
+                {
+                    "status": "success",
+                    "result": {
+                        "temperature": "15°C",
+                        "condition": "Sunny",
+                    },
+                }
+            ),
+            timestamp=datetime.now().timestamp(),
+        )
+        follow_up = assistant.chat.message(tool_reply)
+        # Basic validation – assistant should reply with some content
+        assert follow_up.content is not None and len(follow_up.content) > 0
+        print("Assistant after tool execution:", follow_up.content)
 
         # ------------------------------------------------------------------
         # 4. Remove the ability
@@ -165,7 +216,7 @@ async def test_async_abilities_lifecycle() -> (
         # 2. Send a message that should trigger the tool call (optional)
         # ------------------------------------------------------------------
         response = await assistant.chat.message(
-            "What's the weather like in London now?", add_to_memory=False
+            "What's the weather like in London now?"
         )
         if response.tool_calls is None:
             raise ValueError(
@@ -177,6 +228,22 @@ async def test_async_abilities_lifecycle() -> (
             function_args = json.loads(call.function.arguments)
             assert function_args == {"location": "London"}
 
+        # Send a ToolMessage back (async)
+        tool_reply_async = ToolMessage(
+            assistant=assistant_name,
+            chat_group="default",
+            author="tool",
+            name=response.tool_calls[0].function.name,
+            tool_call_id=response.tool_calls[0].id,
+            content=json.dumps(
+                {"status": "success", "result": {"temperature": "14°C"}}
+            ),
+            timestamp=datetime.now().timestamp(),
+        )
+
+        follow_up_async = await assistant.chat.message(tool_reply_async)
+        assert follow_up_async.content is not None and len(follow_up_async.content) > 0
+
         # ------------------------------------------------------------------
         # 3. Update the ability
         # ------------------------------------------------------------------
@@ -184,7 +251,7 @@ async def test_async_abilities_lifecycle() -> (
         await assistant.abilities.update(tool_v2)
 
         response = await assistant.chat.message(
-            "What's the weather like in London now?", add_to_memory=False
+            "What's the weather like in London now?"
         )
         if response.tool_calls is None:
             raise ValueError(
@@ -196,6 +263,24 @@ async def test_async_abilities_lifecycle() -> (
             function_args = json.loads(call.function.arguments)
             assert function_args.get("coordinates") is not None
             assert len(function_args.get("coordinates")) == 2
+
+        # ------------------------------------------------------------------
+        # 3b. Send back a ToolMessage simulating the tool execution result
+        # ------------------------------------------------------------------
+        first_call = response.tool_calls[0]
+        tool_reply = ToolMessage(
+            assistant=assistant_name,
+            chat_group="default",
+            author="tool",
+            name=first_call.function.name,
+            tool_call_id=first_call.id,
+            content=json.dumps(
+                {"status": "success", "result": {"temperature": "14°C"}}
+            ),
+            timestamp=datetime.now().timestamp(),
+        )
+        follow_up_async = await assistant.chat.message(tool_reply)
+        assert follow_up_async.content is not None and len(follow_up_async.content) > 0
 
         # ------------------------------------------------------------------
         # 4. Remove the ability
@@ -229,9 +314,7 @@ def test_abilities_streaming() -> None:
         # 2. Send a message that should trigger the tool call (streaming)
         text_parts2: List[str] = []
         calls2 = {}
-        for ev in assistant.chat.stream(
-            "What's the weather like in Paris today?", add_to_memory=False
-        ):
+        for ev in assistant.chat.stream("What's the weather like in Paris today?"):
             if ev.content:
                 text_parts2.append(ev.content)
             if ev.tool_calls:
@@ -251,9 +334,7 @@ def test_abilities_streaming() -> None:
         assistant.abilities.update(tool_v2)
         text_parts = []  # type: List[str]
         calls = {}
-        for ev in assistant.chat.stream(
-            "What's the weather like in Paris today?", add_to_memory=False
-        ):
+        for ev in assistant.chat.stream("What's the weather like in Paris today?"):
             if ev.content:
                 text_parts.append(ev.content)
             if ev.tool_calls:
@@ -299,9 +380,7 @@ async def test_async_abilities_streaming() -> None:
         # 2. Send a message that should trigger the tool call (streaming)
         text_parts2: List[str] = []
         calls2 = {}
-        async for ev in assistant.chat.stream(
-            "What's the weather like in London now?", add_to_memory=False
-        ):
+        async for ev in assistant.chat.stream("What's the weather like in London now?"):
             if ev.content:
                 text_parts2.append(ev.content)
             if ev.tool_calls:
@@ -321,9 +400,7 @@ async def test_async_abilities_streaming() -> None:
         await assistant.abilities.update(tool_v2)
         text_parts3: List[str] = []
         calls3 = {}
-        async for ev in assistant.chat.stream(
-            "What's the weather like in London now?", add_to_memory=False
-        ):
+        async for ev in assistant.chat.stream("What's the weather like in London now?"):
             if ev.content:
                 text_parts3.append(ev.content)
             if ev.tool_calls:
