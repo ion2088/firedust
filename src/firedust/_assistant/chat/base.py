@@ -26,6 +26,7 @@ from firedust.types.chat import (
 )
 from firedust.utils.api import AsyncAPIClient, SyncAPIClient
 from firedust.utils.errors import APIError
+from firedust.utils.inference_input_support import validate_message_content
 
 
 class Chat:
@@ -40,7 +41,7 @@ class Chat:
 
     def stream(
         self,
-        message: str,
+        message: Union[str, Message],
         chat_group: str = "default",
         username: Optional[str] = None,
         character: Optional[str] = None,
@@ -83,13 +84,26 @@ class Chat:
         Yields:
             MessageStreamEvent: The response from the assistant.
         """
-        user_message = UserMessage(
-            assistant=self.config.name,
-            name=username,
-            content=message,
-            chat_group=chat_group,
-            timestamp=datetime.now().timestamp(),
-        )
+        # ------------------------------------------------------------------
+        # Build the *message* object that will be sent to the API.
+        # Accepts either a plain ``str`` or a pre-built ``Message`` instance.
+        # ------------------------------------------------------------------
+
+        if isinstance(message, str):
+            user_message: Message = UserMessage(
+                assistant=self.config.name,
+                name=username,
+                content=message,
+                chat_group=chat_group,
+                timestamp=datetime.now().timestamp(),
+            )
+        elif isinstance(message, Message):
+            user_message = message
+        else:
+            raise TypeError("'message' must be either 'str' or 'Message' instance")
+
+        # Validate content types against model capabilities
+        validate_message_content(self.config.model, user_message.content)
 
         # Build the request using the new ChatRequest structure
         chat_request = ChatRequest(
@@ -193,6 +207,9 @@ class Chat:
         else:
             raise TypeError("'message' must be either 'str' or 'Message' instance")
 
+        # Validate content types
+        validate_message_content(self.config.model, user_message.content)
+
         # Build the request using the new ChatRequest structure
         chat_request = ChatRequest(
             message=user_message,
@@ -255,6 +272,10 @@ class Chat:
         Args:
             messages (Iterable[Message]): The chat messages.
         """
+        # Validate each message content first
+        for msg in messages:
+            validate_message_content(self.config.model, msg.content)
+
         response = self.api_client.put(
             "/assistant/chat/history",
             data={
@@ -354,7 +375,7 @@ class AsyncChat:
 
     async def stream(
         self,
-        message: str,
+        message: Union[str, Message],
         chat_group: str = "default",
         username: Optional[str] = None,
         character: Optional[str] = None,
@@ -401,13 +422,26 @@ class AsyncChat:
         Yields:
             MessageStreamEvent: The response from the assistant.
         """
-        user_message = UserMessage(
-            assistant=self.config.name,
-            chat_group=chat_group,
-            name=username,
-            content=message,
-            timestamp=datetime.now().timestamp(),
-        )
+        # ------------------------------------------------------------------
+        # Build the *message* object that will be sent to the API.
+        # Accepts either a plain ``str`` or a pre-built ``Message`` instance.
+        # ------------------------------------------------------------------
+
+        if isinstance(message, str):
+            user_message: Message = UserMessage(
+                assistant=self.config.name,
+                chat_group=chat_group,
+                name=username,
+                content=message,
+                timestamp=datetime.now().timestamp(),
+            )
+        elif isinstance(message, Message):
+            user_message = message
+        else:
+            raise TypeError("'message' must be either 'str' or 'Message' instance")
+
+        # Validate content types
+        validate_message_content(self.config.model, user_message.content)
 
         # Build the request using the new ChatRequest structure
         chat_request = ChatRequest(
@@ -514,6 +548,9 @@ class AsyncChat:
         else:
             raise TypeError("'message' must be either 'str' or 'Message' instance")
 
+        # Validate content types
+        validate_message_content(self.config.model, user_message.content)
+
         # Build the request using the new ChatRequest structure
         chat_request = ChatRequest(
             message=user_message,
@@ -580,6 +617,10 @@ class AsyncChat:
         Args:
             messages (Iterable[Message]): The chat messages.
         """
+        # Validate each message content first
+        for msg in messages:
+            validate_message_content(self.config.model, msg.content)
+
         response = await self.api_client.put(
             "/assistant/chat/history",
             data={

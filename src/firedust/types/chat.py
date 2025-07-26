@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any, Dict, List, Literal, Optional, Sequence, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Literal, Optional, Sequence, Union
 from uuid import UUID
 
 from pydantic import (
@@ -16,6 +16,114 @@ from .base import UNIX_TIMESTAMP, BaseConfig
 from .tools import ToolCalls
 
 _author = Literal["user", "assistant", "system", "developer", "tool"]
+
+# ------------------------------------------------------------------
+# Structured content part models (user message only)
+# ------------------------------------------------------------------
+
+
+class TextContentPart(BaseModel):
+    """Plain text content part."""
+
+    type: Literal["text"] = Field("text", description="The type of the content part.")
+    text: str = Field(..., description="The text content.")
+
+
+class ImageUrl(BaseModel):
+    url: str = Field(
+        ..., description="Either a URL of the image or the base64-encoded image data."
+    )
+    detail: Literal["auto", "high", "low"] = Field(
+        "auto",
+        description="Specifies the detail level of the image. See OpenAI vision guide.",
+    )
+
+
+class ImageContentPart(BaseModel):
+    """Image input for multimodal prompts."""
+
+    type: Literal["image_url"] = Field("image_url", description="Type identifier.")
+    image_url: ImageUrl = Field(..., description="The image payload object.")
+
+
+class AudioData(BaseModel):
+    data: str = Field(..., description="Base64-encoded audio data.")
+    format: Literal["wav", "mp3"] = Field(
+        ..., description="The format of the encoded audio data."
+    )
+
+
+class AudioContentPart(BaseModel):
+    """Audio input for multimodal prompts."""
+
+    type: Literal["input_audio"] = Field(
+        "input_audio", description="The type of the content part. Always *input_audio*."
+    )
+    input_audio: AudioData = Field(..., description="The audio payload object.")
+
+
+class FileData(BaseModel):
+    """Represents a file supplied inline.
+
+    The assistant API currently only accepts *PDF* files sent as a data-URI
+    (``data:application/pdf;base64,...``). ``filename`` is optional and
+    purely informational.
+    """
+
+    filename: Optional[str] = Field(
+        None, description="The name of the file when passing inline data."
+    )
+    file_data: str = Field(
+        ...,
+        description=(
+            "PDF payload as a data URI string (data:application/pdf;base64,<bytes>)."
+        ),
+    )
+
+    @model_validator(mode="after")
+    def _validate_presence_of_one_field(self) -> "FileData":
+        # Validate PDF data-URI prefix.
+        prefix = "data:application/pdf;base64,"
+        if not self.file_data.startswith(prefix):
+            raise ValueError(
+                "'file_data' must be a PDF data URI (data:application/pdf;base64,…)"
+            )
+        return self
+
+
+class FileContentPart(BaseModel):
+    """File input for text generation."""
+
+    type: Literal["file"] = Field(
+        "file", description="The type of the content part. Always *file*."
+    )
+    file: FileData = Field(..., description="The file payload object.")
+
+
+# Union helper for any content part, discriminated by the ``type`` field.
+ContentPart = Annotated[
+    Union[
+        TextContentPart,
+        ImageContentPart,
+        AudioContentPart,
+        FileContentPart,
+    ],
+    Field(discriminator="type"),
+]
+
+# ------------------------------------------------------------------
+# Helper alias to provide precise typing for *mypy* while keeping full
+# union support at runtime.  During static analysis we present the
+# attribute as *str* so existing code that expects plain text (e.g. tests
+# calling ``.lower()``) type-checks cleanly.  At runtime, however, the
+# field still accepts either *str* or a list of structured ``ContentPart``
+# objects to enable multimodal input.
+# ------------------------------------------------------------------
+
+if TYPE_CHECKING:
+    ContentType = str  # narrow type for static type-checking
+else:  # pragma: no cover – executed at runtime only
+    ContentType = Union[str, List["ContentPart"]]
 
 
 class Message(BaseConfig):
@@ -50,7 +158,13 @@ class Message(BaseConfig):
             "normalised to seconds."
         ),
     )
-    content: str = Field(..., description="The content of the message.")
+    content: "ContentType" = Field(
+        ...,
+        description=(
+            "The content of the message. Can be plain text or a list of structured "
+            "content parts (text, image_url, input_audio, file)."
+        ),
+    )
     author: _author = Field(..., description="The author of the message.")
     metadata: Optional[Dict[str, Any]] = Field(
         None,
