@@ -308,9 +308,20 @@ class MessageContext(MessageReferences):
 # ------------------------------------------------------------------
 
 
-# ------------------------------------------------------------
-# Minimal JSON Schema representation
-# ------------------------------------------------------------
+# ------------------------------------------------------------------
+# JSON Schema model (minimal) – allow *type* to be single value **or** list
+# ------------------------------------------------------------------
+
+
+JSONType = Literal[
+    "object",
+    "array",
+    "string",
+    "number",
+    "integer",
+    "boolean",
+    "null",
+]
 
 
 class JSONSchema(BaseModel):
@@ -325,16 +336,11 @@ class JSONSchema(BaseModel):
     without breaking validation.
     """
 
-    # Core keywords -----------------------------------------------------
-    type: Literal[
-        "object",
-        "array",
-        "string",
-        "number",
-        "integer",
-        "boolean",
-        "null",
-    ] = Field(..., description="The JSON type the schema validates.")
+    # Accept either a single JSON type or an *array* of types (union)
+    # e.g. ``"type": ["object", "null"]`` is valid per the JSON Schema spec.
+    type: Union[JSONType, List[JSONType]] = Field(
+        ..., description="The JSON type(s) the schema validates."
+    )
 
     description: Optional[str] = Field(None, description="Schema description.")
     enum: Optional[List[Union[str, int, float, bool, None]]] = Field(
