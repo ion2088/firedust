@@ -12,6 +12,8 @@ MODELS: List[INFERENCE_MODEL] = [
     "mistral/mistral-medium",
     "mistral/mistral-small",
     "mistral/mistral-tiny",
+    "openai/gpt-5",
+    "openai/gpt-5-mini",
     "openai/gpt-4o",
     "openai/gpt-4o-mini",
     "openai/o3-mini",

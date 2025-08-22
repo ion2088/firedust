@@ -18,10 +18,12 @@ _MODEL_CONTENT_SUPPORT: Dict[INFERENCE_MODEL, Set[str]] = {
     "openai/gpt-4o-mini": {"image_url", "file"},
     # GPT-4.1 (preview) – text & vision image inputs (per 2025-05 docs)
     "openai/gpt-4.1": {"image_url", "file"},
-    # o3 models support vision (images) and files but NOT raw audio (use separate transcribe models)
+    # o3 and gpt-5 models support vision (images) and files but NOT raw audio (use separate transcribe models)
     "openai/o3-mini": {"image_url", "file"},
     "openai/o3": {"image_url", "file"},
     "openai/o4-mini": {"image_url", "file"},
+    "openai/gpt-5": {"image_url", "file"},
+    "openai/gpt-5-mini": {"image_url", "file"},
     # Mistral ---------------------------------------------------------
     "mistral/mistral-medium": set(),
     "mistral/mistral-small": set(),
