@@ -26,7 +26,7 @@ def test_chat_streaming() -> None:
     )
 
     try:
-        response = assistant.chat.stream("Hi, how are you?")
+        response = assistant.chat.stream("Hi, how are you?", chat_group="test")
 
         # Check the response
         for _e in response:
@@ -45,7 +45,8 @@ def test_chat_streaming() -> None:
         # Check that the response takes into consideration the new stuff
         answer = ""
         for _e in assistant.chat.stream(
-            "What product categories are we almost always in various stages of transitioning the architecture?"
+            "What product categories are we almost always in various stages of transitioning the architecture?",
+            chat_group="test",
         ):
             answer += _e.content
         assert any(
@@ -77,7 +78,7 @@ def test_chat_complete() -> None:
     )
 
     try:
-        response = assistant.chat.message("Hi, how are you?")
+        response = assistant.chat.message("Hi, how are you?", chat_group="test")
         assert isinstance(response, ReferencedMessage)
         assert isinstance(response.content, str)
     finally:
@@ -108,6 +109,7 @@ def test_chat_character() -> None:
         response = assistant.chat.message(
             message="What is your name?",
             character="Brave Knight",
+            chat_group="test",
         )
         assert isinstance(response, ReferencedMessage)
         knight_response = response.content.lower()
@@ -119,6 +121,7 @@ def test_chat_character() -> None:
         response = assistant.chat.message(
             message="Who are you?",
             character="Wise Wizard",
+            chat_group="test",
         )
         assert isinstance(response, ReferencedMessage)
         wizard_response = response.content.lower()
@@ -130,6 +133,7 @@ def test_chat_character() -> None:
         response = assistant.chat.message(
             message="Who are you?",
             character="Evil Sorcerer",
+            chat_group="test",
         )
         assert isinstance(response, ReferencedMessage)
         sorcerer_response = response.content.lower()
@@ -158,6 +162,7 @@ def test_chat_instructions() -> None:
         response = assistant.chat.message(
             message="What is 2+2?",
             instructions="Answer only with the number, no additional text.",
+            chat_group="test",
         )
         assert isinstance(response, ReferencedMessage)
         assert isinstance(response.content, str)
@@ -209,6 +214,7 @@ def test_chat_structured_response() -> None:
             message="My name is John Doe and I'm a software engineer.",
             response_format=response_format,
             add_to_memory=False,
+            chat_group="test",
         )
 
         assert isinstance(response, ReferencedMessage)
@@ -239,7 +245,7 @@ async def test_async_chat_streaming() -> None:
     )
 
     try:
-        response = assistant.chat.stream("Hi, how are you?")
+        response = assistant.chat.stream("Hi, how are you?", chat_group="test")
 
         # Check the response
         async for _e in response:
@@ -258,7 +264,8 @@ async def test_async_chat_streaming() -> None:
         # Check that the response takes into consideration the new stuff
         answer = ""
         async for _e in assistant.chat.stream(
-            "What product categories are we almost always in various stages of transitioning the architecture?"
+            "What product categories are we almost always in various stages of transitioning the architecture?",
+            chat_group="test",
         ):
             answer += _e.content
         assert any(
@@ -288,7 +295,7 @@ async def test_async_chat_complete() -> None:
         instructions="1. Protect the ring bearer. 2. Do not let the ring corrupt you.",
     )
     try:
-        response = await assistant.chat.message("Hi, how are you?")
+        response = await assistant.chat.message("Hi, how are you?", chat_group="test")
         assert isinstance(response, ReferencedMessage)
         assert isinstance(response.content, str)
     finally:
@@ -309,6 +316,7 @@ async def test_async_chat_instructions() -> None:
         response = await assistant.chat.message(
             message="What is 2+2?",
             instructions="Answer only with the number, no additional text.",
+            chat_group="test",
         )
         assert isinstance(response, ReferencedMessage)
         assert isinstance(response.content, str)
@@ -343,6 +351,7 @@ async def test_async_chat_character() -> None:
         response = await assistant.chat.message(
             message="What is your name?",
             character="Brave Knight",
+            chat_group="test",
         )
         assert isinstance(response, ReferencedMessage)
         knight_response = response.content.lower()
@@ -354,6 +363,7 @@ async def test_async_chat_character() -> None:
         response = await assistant.chat.message(
             message="What is your name?",
             character="Wise Wizard",
+            chat_group="test",
         )
         assert isinstance(response, ReferencedMessage)
         wizard_response = response.content.lower()
@@ -365,6 +375,7 @@ async def test_async_chat_character() -> None:
         response = await assistant.chat.message(
             message="What is your name?",
             character="Evil Sorcerer",
+            chat_group="test",
         )
         assert isinstance(response, ReferencedMessage)
         sorcerer_response = response.content.lower()
@@ -417,6 +428,7 @@ async def test_async_chat_structured_response() -> None:
             message="My name is Jane Smith and I'm a data scientist.",
             response_format=response_format,
             add_to_memory=False,
+            chat_group="test",
         )
 
         assert isinstance(response, ReferencedMessage)

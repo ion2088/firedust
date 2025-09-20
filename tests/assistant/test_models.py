@@ -11,7 +11,6 @@ from firedust.types.base import INFERENCE_MODEL
 MODELS: List[INFERENCE_MODEL] = [
     "mistral/mistral-medium",
     "mistral/mistral-small",
-    "mistral/mistral-tiny",
     "openai/gpt-5",
     "openai/gpt-5-mini",
     "openai/gpt-4o",
@@ -40,13 +39,13 @@ def test_models_sync() -> None:
 
         try:
             # Test completion
-            response = assistant.chat.message("What is 2+2?")
+            response = assistant.chat.message("What is 2+2?", chat_group="test")
             assert isinstance(response.content, str)
             assert len(response.content) > 0
 
             # Test streaming
             stream_content = ""
-            for event in assistant.chat.stream("What is 3+3?"):
+            for event in assistant.chat.stream("What is 3+3?", chat_group="test"):
                 assert isinstance(event.content, str)
                 stream_content += event.content
             assert len(stream_content) > 0

@@ -41,7 +41,7 @@ def test_chat_multimodal_message() -> None:
 
         user_msg = UserMessage(
             assistant=assistant.config.name,
-            chat_group="default",
+            chat_group="test",
             content=[text_part, image_part],
             author="user",
             timestamp=datetime.now().timestamp(),
@@ -88,7 +88,7 @@ def test_chat_multimodal_file_message() -> None:
 
         user_msg = UserMessage(
             assistant=assistant.config.name,
-            chat_group="default",
+            chat_group="test",
             content=[text_part, file_part],
             author="user",
             timestamp=datetime.now().timestamp(),

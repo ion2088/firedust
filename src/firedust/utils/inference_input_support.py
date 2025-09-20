@@ -27,7 +27,6 @@ _MODEL_CONTENT_SUPPORT: Dict[INFERENCE_MODEL, Set[str]] = {
     # Mistral ---------------------------------------------------------
     "mistral/mistral-medium": set(),
     "mistral/mistral-small": set(),
-    "mistral/mistral-tiny": set(),
     # Groq (open-source models) --------------------------------------
     "groq/llama-3.3-70b-versatile": set(),
     "groq/llama-3.1-8b-instant": set(),

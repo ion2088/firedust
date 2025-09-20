@@ -9,7 +9,6 @@ TOKENS = int
 INFERENCE_MODEL = Literal[
     "mistral/mistral-medium",
     "mistral/mistral-small",
-    "mistral/mistral-tiny",
     "openai/gpt-4o",
     "openai/gpt-4o-mini",
     "openai/o3-mini",
