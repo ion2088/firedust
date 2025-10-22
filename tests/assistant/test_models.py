@@ -21,7 +21,6 @@ MODELS: List[INFERENCE_MODEL] = [
     "openai/gpt-4.1",
     "groq/llama-3.3-70b-versatile",
     "groq/llama-3.1-8b-instant",
-    "groq/deepseek-r1-distill-llama-70b",
 ]
 
 

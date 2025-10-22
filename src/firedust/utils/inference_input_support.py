@@ -30,7 +30,6 @@ _MODEL_CONTENT_SUPPORT: Dict[INFERENCE_MODEL, Set[str]] = {
     # Groq (open-source models) --------------------------------------
     "groq/llama-3.3-70b-versatile": set(),
     "groq/llama-3.1-8b-instant": set(),
-    "groq/deepseek-r1-distill-llama-70b": set(),
 }
 
 
